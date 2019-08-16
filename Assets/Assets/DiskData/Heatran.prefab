@@ -1,0 +1,115 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &253660700
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 253660703}
+  - component: {fileID: 253660702}
+  - component: {fileID: 253660701}
+  m_Layer: 5
+  m_Name: Heatran
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &253660703
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 253660700}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -166, y: -93.5}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &253660702
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 253660700}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 730a2e265f07c734fa47ca7a3623faaf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  imageParentTransform: {fileID: 253660703}
+  choices:
+  - "\u3042\u3042"
+  - "\u3044\u3044"
+  - "\u3046\u3046"
+  - "\u3048\u3048"
+  rouletteColors:
+  - {r: 0.047970813, g: 0.9245283, b: 0.12556393, a: 1}
+  - {r: 1, g: 0.004449993, b: 0.004449993, a: 1}
+  - {r: 0, g: 0, b: 1, a: 1}
+  - {r: 1, g: 1, b: 0, a: 1}
+  rouletteImage: {fileID: 7583194150419947383, guid: 6c03e53a7dd22994ba791deae6b8ce58,
+    type: 3}
+--- !u!114 &253660701
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 253660700}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 84ebdfcf7acf79547986da797f2638f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  imageParentTransform: {fileID: 253660703}
+  moveNames:
+  - "\u30A2\u30A4\u30A2\u30F3\u30D8\u30C3\u30C9"
+  - "\u30DF\u30B9"
+  - "\u304B\u307F\u304F\u3060\u304F"
+  - "\u30DF\u30B9"
+  - "\u30DE\u30B0\u30DE\u30B9\u30E9\u30A4\u30C9"
+  - "\u30DF\u30B9"
+  - "\u304B\u307F\u304F\u3060\u304F"
+  - "\u30DF\u30B9"
+  movePowers:
+  - 110
+  - 
+  - 70
+  - 
+  - 70
+  - 
+  - "\u2606\u2606"
+  - 
+  rouletteColors:
+  - {r: 1, g: 1, b: 1, a: 1}
+  - {r: 1, g: 0.004449993, b: 0.004449993, a: 1}
+  - {r: 1, g: 1, b: 1, a: 1}
+  - {r: 1, g: 0.004449993, b: 0.004449993, a: 1}
+  - {r: 1, g: 0, b: 1, a: 1}
+  - {r: 1, g: 0.004449993, b: 0.004449993, a: 1}
+  - {r: 1, g: 1, b: 1, a: 1}
+  - {r: 1, g: 0.004449993, b: 0.004449993, a: 1}
+  rouletteRange:
+  - 4
+  - 12
+  - 4
+  - 24
+  - 4
+  - 12
+  - 4
+  - 32
+  rouletteImage: {fileID: 7583194150419947383, guid: 6c03e53a7dd22994ba791deae6b8ce58,
+    type: 3}

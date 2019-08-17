@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Spin : MonoBehaviour
+public class Spinnouse : MonoBehaviour
 {
     //回転している時間(ms)
     private int rotateTime = 1000;
@@ -45,13 +45,13 @@ public class Spin : MonoBehaviour
         elapsedAngle += rotateAngle;
         if (elapsedAngle < totalAngle)
         {
-            transform.Rotate(new Vector3(0, rotateAngle, 0));
+            transform.Rotate(new Vector3(0, 0,rotateAngle));
         }
         else if (elapsedTime < addTime)
         {
             elapsedTime += Time.deltaTime * 1000;
             //Debug.Log(elapsedTime);
-            transform.Rotate(new Vector3(0, rotateAngle - rotateAngle * elapsedTime / addTime, 0));
+            transform.Rotate(new Vector3(0, 0,rotateAngle - rotateAngle * elapsedTime / addTime));
         }
         if (elapsedTime >= addTime)
         {
@@ -64,7 +64,7 @@ public class Spin : MonoBehaviour
             totalAngle = 360 * rotateCount + goalAngle;
 
             rotateAngle = totalAngle / (rotateTime / 10);
-            GetComponent<Spin>().enabled = false;
+            GetComponent<Spinnouse>().enabled = false;
         }
     }
 }

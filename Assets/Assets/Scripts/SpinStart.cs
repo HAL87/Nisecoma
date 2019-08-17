@@ -18,6 +18,6 @@ public class SpinStart : MonoBehaviour
     public void  Myspin()
     {
         //Debug.Log("hey");
-        GetComponent<Spin>().enabled = true;
+        GetComponent<DiskSpin>().enabled = true;
     }
 }

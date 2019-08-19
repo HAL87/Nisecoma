@@ -27,11 +27,6 @@ public class DiskSpin : MonoBehaviour
 
     //何秒ごとに回転関数を呼び出すか
     [SerializeField] private float clock = 0.01f;
-    //FixedUpdate毎(0.01秒)の回転角
-    private float rotateAngle;
-
-    //合計回転角度
-    float totalAngle;
 
     // Start is called before the first frame update
     void Start()
@@ -45,8 +40,8 @@ public class DiskSpin : MonoBehaviour
         elapsedTime = 0;
 
         //初期位置から目標点までの回転角度
-        goalAngle = 360 * N + Random.Range(0, 360);
-
+        //goalAngle = 360 * N + Random.Range(0, 360);
+        goalAngle = 360 * N;
         //スローになるまでの角速度立式
         omega = 2 * goalAngle / (normalTime + totalTime);
 
@@ -64,9 +59,11 @@ public class DiskSpin : MonoBehaviour
                 omeganext = -omega * (elapsedTime - totalTime) / (totalTime - normalTime);
                 transform.Rotate(new Vector3(0, 0, omeganext * clock));
             }
+            
             elapsedTime += clock;
             Debug.Log(elapsedTime);
             yield return new WaitForSeconds(clock);
         }
+        Debug.Log(goalAngle);
     }
 }

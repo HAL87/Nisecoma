@@ -439,6 +439,7 @@ MonoBehaviour:
   totalTime: 1.5
   normalTime: 1
   clock: 0.05
+  data: {fileID: 3736762213078997167, guid: ec34550a509ffa34bbdc1878651775b1, type: 3}
 --- !u!1 &1443435633
 GameObject:
   m_ObjectHideFlags: 0

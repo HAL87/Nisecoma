@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 1158718618}
   - component: {fileID: 1158718617}
   - component: {fileID: 1158718616}
+  - component: {fileID: 117638623}
   m_Layer: 5
   m_Name: Myu_Disk
   m_TagString: Untagged
@@ -98,3 +99,22 @@ MonoBehaviour:
   rouletteImage: {fileID: 7583194150419947383, guid: 6c03e53a7dd22994ba791deae6b8ce58,
     type: 3}
   data: {fileID: 3736762213078997167, guid: ec34550a509ffa34bbdc1878651775b1, type: 3}
+--- !u!114 &117638623
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1158718614}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ec8dbce9d9dbfe42a471fa27363fa38, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  N: 10
+  totalTime: 1.5
+  normalTime: 1
+  clock: 0.05
+  data: {fileID: 3736762213078997167, guid: ec34550a509ffa34bbdc1878651775b1, type: 3}
+  offsetAngle: 0
+  demo: {fileID: 0}

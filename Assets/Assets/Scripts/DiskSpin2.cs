@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class DiskSpin2 : MonoBehaviour
 {
@@ -25,7 +26,6 @@ public class DiskSpin2 : MonoBehaviour
     //スローになった後の角速度
     private float omegaSlow;
     //while文の中身の繰り返し回数
-    private float elapsedTime;
     private int loopCount;
 
     //何秒ごとに回転関数を呼び出すか
@@ -38,18 +38,24 @@ public class DiskSpin2 : MonoBehaviour
 
     [SerializeField] private GameObject data;
 
+    [SerializeField] public float offsetAngle;
     private MoveParameter moveParameter;
+
+    [SerializeField] GameObject demo;
     // Start is called before the first frame update
     void Start()
     {
-        StartCoroutine(Spin());
+       //StartCoroutine(Spin());
     }
 
+    public void SpinStart()
+    {
+        StartCoroutine(Spin());
+    }
     IEnumerator Spin()
     {
         yield return new WaitForSeconds(0.1f);
-        //回転開始からの時間
-        //elapsedTime = 0;
+
         loopCount = 0;
 
         //初期位置から目標点までの回転角度
@@ -59,7 +65,7 @@ public class DiskSpin2 : MonoBehaviour
         omega = 2 * goalAngle / (totalTime + normalTime);
         deltaOmega = omega * clock / (totalTime - normalTime + clock);
         omegaSlow = omega;
-        //Debug.Log(omega);
+
 
         while (loopCount < totalTime/clock)
         {
@@ -74,30 +80,36 @@ public class DiskSpin2 : MonoBehaviour
             {
                 //速度をループ回数に対して階段状に小さくする
                 omegaSlow = omegaSlow - deltaOmega;
-                //Debug.Log(omegaSlow);
+
                 transform.Rotate(new Vector3(0, 0, omegaSlow * clock));
             }
             
             //elapsedTime += clock;
             loopCount++;
-            //Debug.Log(loopCount);
+
             yield return new WaitForSeconds(clock);
         }
-        Debug.Log("ゴールは");
-        Debug.Log(goalAngle % 360);
+        Debug.Log("ゴールは" + goalAngle % 360);
         float totalRange = 0;
         for (int i = 0; i < data.transform.childCount; i++)
         {
             //Debug.Log(i);
             moveParameter = data.transform.GetChild(i).GetComponent<MoveParameter>();
+            //((totalRange + moveParameter.GetMoveRange()) * 3.75f + offsetAngle) % 360)
             //Debug.Log(moveParameter.GetMoveRange());
-            if (totalRange * 3.75f < goalAngle % 360 && 
-                goalAngle % 360 <= (totalRange + moveParameter.GetMoveRange()) * 3.75f)
+            float leftAngle = (totalRange * 3.75f) % 360;
+            float rightAngle = leftAngle + moveParameter.GetMoveRange() * 3.75f;
+
+            //Debug.Log(leftAngle + "から" + rightAngle);
+            if (leftAngle < (goalAngle + offsetAngle) % 360 && 
+                (goalAngle + offsetAngle) % 360 <= rightAngle)
             {
+                Text text = demo.GetComponentInChildren<Text>();
+                text.text = moveParameter.GetMoveName();
                 Debug.Log(moveParameter.GetMoveName());
             }
             totalRange += moveParameter.GetMoveRange();
         }
-            
+        offsetAngle += goalAngle % 360;
     }
 }

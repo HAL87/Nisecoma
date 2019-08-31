@@ -31,11 +31,11 @@ public class BoardFind : MonoBehaviour
         //これ以下は本来void Startでよばれるものではないがテストのため暫定的に
 
         //始点から終点まで実際にどう動くかのルートを決定する
-        //DecideRoute(startNode, goalNode);
+        DecideRoute(startNode, goalNode);
 
         //始点から指定移動歩数内で移動できる全ノードを格納
 
-        FindCandidateofDestinaitonEqual(startNode, moveNumber);
+        //FindCandidateofDestinaitonEqual(startNode, moveNumber);
 
     }
     //ボードのエッジを表現
@@ -79,7 +79,7 @@ public class BoardFind : MonoBehaviour
     }
 
     //始点から各ノードへの距離を計算
-    int[] CaliculateDistance(int startNode)
+    int[] CalculateDistance(int startNode)
     {
         //あるノードから他の全てのノードへの距離
         //移動処理ごとに更新
@@ -135,12 +135,12 @@ public class BoardFind : MonoBehaviour
     }
 
     //始点からの距離がmoveNumberと等しいノードを出力
-    List<int> FindCandidateofDestinaitonEqual(int startNode, int moveNumber)
+    List<int> FindCandidateOfDestinaitonEqual(int startNode, int moveNumber)
     {
         //始点と移動歩数を与えたとき移動可能な全ノードを格納
         List<int> candidates = new List<int>();
         //始点から各ノードの距離を計算
-        int[] distances = CaliculateDistance(startNode);
+        int[] distances = CalculateDistance(startNode);
 
         for (int i = 0; i < 28; i++)
         {
@@ -150,22 +150,22 @@ public class BoardFind : MonoBehaviour
                 candidates.Add(i);
             }
         }
-        /*
+        
         for(int i = 0; i < candidates.Count; i++)
         {
             Debug.Log(candidates[i]);
         }
-        */
+        
         return candidates;
     }
 
     //始点からの距離がmoveNumber以下のノードを出力
-    List<int> FindCandidateofDestinaitonLessThan(int startNode, int moveNumber)
+    List<int> FindCandidateOfDestinaitonLessThan(int startNode, int moveNumber)
     {
         //始点と移動歩数を与えたとき移動可能な全ノードを格納
         List<int> candidates = new List<int>();
         //始点から各ノードの距離を計算
-        int[] distances = CaliculateDistance(startNode);
+        int[] distances = CalculateDistance(startNode);
 
         for (int i = 0; i < 28; i++)
         {
@@ -185,14 +185,14 @@ public class BoardFind : MonoBehaviour
     }
 
     //始点から終点までのルートを出力（最短距離を表現するような全ノードを列挙）
-    Stack<int> DecideRoute(int startNode, int goalNode)
+    Stack<int> DecideRoute(int startNode, int destNode)
     {
         //始点と終点を与えたときそれらのノード間の最短経路を格納
         Stack<int> route = new Stack<int>();
         //distancesとprevNodeを格納
         //DecideRouteメソッドは必ずFindCandidateの後に呼び出されるからCaliculateDistanceを呼ぶ必要ない気がする
-        CaliculateDistance(startNode);
-        int currentNode = goalNode;
+        //CaliculateDistance(startNode);
+        int currentNode = destNode;
         while (true)
         {
             //終点から始点に向かってノードを積み上げていく

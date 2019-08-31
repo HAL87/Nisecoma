@@ -3,13 +3,18 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BoardFind : MonoBehaviour
+public class BoardController : MonoBehaviour
 {
     //private int[] nodes = new int[28];
     //あるノードから別のノードへのエッジをListで表現
     //edgesは配列であり、各成分がint型のList
     private List<int>[] edges = new List<int>[28];
 
+    //各ノードの位置情報
+    [SerializeField] private Transform nodesTransform;
+
+    //LIneRenderer用のやつ
+    [SerializeField] private GameObject drawEdgePrefab;
     //そのノードにつく前はどこにいたのかを表す
     private int[] prevNode = new int[28];
 
@@ -27,18 +32,18 @@ public class BoardFind : MonoBehaviour
     {
         //ボードのデータ構造作成（ゲームの最初に1回だけ呼ばれる
         CreateBoard();
-
+        EdgeDraw();
         //これ以下は本来void Startでよばれるものではないがテストのため暫定的に
 
         //始点から終点まで実際にどう動くかのルートを決定する
-        DecideRoute(startNode, goalNode);
+        //DecideRoute(startNode, goalNode);
 
         //始点から指定移動歩数内で移動できる全ノードを格納
 
-        //FindCandidateofDestinaitonEqual(startNode, moveNumber);
+        FindCandidateofDestinaitonEqual(startNode, moveNumber);
 
     }
-    //ボードのエッジを表現
+    //ボードのデータ構造を表現
     void CreateBoard()
     {
         //暫定のデータ構造
@@ -78,8 +83,38 @@ public class BoardFind : MonoBehaviour
         edges[27].Add(19); edges[27].Add(20); edges[27].Add(26);
     }
 
+    void EdgeDraw()
+    {
+        for(int i = 0; i < 28; i++)
+        {
+            for (int j = 0; j < edges[i].Count; j++)
+            {
+                float offset = 0.01f;
+                GameObject obj = Instantiate(drawEdgePrefab, transform.position, Quaternion.identity);
+                obj.transform.SetParent(transform);
+                LineRenderer line = drawEdgePrefab.GetComponent<LineRenderer>();
+                line.startWidth = 0.05f;
+                line.endWidth = 0.05f;
+
+                //頂点の数を決める
+                line.positionCount = 2;
+                Vector3 startDrawPosition = new Vector3(nodesTransform.GetChild(i).position.x,
+                                                        nodesTransform.GetChild(i).position.y - offset,
+                                                        nodesTransform.GetChild(i).position.z);
+
+                Vector3 endDrawPosition = new Vector3(nodesTransform.GetChild(edges[i][j]).position.x,
+                                                      nodesTransform.GetChild(edges[i][j]).position.y - offset,
+                                                      nodesTransform.GetChild(edges[i][j]).position.z);
+                line.SetPosition(0, startDrawPosition);
+                line.SetPosition(1, endDrawPosition);
+                
+                
+            }
+        }
+    }
+
     //始点から各ノードへの距離を計算
-    int[] CalculateDistance(int startNode)
+    int[] CaliculateDistance(int startNode)
     {
         //あるノードから他の全てのノードへの距離
         //移動処理ごとに更新
@@ -135,12 +170,12 @@ public class BoardFind : MonoBehaviour
     }
 
     //始点からの距離がmoveNumberと等しいノードを出力
-    List<int> FindCandidateOfDestinaitonEqual(int startNode, int moveNumber)
+    List<int> FindCandidateofDestinaitonEqual(int startNode, int moveNumber)
     {
         //始点と移動歩数を与えたとき移動可能な全ノードを格納
         List<int> candidates = new List<int>();
         //始点から各ノードの距離を計算
-        int[] distances = CalculateDistance(startNode);
+        int[] distances = CaliculateDistance(startNode);
 
         for (int i = 0; i < 28; i++)
         {
@@ -150,22 +185,22 @@ public class BoardFind : MonoBehaviour
                 candidates.Add(i);
             }
         }
-        
+        /*
         for(int i = 0; i < candidates.Count; i++)
         {
             Debug.Log(candidates[i]);
         }
-        
+        */
         return candidates;
     }
 
     //始点からの距離がmoveNumber以下のノードを出力
-    List<int> FindCandidateOfDestinaitonLessThan(int startNode, int moveNumber)
+    List<int> FindCandidateofDestinaitonLessThan(int startNode, int moveNumber)
     {
         //始点と移動歩数を与えたとき移動可能な全ノードを格納
         List<int> candidates = new List<int>();
         //始点から各ノードの距離を計算
-        int[] distances = CalculateDistance(startNode);
+        int[] distances = CaliculateDistance(startNode);
 
         for (int i = 0; i < 28; i++)
         {
@@ -185,14 +220,14 @@ public class BoardFind : MonoBehaviour
     }
 
     //始点から終点までのルートを出力（最短距離を表現するような全ノードを列挙）
-    Stack<int> DecideRoute(int startNode, int destNode)
+    Stack<int> DecideRoute(int startNode, int goalNode)
     {
         //始点と終点を与えたときそれらのノード間の最短経路を格納
         Stack<int> route = new Stack<int>();
         //distancesとprevNodeを格納
         //DecideRouteメソッドは必ずFindCandidateの後に呼び出されるからCaliculateDistanceを呼ぶ必要ない気がする
-        //CaliculateDistance(startNode);
-        int currentNode = destNode;
+        CaliculateDistance(startNode);
+        int currentNode = goalNode;
         while (true)
         {
             //終点から始点に向かってノードを積み上げていく
@@ -211,6 +246,7 @@ public class BoardFind : MonoBehaviour
         }
         return route;
     }
+
 
     // Update is called once per frame
     void Update()

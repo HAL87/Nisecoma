@@ -741,7 +741,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2fc5f84a199a5f44f99c386cdcbe46b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nodesTransform: {fileID: 855540564}
+  nodes: {fileID: 855540563}
   drawEdgePrefab: {fileID: 3894990305253018741, guid: 5a846499035271a4e8cd0b142e5f6542,
     type: 3}
   startNode: 0
@@ -3618,8 +3618,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f7381fce5acc8da48b2ee33dfb2d909b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mp: 3
-  position: 27
+  mp: 2
+  position: 9
   figureIDOnBoard: 0
   data: {fileID: 3736762213078997167, guid: ec34550a509ffa34bbdc1878651775b1, type: 3}
 --- !u!114 &1383368271

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class BoardController : MonoBehaviour
 {
@@ -11,10 +12,12 @@ public class BoardController : MonoBehaviour
     private List<int>[] edges = new List<int>[28];
 
     //各ノードの位置情報
-    [SerializeField] private Transform nodesTransform;
+    //[SerializeField] private Transform nodesTransform;
+    [SerializeField] private GameObject nodes;
 
     //LIneRenderer用のやつ
     [SerializeField] private GameObject drawEdgePrefab;
+
     //そのノードにつく前はどこにいたのかを表す
     private int[] prevNode = new int[28];
 
@@ -27,6 +30,11 @@ public class BoardController : MonoBehaviour
     //終点。始点と移動歩数を与えたとき移動可能な全ノードを格納するが、その候補地の中から目的地を選ぶ
     //なので、本来このようにインスペクタから入力するものではない（今はテストのため暫定でこうしている）
     [SerializeField] private int goalNode;
+
+    //あらかじめ場にあるフィギュアを保持しておいて、figureIDOnBoardをインデックスとして呼び出すイメージ？
+    [SerializeField] private GameObject[] figures = new GameObject[12];
+
+    private FigureParameter figureParameter;
     // Start is called before the first frame update
     void Start()
     {
@@ -40,8 +48,8 @@ public class BoardController : MonoBehaviour
 
         //始点から指定移動歩数内で移動できる全ノードを格納
 
-        FindCandidateofDestinaitonEqual(startNode, moveNumber);
-
+        //FindCandidateofDestinaitonEqual(startNode, moveNumber);
+        //FindCandidateofDestinaitonLessThan(startNode, moveNumber);
     }
     //ボードのデータ構造を表現
     void CreateBoard()
@@ -57,7 +65,7 @@ public class BoardController : MonoBehaviour
         edges[1].Add(0); edges[1].Add(2);
         edges[2].Add(1); edges[2].Add(3); edges[2].Add(9);
         edges[3].Add(2); edges[3].Add(4);
-        edges[4].Add(3); edges[4].Add(3);
+        edges[4].Add(3); edges[4].Add(5);
         edges[5].Add(4); edges[5].Add(6);
         edges[6].Add(5); edges[6].Add(10); edges[6].Add(11);
         edges[7].Add(0); edges[7].Add(12);
@@ -98,13 +106,14 @@ public class BoardController : MonoBehaviour
 
                 //頂点の数を決める
                 line.positionCount = 2;
-                Vector3 startDrawPosition = new Vector3(nodesTransform.GetChild(i).position.x,
-                                                        nodesTransform.GetChild(i).position.y - offset,
-                                                        nodesTransform.GetChild(i).position.z);
+                
+                Vector3 startDrawPosition = new Vector3(nodes.transform.GetChild(i).position.x,
+                                                        nodes.transform.GetChild(i).position.y - offset,
+                                                        nodes.transform.GetChild(i).position.z);
 
-                Vector3 endDrawPosition = new Vector3(nodesTransform.GetChild(edges[i][j]).position.x,
-                                                      nodesTransform.GetChild(edges[i][j]).position.y - offset,
-                                                      nodesTransform.GetChild(edges[i][j]).position.z);
+                Vector3 endDrawPosition = new Vector3(nodes.transform.GetChild(edges[i][j]).position.x,
+                                                      nodes.transform.GetChild(edges[i][j]).position.y - offset,
+                                                      nodes.transform.GetChild(edges[i][j]).position.z);
                 line.SetPosition(0, startDrawPosition);
                 line.SetPosition(1, endDrawPosition);
                 
@@ -185,12 +194,12 @@ public class BoardController : MonoBehaviour
                 candidates.Add(i);
             }
         }
-        /*
+        
         for(int i = 0; i < candidates.Count; i++)
         {
             Debug.Log(candidates[i]);
         }
-        */
+        
         return candidates;
     }
 
@@ -210,12 +219,12 @@ public class BoardController : MonoBehaviour
                 candidates.Add(i);
             }
         }
-        /*
+        
         for(int i = 0; i < candidates.Count; i++)
         {
             Debug.Log(candidates[i]);
         }
-        */
+        
         return candidates;
     }
 
@@ -247,7 +256,22 @@ public class BoardController : MonoBehaviour
         return route;
     }
 
+    //フィギュアがクリックされたときmp以内の候補地を列挙
+    public void WalkPrepare(int figureIDOnBoard)
+    {
+        figureParameter = figures[figureIDOnBoard].GetComponent<FigureParameter>();
+        int startNode = figureParameter.GetPosition();
+        int mp = figureParameter.GetMp();
+        List<int> candidates = FindCandidateofDestinaitonLessThan(startNode, mp);
+        for(int i = 0; i < candidates.Count; i++)
+        {
+            Image image = nodes.transform.GetChild(candidates[i]).GetComponent<Image>();
+            image.color = Color.blue;
+            //nodes.transform.GetChild(candidates[i]).GetComponent<Renderer>().material.color = Color.red;
+        }
 
+    }
+    
     // Update is called once per frame
     void Update()
     {

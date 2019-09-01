@@ -747,6 +747,19 @@ MonoBehaviour:
   startNode: 0
   moveNumber: 2
   goalNode: 2
+  figures:
+  - {fileID: 1383368264}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!4 &120575773
 Transform:
   m_ObjectHideFlags: 0
@@ -3572,7 +3585,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1383368264}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.25, z: 0}
   m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_Children: []
   m_Father: {fileID: 0}
@@ -3590,6 +3603,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a693b78c561bf04497f3f6f9db27829, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  nodesTransform: {fileID: 855540564}
+  boardMaster: {fileID: 120575771}
+  positionOffset: 0.25
 --- !u!114 &1383368270
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3603,7 +3619,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mp: 3
-  position: 0
+  position: 27
+  figureIDOnBoard: 0
   data: {fileID: 3736762213078997167, guid: ec34550a509ffa34bbdc1878651775b1, type: 3}
 --- !u!114 &1383368271
 MonoBehaviour:
@@ -3775,7 +3792,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3e6f406a664f254f8983d1b4b2d833c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  squareTransform: {fileID: 855540564}
 --- !u!1001 &1500204059
 PrefabInstance:
   m_ObjectHideFlags: 0

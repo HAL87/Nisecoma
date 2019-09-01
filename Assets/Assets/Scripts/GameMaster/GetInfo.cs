@@ -4,7 +4,6 @@ using UnityEngine;
 using UnityEngine.UI;
 public class GetInfo : MonoBehaviour
 {
-    //public static GameObject[] figureMoveData = new GameObject[2];
     private GameObject[] data = new GameObject[2];
     //使い方: 何らかのトリガーで(ボタンとか)フィギュアの情報を取得
     public void SetData(GameObject _data, int player)
@@ -15,17 +14,7 @@ public class GetInfo : MonoBehaviour
     {
         return data[player];
     }
-    /*
-    public GameObject GetFigureMoveData0()
-    {
-        return figureMoveData[0];
-    }
 
-    public void SetFigureMoveData0(GameObject _data)
-    {
-        figureMoveData[0] = _data;
-    }
-    */
     // Start is called before the first frame update
     void Start()
     {

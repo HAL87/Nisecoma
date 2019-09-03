@@ -37,7 +37,7 @@ public class BoardController : MonoBehaviour
     private int[] distances = new int[28];
 
     //あらかじめ場にあるフィギュアを保持しておいて、figureIDOnBoardをインデックスとして呼び出すイメージ？
-    [SerializeField] private List<GameObject>[] figures = new List<GameObject>[2];
+    [SerializeField] private List<GameObject> figures0;
 
     public enum PhaseState
     {
@@ -68,13 +68,14 @@ public class BoardController : MonoBehaviour
         //FindCandidateofDestinaitonEqual(startNode, moveNumber);
         //FindCandidateofDestinaitonLessThan(startNode, moveNumber);
     }
+    /*
     void Update()
     {
         if (phaseState == PhaseState.Normal)
         {
 
         }
-    }
+    }*/
     //ボードのデータ構造を表現
     void CreateBoard()
     {
@@ -203,7 +204,7 @@ public class BoardController : MonoBehaviour
     //始点からの距離がmoveNumberと等しいノードを出力
     void FindCandidateofDestinaitonEqual(int moveNumber)
     {
-
+        candidates.Clear();
         for (int i = 0; i < 28; i++)
         {
             //始点から各ノードへの距離がmoveNumberと等しいであるノードを全て格納
@@ -224,6 +225,7 @@ public class BoardController : MonoBehaviour
     //始点からの距離がmoveNumber以下のノードを出力
     void FindCandidateofDestinaitonLessThan(int moveNumber)
     {
+        candidates.Clear();
         for (int i = 0; i < 28; i++)
         {
             //始点から各ノードへの距離がmoveNumber以下であるノードを全て格納
@@ -281,13 +283,13 @@ public class BoardController : MonoBehaviour
         //選択したフィギュアが直前に選択されていたものならフラグをfalseに、そうでなければtrueに
         //選択されていないフィギュアは全てfalseに
         
-        for(int i = 0; i < figures[playerID].Count; i++)
+        for(int i = 0; i < figures0.Count; i++)
         {
-            figureParameter = figures[playerID][i].GetComponent<FigureParameter>();
+            figureParameter = figures0[i].GetComponent<FigureParameter>();
             if (i == figureIDOnBoard) figureParameter.SetBeSelected(!figureParameter.GetBeSelected());
             else figureParameter.SetBeSelected(false);
         }
-        figureParameter = figures[playerID][figureIDOnBoard].GetComponent<FigureParameter>();
+        figureParameter = figures0[figureIDOnBoard].GetComponent<FigureParameter>();
         //フラグがtrueならそのフィギュアの現在地からmp以内のノードを全列挙して色を変える
         if (figureParameter.GetBeSelected() == true)
         {
@@ -311,6 +313,7 @@ public class BoardController : MonoBehaviour
 
     }
 
+    /*
     public void NodeSelected(int nodeID)
     {
         for (int i = 0; i < candidates.Count; i++)
@@ -322,7 +325,7 @@ public class BoardController : MonoBehaviour
             }
         }
     }
-
+    */
     //ゲームの状態変数のゲッター、セッター
     public void SetPhaseState(PhaseState tempState)
     {

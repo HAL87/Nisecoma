@@ -10,7 +10,7 @@ public class NodeController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        boardController = boardMaster.GetComponent<BoardController>();
+        //boardController = boardMaster.GetComponent<BoardController>();
         nodeParameter = GetComponent<NodeParameter>();
     }
 
@@ -19,8 +19,10 @@ public class NodeController : MonoBehaviour
     {
         
     }
+    /*
     public void OnUserAction()
     {
         boardController.NodeSelected(nodeParameter.GetNodeID());
     }
+    */
 }

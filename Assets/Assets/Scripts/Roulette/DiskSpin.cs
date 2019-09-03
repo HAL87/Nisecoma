@@ -37,8 +37,6 @@ public class DiskSpin : MonoBehaviour
     //時間を扱うと厳密には0.0001fのズレで条件が満たされなかったり満たされたりみたいになってダルかった
     //ので今のwhile文の中身の繰り返し回数で条件分岐を管理しています
 
-    private GameObject data;
-
     //ワザの情報スクリプト取得
     private MoveParameter moveParameter;
 
@@ -48,12 +46,8 @@ public class DiskSpin : MonoBehaviour
        //StartCoroutine(Spin());
     }
 
-    public void SpinStart()
-    {
-        StartCoroutine(Spin(data));
-    }
     //引数はGameMasterから渡されるワザのデータ）
-    IEnumerator Spin(GameObject data)
+    public IEnumerator Spin(GameObject data)
     {
         yield return new WaitForSeconds(0.1f);
 
@@ -108,7 +102,7 @@ public class DiskSpin : MonoBehaviour
                 (goalAngle + offsetAngle) % 360 <= rightAngle)
             {
                 //goalAngleに該当するワザ
-                Debug.Log(moveParameter.GetMoveName());
+                Debug.Log("getMoveName = " + moveParameter.GetMoveName());
             }
             totalRange += moveParameter.GetMoveRange();
         }

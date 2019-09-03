@@ -24,8 +24,7 @@ public class FigureController : MonoBehaviour
 
     public void OnUserAction()
     {
-        Debug.Log("Hello");
-        boardController.WalkPrepare(figureParameter.GetFigureIDOnBoard());
+        boardController.FigureSelected(figureParameter.GetPlayerID(), figureParameter.GetFigureIDOnBoard());
     }
 }
 

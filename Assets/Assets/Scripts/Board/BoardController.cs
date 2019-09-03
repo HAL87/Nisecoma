@@ -6,13 +6,11 @@ using UnityEngine.UI;
 
 public class BoardController : MonoBehaviour
 {
-    //private int[] nodes = new int[28];
     //あるノードから別のノードへのエッジをListで表現
     //edgesは配列であり、各成分がint型のList
     private List<int>[] edges = new List<int>[28];
 
-    //各ノードの位置情報
-    //[SerializeField] private Transform nodesTransform;
+    //各ノードの情報
     [SerializeField] private GameObject nodes;
 
     //LIneRenderer用のやつ
@@ -21,19 +19,38 @@ public class BoardController : MonoBehaviour
     //そのノードにつく前はどこにいたのかを表す
     private int[] prevNode = new int[28];
 
+    //始点と移動歩数を与えたとき移動可能な全ノードを格納
+    List<int> candidates = new List<int>();
+
+    //ここらへんいるっけ
     //始点。大体フィギュアの移動前の位置
-    [SerializeField] private int startNode;
+    //[SerializeField] private int startNode;
 
     //移動歩数(意図的にmpと区別している)。mpだったり、特性やワザでの移動歩数
-    [SerializeField] private int moveNumber;
+    //[SerializeField] private int moveNumber;
 
     //終点。始点と移動歩数を与えたとき移動可能な全ノードを格納するが、その候補地の中から目的地を選ぶ
     //なので、本来このようにインスペクタから入力するものではない（今はテストのため暫定でこうしている）
-    [SerializeField] private int goalNode;
+    //[SerializeField] private int destNode;
+
+    //あるノードから他の全てのノードへの距離
+    private int[] distances = new int[28];
 
     //あらかじめ場にあるフィギュアを保持しておいて、figureIDOnBoardをインデックスとして呼び出すイメージ？
-    [SerializeField] private GameObject[] figures = new GameObject[12];
+    [SerializeField] private List<GameObject>[] figures = new List<GameObject>[2];
 
+    public enum PhaseState
+    {
+        Normal,
+        FigureSelected,
+        Walking,
+        AfterWalk
+    };
+    //ゲームのの状態変数
+    private PhaseState phaseState;
+
+
+    //スクリプト変数宣言
     private FigureParameter figureParameter;
     // Start is called before the first frame update
     void Start()
@@ -50,6 +67,13 @@ public class BoardController : MonoBehaviour
 
         //FindCandidateofDestinaitonEqual(startNode, moveNumber);
         //FindCandidateofDestinaitonLessThan(startNode, moveNumber);
+    }
+    void Update()
+    {
+        if (phaseState == PhaseState.Normal)
+        {
+
+        }
     }
     //ボードのデータ構造を表現
     void CreateBoard()
@@ -125,9 +149,6 @@ public class BoardController : MonoBehaviour
     //始点から各ノードへの距離を計算
     int[] CaliculateDistance(int startNode)
     {
-        //あるノードから他の全てのノードへの距離
-        //移動処理ごとに更新
-        int[] distances = new int[28];
 
     　　//幅優先探索を素直に実装
     　　Queue<int> q = new Queue<int>();
@@ -147,6 +168,7 @@ public class BoardController : MonoBehaviour
         q.Enqueue(startNode);
         reachedFlag[startNode] = true;
         distances[startNode] = 0;
+        prevNode[startNode] = -1;
         while (true)
         {
             //キューの先頭のノードを取り出す
@@ -179,12 +201,8 @@ public class BoardController : MonoBehaviour
     }
 
     //始点からの距離がmoveNumberと等しいノードを出力
-    List<int> FindCandidateofDestinaitonEqual(int startNode, int moveNumber)
+    void FindCandidateofDestinaitonEqual(int moveNumber)
     {
-        //始点と移動歩数を与えたとき移動可能な全ノードを格納
-        List<int> candidates = new List<int>();
-        //始点から各ノードの距離を計算
-        int[] distances = CaliculateDistance(startNode);
 
         for (int i = 0; i < 28; i++)
         {
@@ -200,17 +218,12 @@ public class BoardController : MonoBehaviour
             Debug.Log(candidates[i]);
         }
         
-        return candidates;
+        return;
     }
 
     //始点からの距離がmoveNumber以下のノードを出力
-    List<int> FindCandidateofDestinaitonLessThan(int startNode, int moveNumber)
+    void FindCandidateofDestinaitonLessThan(int moveNumber)
     {
-        //始点と移動歩数を与えたとき移動可能な全ノードを格納
-        List<int> candidates = new List<int>();
-        //始点から各ノードの距離を計算
-        int[] distances = CaliculateDistance(startNode);
-
         for (int i = 0; i < 28; i++)
         {
             //始点から各ノードへの距離がmoveNumber以下であるノードを全て格納
@@ -225,26 +238,25 @@ public class BoardController : MonoBehaviour
             Debug.Log(candidates[i]);
         }
         
-        return candidates;
+        return;
     }
 
     //始点から終点までのルートを出力（最短距離を表現するような全ノードを列挙）
-    Stack<int> DecideRoute(int startNode, int goalNode)
+    Stack<int> DecideRoute(int destNode)
     {
         //始点と終点を与えたときそれらのノード間の最短経路を格納
         Stack<int> route = new Stack<int>();
         //distancesとprevNodeを格納
         //DecideRouteメソッドは必ずFindCandidateの後に呼び出されるからCaliculateDistanceを呼ぶ必要ない気がする
-        CaliculateDistance(startNode);
-        int currentNode = goalNode;
+        //CaliculateDistance(startNode);
+        int currentNode = destNode;
         while (true)
         {
             //終点から始点に向かってノードを積み上げていく
             route.Push(currentNode);
             currentNode = prevNode[currentNode];
-            if(currentNode == startNode)
+            if(currentNode == -1)
             {
-                route.Push(startNode);
                 break;
             }
         }
@@ -257,24 +269,69 @@ public class BoardController : MonoBehaviour
     }
 
     //フィギュアがクリックされたときmp以内の候補地を列挙
-    public void WalkPrepare(int figureIDOnBoard)
+    public void FigureSelected(int playerID, int figureIDOnBoard)
     {
-        figureParameter = figures[figureIDOnBoard].GetComponent<FigureParameter>();
-        int startNode = figureParameter.GetPosition();
-        int mp = figureParameter.GetMp();
-        List<int> candidates = FindCandidateofDestinaitonLessThan(startNode, mp);
-        for(int i = 0; i < candidates.Count; i++)
+        //ノードの色を初期化
+        for(int i = 0; i < nodes.transform.childCount; i++)
         {
-            Image image = nodes.transform.GetChild(candidates[i]).GetComponent<Image>();
-            image.color = Color.blue;
-            //nodes.transform.GetChild(candidates[i]).GetComponent<Renderer>().material.color = Color.red;
+            Image image = nodes.transform.GetChild(i).GetComponent<Image>();
+            image.color = Color.white;
         }
 
-    }
-    
-    // Update is called once per frame
-    void Update()
-    {
+        //選択したフィギュアが直前に選択されていたものならフラグをfalseに、そうでなければtrueに
+        //選択されていないフィギュアは全てfalseに
         
+        for(int i = 0; i < figures[playerID].Count; i++)
+        {
+            figureParameter = figures[playerID][i].GetComponent<FigureParameter>();
+            if (i == figureIDOnBoard) figureParameter.SetBeSelected(!figureParameter.GetBeSelected());
+            else figureParameter.SetBeSelected(false);
+        }
+        figureParameter = figures[playerID][figureIDOnBoard].GetComponent<FigureParameter>();
+        //フラグがtrueならそのフィギュアの現在地からmp以内のノードを全列挙して色を変える
+        if (figureParameter.GetBeSelected() == true)
+        {
+            CaliculateDistance(figureParameter.GetPosition());
+            FindCandidateofDestinaitonLessThan(figureParameter.GetMp());
+            for (int i = 0; i < candidates.Count; i++)
+            {
+                Image image = nodes.transform.GetChild(candidates[i]).GetComponent<Image>();
+                image.color = Color.blue;
+            }
+            //状態変数更新
+            SetPhaseState(PhaseState.FigureSelected);
+        }
+        else SetPhaseState(PhaseState.Normal);
+        Debug.Log(GetPhaseState());
+        
+        //ここで一旦Waitして、ゲームブック方式でPhase遷移
+        //candidatesから候補地を選択→walkingへ
+        //敵をタップ→バトルへ
+        //ターンエンド→相手のターンへ
+
     }
+
+    public void NodeSelected(int nodeID)
+    {
+        for (int i = 0; i < candidates.Count; i++)
+        {
+            if(nodeID == candidates[i])
+            {
+
+                DecideRoute(nodeID);
+            }
+        }
+    }
+
+    //ゲームの状態変数のゲッター、セッター
+    public void SetPhaseState(PhaseState tempState)
+    {
+        phaseState = tempState;
+    }
+    public PhaseState GetPhaseState()
+    {
+        return phaseState;
+    }
+
+    // Update is called once per frame
 }

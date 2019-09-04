@@ -16,6 +16,10 @@ public class FigureParameter : MonoBehaviour
         return mp;
     }
 
+    public void SetPosition(int _position)
+    {
+        position = _position;
+    }
     public int GetPosition()
     {
         return position;

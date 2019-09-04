@@ -8,7 +8,6 @@ public class NodeParameter : MonoBehaviour
     [SerializeField] private int nodeID;
     //エントリーとかゴールとかそういう情報
     //エッジ情報もいるのかなあ
-    [SerializeField]
     // Start is called before the first frame update
     void Start()
     {

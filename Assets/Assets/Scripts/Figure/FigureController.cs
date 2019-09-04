@@ -39,6 +39,7 @@ public class FigureController : MonoBehaviour
             {
                 if (route.Count == 0)
                 {
+                    figureParameter.SetPosition(nextNode);
                     boardController.SetPhaseState(BoardController.PhaseState.Normal);
                     figureParameter.SetBeSelected(false);
                 }
@@ -50,7 +51,8 @@ public class FigureController : MonoBehaviour
                                                nodesTransform.GetChild(nextNode).position.y + positionOffset,
                                                nodesTransform.GetChild(nextNode).position.z);
                     direction = (nextPosition - transform.position).normalized;
-                    figureParameter.SetPosition(nextNode);
+                    //figureParameter.SetPosition(nextNode);
+                    //Debug.Log(figureParameter.GetPosition());
                 }
             }
         }
@@ -65,13 +67,15 @@ public class FigureController : MonoBehaviour
     {
         Debug.Log("SetRoute");
         route = _route;
+        //Stack<int> routecp = _route;
+        //for (int i = 0; i < routecp.Count; i++) Debug.Log(routecp.Pop());
         route.Pop();
         nextNode = route.Pop();
         nextPosition = new Vector3(nodesTransform.GetChild(nextNode).position.x,
                                    nodesTransform.GetChild(nextNode).position.y + positionOffset,
                                    nodesTransform.GetChild(nextNode).position.z);
         direction = (nextPosition - transform.position).normalized;
-        Debug.Log(direction);
+        //Debug.Log(direction);
         boardController.SetPhaseState(BoardController.PhaseState.Walking);
     }
     

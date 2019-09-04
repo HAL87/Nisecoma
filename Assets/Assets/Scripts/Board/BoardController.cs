@@ -40,9 +40,11 @@ public class BoardController : MonoBehaviour
     //ゲームのの状態変数
     private PhaseState phaseState;
 
+    private GameObject currentFigure;
 
     //スクリプト変数宣言
     private FigureParameter figureParameter;
+    private FigureController figureController;
     // Start is called before the first frame update
     void Start()
     {
@@ -216,12 +218,13 @@ public class BoardController : MonoBehaviour
                 candidates.Add(i);
             }
         }
+        
         /*
         for(int i = 0; i < candidates.Count; i++)
         {
             Debug.Log(candidates[i]);
-        }
-        */
+        }*/
+        
         return;
     }
 
@@ -255,6 +258,7 @@ public class BoardController : MonoBehaviour
     //フィギュアがクリックされたときmp以内の候補地を列挙
     public void FigureSelected(int playerID, int figureIDOnBoard)
     {
+        currentFigure = figures0[figureIDOnBoard];
         //ノードの色を初期化
         for(int i = 0; i < nodes.transform.childCount; i++)
         {
@@ -271,7 +275,7 @@ public class BoardController : MonoBehaviour
             if (i == figureIDOnBoard) figureParameter.SetBeSelected(!figureParameter.GetBeSelected());
             else figureParameter.SetBeSelected(false);
         }
-        figureParameter = figures0[figureIDOnBoard].GetComponent<FigureParameter>();
+        figureParameter = currentFigure.GetComponent<FigureParameter>();
         //フラグがtrueならそのフィギュアの現在地からmp以内のノードを全列挙して色を変える
         if (figureParameter.GetBeSelected() == true)
         {
@@ -287,31 +291,38 @@ public class BoardController : MonoBehaviour
         }
         else SetPhaseState(PhaseState.Normal);
         Debug.Log(GetPhaseState());
-        
-        //ここで一旦Waitして、ゲームブック方式でPhase遷移
-        //candidatesから候補地を選択→walkingへ
-        //敵をタップ→バトルへ
-        //ターンエンド→相手のターンへ
-
     }
 
-    /*
+    //FigureSelect状態でcandidates内のノードがクリックされたら
     public void NodeSelected(int nodeID)
     {
-        for (int i = 0; i < candidates.Count; i++)
+        if(phaseState == PhaseState.FigureSelected)
         {
-            if(nodeID == candidates[i])
+            for (int i = 0; i < candidates.Count; i++)
             {
+                if (nodeID == candidates[i])
+                {
+                    figureController = currentFigure.GetComponent<FigureController>();
+                    figureController.SetRoute(DecideRoute(nodeID));
 
-                DecideRoute(nodeID);
+                    
+                }
             }
         }
     }
-    */
+    
     //ゲームの状態変数のゲッター、セッター
     public void SetPhaseState(PhaseState tempState)
     {
         phaseState = tempState;
+        if(phaseState == PhaseState.Normal)
+        {
+            for (int i = 0; i < nodes.transform.childCount; i++)
+            {
+                Image image = nodes.transform.GetChild(i).GetComponent<Image>();
+                image.color = Color.white;
+            }
+        }
     }
     public PhaseState GetPhaseState()
     {

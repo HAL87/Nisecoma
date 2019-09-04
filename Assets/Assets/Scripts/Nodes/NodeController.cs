@@ -4,13 +4,12 @@ using UnityEngine;
 
 public class NodeController : MonoBehaviour
 {
-    [SerializeField] private GameObject boardMaster;
     private BoardController boardController;
     private NodeParameter nodeParameter;
     // Start is called before the first frame update
     void Start()
     {
-        //boardController = boardMaster.GetComponent<BoardController>();
+        boardController = GameObject.Find("BoardMaster").GetComponent<BoardController>();
         nodeParameter = GetComponent<NodeParameter>();
     }
 
@@ -19,10 +18,10 @@ public class NodeController : MonoBehaviour
     {
         
     }
-    /*
+    
     public void OnUserAction()
     {
         boardController.NodeSelected(nodeParameter.GetNodeID());
     }
-    */
+    
 }

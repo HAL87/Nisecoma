@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 3093591977649270972}
   - component: {fileID: 8719507116037261763}
   - component: {fileID: 6305439925191144846}
+  - component: {fileID: 1459467640208720534}
   m_Layer: 5
   m_Name: Node
   m_TagString: Untagged
@@ -101,3 +102,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a5d926b4320526479adb6867a1afa49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1459467640208720534
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3093591977649270970}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1862395651, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 4
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 6305439925191144846, guid: 9cc9d8681a8dc324498e4717c18af982,
+            type: 3}
+          m_MethodName: OnUserAction
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+      m_TypeName: UnityEngine.EventSystems.EventTrigger+TriggerEvent, UnityEngine.UI,
+        Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  delegates: []

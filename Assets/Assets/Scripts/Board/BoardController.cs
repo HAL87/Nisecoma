@@ -10,11 +10,17 @@ public class BoardController : MonoBehaviour
     //edgesは配列であり、各成分がint型のList
     private List<int>[] edges = new List<int>[28];
 
-    //各ノードの情報
+    //あらかじめ場にあるフィギュアを保持しておいて、figureIDOnBoardをインデックスとして呼び出すイメージ？
+    [SerializeField] private List<GameObject> figures0;
+
+    //ノードの親要素
     [SerializeField] private GameObject nodes;
 
     //LIneRenderer用のやつ
     [SerializeField] private GameObject drawEdgePrefab;
+
+    //あるノードから他の全てのノードへの距離
+    private int[] distances = new int[28];
 
     //そのノードにつく前はどこにいたのかを表す
     private int[] prevNode = new int[28];
@@ -22,22 +28,7 @@ public class BoardController : MonoBehaviour
     //始点と移動歩数を与えたとき移動可能な全ノードを格納
     List<int> candidates = new List<int>();
 
-    //ここらへんいるっけ
-    //始点。大体フィギュアの移動前の位置
-    //[SerializeField] private int startNode;
-
-    //移動歩数(意図的にmpと区別している)。mpだったり、特性やワザでの移動歩数
-    //[SerializeField] private int moveNumber;
-
-    //終点。始点と移動歩数を与えたとき移動可能な全ノードを格納するが、その候補地の中から目的地を選ぶ
-    //なので、本来このようにインスペクタから入力するものではない（今はテストのため暫定でこうしている）
-    //[SerializeField] private int destNode;
-
-    //あるノードから他の全てのノードへの距離
-    private int[] distances = new int[28];
-
-    //あらかじめ場にあるフィギュアを保持しておいて、figureIDOnBoardをインデックスとして呼び出すイメージ？
-    [SerializeField] private List<GameObject> figures0;
+    
 
     public enum PhaseState
     {
@@ -58,15 +49,6 @@ public class BoardController : MonoBehaviour
         //ボードのデータ構造作成（ゲームの最初に1回だけ呼ばれる
         CreateBoard();
         EdgeDraw();
-        //これ以下は本来void Startでよばれるものではないがテストのため暫定的に
-
-        //始点から終点まで実際にどう動くかのルートを決定する
-        //DecideRoute(startNode, goalNode);
-
-        //始点から指定移動歩数内で移動できる全ノードを格納
-
-        //FindCandidateofDestinaitonEqual(startNode, moveNumber);
-        //FindCandidateofDestinaitonLessThan(startNode, moveNumber);
     }
     /*
     void Update()
@@ -213,12 +195,12 @@ public class BoardController : MonoBehaviour
                 candidates.Add(i);
             }
         }
-        
+        /*
         for(int i = 0; i < candidates.Count; i++)
         {
             Debug.Log(candidates[i]);
         }
-        
+        */
         return;
     }
 
@@ -234,12 +216,12 @@ public class BoardController : MonoBehaviour
                 candidates.Add(i);
             }
         }
-        
+        /*
         for(int i = 0; i < candidates.Count; i++)
         {
             Debug.Log(candidates[i]);
         }
-        
+        */
         return;
     }
 
@@ -248,9 +230,7 @@ public class BoardController : MonoBehaviour
     {
         //始点と終点を与えたときそれらのノード間の最短経路を格納
         Stack<int> route = new Stack<int>();
-        //distancesとprevNodeを格納
-        //DecideRouteメソッドは必ずFindCandidateの後に呼び出されるからCaliculateDistanceを呼ぶ必要ない気がする
-        //CaliculateDistance(startNode);
+
         int currentNode = destNode;
         while (true)
         {
@@ -263,10 +243,12 @@ public class BoardController : MonoBehaviour
             }
         }
         //上から順番に取り出せば最短経路が復元できる
+        /*
         while(route.Count > 0)
         {
             Debug.Log(route.Pop());
         }
+        */
         return route;
     }
 

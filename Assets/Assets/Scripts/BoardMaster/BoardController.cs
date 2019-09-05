@@ -10,8 +10,9 @@ public class BoardController : MonoBehaviour
     //edgesは配列であり、各成分がint型のList
     private List<int>[] edges = new List<int>[28];
 
-    //あらかじめ場にあるフィギュアを保持しておいて、figureIDOnBoardをインデックスとして呼び出すイメージ？
-    [SerializeField] private List<GameObject> figures0;
+    //第一要素がプレイヤー番号(0 or 1)、第二要素がfigureIDOnBoard
+    //ゲーム開始時に敵味方それぞれのフィギュアを認識してfigureIDOnBoardを振る
+    private List<GameObject>[] figures = new List<GameObject>[2];
     //ノードの親要素
     [SerializeField] private GameObject nodes;
 
@@ -25,7 +26,8 @@ public class BoardController : MonoBehaviour
     //始点と移動歩数を与えたとき移動可能な全ノードを格納
     List<int> candidates = new List<int>();
 
-    
+    //選択中のフィギュア
+    private GameObject currentFigure;
 
     public enum PhaseState
     {
@@ -37,8 +39,6 @@ public class BoardController : MonoBehaviour
     //ゲームのの状態変数
     private PhaseState phaseState;
 
-    private GameObject currentFigure;
-
     //スクリプト変数宣言
     private FigureParameter figureParameter;
     private FigureController figureController;
@@ -48,7 +48,9 @@ public class BoardController : MonoBehaviour
         //ボードのデータ構造作成（ゲームの最初に1回だけ呼ばれる
         CreateBoard();
         EdgeDraw();
-
+        DivideFigures();
+        SetPhaseState(PhaseState.Normal);
+        //Debug.Log(figures.Length);
     }
     void Update()
     {
@@ -61,7 +63,7 @@ public class BoardController : MonoBehaviour
         //ベンチ、PC、US、除外を連番にするか別にするかは検討
         for (int i = 0; i < 28; i++)
         {
-            //nodes[i] = i;
+            nodes.transform.GetChild(i).GetComponent<NodeParameter>().SetNodeID(i);
             edges[i] = new List<int>();
         }
         edges[0].Add(1); edges[0].Add(7); edges[0].Add(8);
@@ -93,7 +95,7 @@ public class BoardController : MonoBehaviour
         edges[26].Add(25); edges[26].Add(27);
         edges[27].Add(19); edges[27].Add(20); edges[27].Add(26);
     }
-
+    //エッジの描画
     void EdgeDraw()
     {
         for(int i = 0; i < 28; i++)
@@ -125,6 +127,43 @@ public class BoardController : MonoBehaviour
         }
     }
 
+    //各フィギュアをplayerIDに従って分けてfigureという箱に入れる
+    //配列の第二要素のインデックスに対応する値(figureIDOnBoard)を各フィギュアに割り振る
+    void DivideFigures()
+    {
+        figures[0] = new List<GameObject>();
+        figures[1] = new List<GameObject>();
+        GameObject[] objs = GameObject.FindGameObjectsWithTag("Figure");
+        foreach (GameObject obj in objs)
+        {
+            figureParameter = obj.GetComponent<FigureParameter>();
+            if (figureParameter.GetPlayerID() == 0)
+            {
+                figureParameter.SetFigureIDOnBoard(figures[0].Count);
+                figures[0].Add(obj);
+                obj.GetComponent<Renderer>().material.color = Color.blue;
+                //Debug.Log(figures[0][figureParameter.GetFigureIDOnBoard()]);
+            }
+            else if (figureParameter.GetPlayerID() == 1)
+            {
+                figureParameter.SetFigureIDOnBoard(figures[1].Count);
+                figures[1].Add(obj);
+                obj.GetComponent<Renderer>().material.color = Color.red;
+            }
+        }
+        /*
+        foreach(GameObject i in figures[0])
+        {
+            Debug.Log(i.GetComponent<FigureParameter>().GetFigureIDOnBoard() + " " + i);
+        }
+        Debug.Log(" a");
+        foreach (GameObject i in figures[1])
+        {
+            Debug.Log(i.GetComponent<FigureParameter>().GetFigureIDOnBoard() + " " + i);
+        }
+        */
+    }
+
     //マスク配列の作成。
     //とりあえず場にいるすべてのフィギュアを障害物と認識するだけだが、すり抜けとかの実装の際要拡張
     
@@ -133,12 +172,16 @@ public class BoardController : MonoBehaviour
         //該当するノードのmaskNodeがtrueの時すり抜け可能、falseなら障害物扱い
         bool[] maskNode = new bool[28];
         for (int i = 0; i < maskNode.Length; i++) maskNode[i] = true;
-        for(int i = 0; i < figures0.Count; i++)
+        for(int i = 0; i < figures.Length; i++)
         {
-            FigureParameter figureParameter = figures0[i].GetComponent<FigureParameter>();
-            maskNode[figureParameter.GetPosition()] = false;
-            //Debug.Log(figureParameter.GetPosition());
+            for (int j = 0; j < figures[i].Count; j++)
+            {
+                FigureParameter figureParameter = figures[i][j].GetComponent<FigureParameter>();
+                maskNode[figureParameter.GetPosition()] = false;
+                //Debug.Log(figureParameter.GetPosition());
+            }
         }
+
 
         return maskNode;
     }
@@ -159,16 +202,16 @@ public class BoardController : MonoBehaviour
         {
             distances[i] = 99;
             reachedFlag[i] = false;
-            prevNode[i] = 99;
+            prevNode[i] = -1;
         }
 
         //初期ノードについての処理
         q.Enqueue(startNode);
         reachedFlag[startNode] = true;
         distances[startNode] = 0;
-        prevNode[startNode] = -1;
-        _maskNode[startNode] = true;
-        //for (int i = 0; i < _maskNode.Length; i++) Debug.Log(i + " " + _maskNode[i]);
+        //prevNode[startNode] = -1;
+        //_maskNode[startNode] = true;
+
         while (true)
         {
             //キューの先頭のノードを取り出す
@@ -178,7 +221,7 @@ public class BoardController : MonoBehaviour
                 //現在ノードにつながっているノード（=nextNode)を見る
                 int nextNode = edges[currentNode][i];
                 //nextNodeに到着していなければ
-                //&& _maskNode[nextNode] == true
+                //maskがfalseのノードは障害物アリなので行けない
                 if (reachedFlag[nextNode] == false && _maskNode[nextNode] == true)
                 {
                     //キューにnextNodeを入れ、到着フラグをtrueにし、distanceの計算をし、どこから来たのかを記録
@@ -192,7 +235,7 @@ public class BoardController : MonoBehaviour
             //キューの中身が空になればループから抜ける
             if (q.Count == 0) break;
         }
-        Debug.Log("startNodeは" + startNode);
+        //Debug.Log("startNodeは" + startNode);
         //for (int i = 0; i < distances.Length; i++) Debug.Log(i + " " + distances[i]);
         return;
     }
@@ -257,45 +300,46 @@ public class BoardController : MonoBehaviour
     //フィギュアがクリックされたときmp以内の候補地を列挙
     public void FigureSelected(int playerID, int figureIDOnBoard)
     {
-        currentFigure = figures0[figureIDOnBoard];
-
+        //ノードの色を初期化
         for (int i = 0; i < nodes.transform.childCount; i++)
         {
             Image image = nodes.transform.GetChild(i).GetComponent<Image>();
             image.color = Color.white;
         }
-        //選択したフィギュアが直前に選択されていたものならフラグをfalseに、そうでなければtrueに
+        //選択したフィギュアが直前に選択されていたものならフラグをfalseに、そうでなければtrueに反転
         //選択されていないフィギュアは全てfalseに
 
-        for (int i = 0; i < figures0.Count; i++)
+        for (int i = 0; i < figures[playerID].Count; i++)
         {
-            figureParameter = figures0[i].GetComponent<FigureParameter>();
+            figureParameter = figures[playerID][i].GetComponent<FigureParameter>();
             if (i == figureIDOnBoard) figureParameter.SetBeSelected(!figureParameter.GetBeSelected());
             else figureParameter.SetBeSelected(false);
         }
+        //選択したフィギュアをcurrentFigure変数にセット
+        currentFigure = figures[playerID][figureIDOnBoard];
         figureParameter = currentFigure.GetComponent<FigureParameter>();
-        //Debug.Log(figureParameter.GetFigureIDOnBoard() + " " + figureParameter.GetPosition());
+
         //フラグがtrueならそのフィギュアの現在地からmp以内のノードを全列挙して色を変える
         if (figureParameter.GetBeSelected() == true)
         {
+            //他のフィギュアを障害物として認識
             bool[] maskNode = CreateNormalMask();
-            //, maskNode
-            //Debug.Log(figureParameter.GetPosition());
+            //現在地から全ノードへの距離を計算
             CaliculateDistance(figureParameter.GetPosition(), maskNode);
+            //現在地からmp以内で移動可能な全ノードの色を紫色にする
             FindCandidateofDestinaitonLessThan(figureParameter.GetMp());
             for (int i = 0; i < candidates.Count; i++)
             {
                 Image image = nodes.transform.GetChild(candidates[i]).GetComponent<Image>();
-                image.color = Color.blue;
+                image.color = Color.magenta;
             }
             //状態変数更新
             SetPhaseState(PhaseState.FigureSelected);
         }
         else SetPhaseState(PhaseState.Normal);
-        Debug.Log(GetPhaseState());
     }
 
-    //FigureSelect状態でcandidates内のノードがクリックされたら
+    //FigureSelect状態でcandidates内のノードがクリックされたら、選択中のフィギュアに経路情報を渡す
     public void NodeSelected(int nodeID)
     {
         if(phaseState == PhaseState.FigureSelected)
@@ -305,9 +349,7 @@ public class BoardController : MonoBehaviour
                 if (nodeID == candidates[i])
                 {
                     figureController = currentFigure.GetComponent<FigureController>();
-                    figureController.SetRoute(DecideRoute(nodeID));
-
-                    
+                    figureController.SetRoute(DecideRoute(nodeID));                    
                 }
             }
         }
@@ -317,7 +359,8 @@ public class BoardController : MonoBehaviour
     public void SetPhaseState(PhaseState tempState)
     {
         phaseState = tempState;
-        if(phaseState == PhaseState.Normal)
+        Debug.Log(GetPhaseState());
+        if (phaseState == PhaseState.Normal)
         {
             //ノードの色を初期化
             for (int i = 0; i < nodes.transform.childCount; i++)
@@ -325,6 +368,14 @@ public class BoardController : MonoBehaviour
                 Image image = nodes.transform.GetChild(i).GetComponent<Image>();
                 image.color = Color.white;
             }
+            //各種変数の初期化
+            currentFigure = null;
+            for(int i = 0; i < distances.Length; i++)
+            {
+                distances[i] = 99;
+                prevNode[i] = -1;
+            }
+            candidates.Clear();
         }
     }
 

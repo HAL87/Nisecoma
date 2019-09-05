@@ -6,7 +6,7 @@ public class FigureParameter : MonoBehaviour
 {
     [SerializeField] private int mp;
     [SerializeField] private int position;
-    [SerializeField] private int figureIDOnBoard;
+    private int figureIDOnBoard;
     [SerializeField] private GameObject data;
     [SerializeField] private int playerID;
     private bool beSelected = false;
@@ -23,6 +23,10 @@ public class FigureParameter : MonoBehaviour
     public int GetPosition()
     {
         return position;
+    }
+    public void SetFigureIDOnBoard(int _figureIDOnBoard)
+    {
+        figureIDOnBoard = _figureIDOnBoard;
     }
     public int GetFigureIDOnBoard()
     {

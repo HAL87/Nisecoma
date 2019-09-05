@@ -23,9 +23,6 @@ public class GetInfo : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //if(data[0] != null)
-       // {
-            //Debug.Log(data[0]);
-        //}
+
     }
 }

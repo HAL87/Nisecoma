@@ -5,7 +5,7 @@ using UnityEngine;
 public class NodeParameter : MonoBehaviour
 {
     //左上が0番で右上が6番、右下が27番や
-    [SerializeField] private int nodeID;
+    private int nodeID;
     //エントリーとかゴールとかそういう情報
     //エッジ情報もいるのかなあ
     // Start is called before the first frame update
@@ -18,6 +18,10 @@ public class NodeParameter : MonoBehaviour
     void Update()
     {
         
+    }
+    public void SetNodeID(int _nodeID)
+    {
+        nodeID = _nodeID;
     }
     public int GetNodeID()
     {

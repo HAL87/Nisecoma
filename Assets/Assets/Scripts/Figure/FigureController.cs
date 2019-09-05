@@ -10,7 +10,6 @@ public class FigureController : MonoBehaviour
     private Stack<int> route = new Stack<int>();
     private int nextNode;
     private Vector3 nextPosition;
-    private Vector3 direction;
     private float walkSpeed = 3f;
 
     //スクリプト変数宣言
@@ -21,6 +20,7 @@ public class FigureController : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+        //positionに対応するノードの位置を初期位置とする（実際はベンチ）
         figureParameter = GetComponent<FigureParameter>();
         boardController = GameObject.Find("BoardMaster").GetComponent<BoardController>();
         transform.position = new Vector3(nodesTransform.GetChild(figureParameter.GetPosition()).position.x,
@@ -34,25 +34,27 @@ public class FigureController : MonoBehaviour
         if (boardController.GetPhaseState() == BoardController.PhaseState.Walking && figureParameter.GetBeSelected())
         {
 
-            transform.position += direction * walkSpeed * Time.deltaTime;
+            transform.position += (nextPosition - transform.position).normalized * walkSpeed * Time.deltaTime;
+            //次に行きたいノードの場所に来た時
             if (Vector3.Distance(transform.position, nextPosition) < 0.05f)
             {
+                //もうroute内にノードがない = destNodeに到着したとき
                 if (route.Count == 0)
                 {
+                    //フィギュアの現在地を更新
                     figureParameter.SetPosition(nextNode);
+                    //ノーマル状態に戻る（実際はAfterWalkだが）
                     boardController.SetPhaseState(BoardController.PhaseState.Normal);
                     figureParameter.SetBeSelected(false);
                 }
 
                 else
                 {
+                    //次に行きたいノードの更新
                     nextNode = route.Pop();
                     nextPosition = new Vector3(nodesTransform.GetChild(nextNode).position.x,
                                                nodesTransform.GetChild(nextNode).position.y + positionOffset,
                                                nodesTransform.GetChild(nextNode).position.z);
-                    direction = (nextPosition - transform.position).normalized;
-                    //figureParameter.SetPosition(nextNode);
-                    //Debug.Log(figureParameter.GetPosition());
                 }
             }
         }
@@ -63,19 +65,16 @@ public class FigureController : MonoBehaviour
         boardController.FigureSelected(figureParameter.GetPlayerID(), figureParameter.GetFigureIDOnBoard());
     }
 
+    //FigureSelect状態でcandidates内のノードが選択されたとき呼ばれる
     public void SetRoute(Stack<int> _route)
     {
-        Debug.Log("SetRoute");
         route = _route;
-        //Stack<int> routecp = _route;
-        //for (int i = 0; i < routecp.Count; i++) Debug.Log(routecp.Pop());
+        //初期位置を捨てる
         route.Pop();
         nextNode = route.Pop();
         nextPosition = new Vector3(nodesTransform.GetChild(nextNode).position.x,
                                    nodesTransform.GetChild(nextNode).position.y + positionOffset,
                                    nodesTransform.GetChild(nextNode).position.z);
-        direction = (nextPosition - transform.position).normalized;
-        //Debug.Log(direction);
         boardController.SetPhaseState(BoardController.PhaseState.Walking);
     }
     

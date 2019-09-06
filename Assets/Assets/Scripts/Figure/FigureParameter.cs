@@ -6,16 +6,20 @@ public class FigureParameter : MonoBehaviour
 {
     [SerializeField] private int mp;
     [SerializeField] private int position;
-    private int figureIDOnBoard;
     [SerializeField] private GameObject data;
     [SerializeField] private int playerID;
+    [SerializeField] private int attackRange = 1;
     private bool beSelected = false;
+    //ゲーム開始時にboardMasterによりセットされるID
+    private int figureIDOnBoard;
 
+    //mp
     public int GetMp()
     {
         return mp;
     }
 
+    //現在地のノードID
     public void SetPosition(int _position)
     {
         position = _position;
@@ -24,6 +28,8 @@ public class FigureParameter : MonoBehaviour
     {
         return position;
     }
+
+    //ゲーム開始時に定められるID
     public void SetFigureIDOnBoard(int _figureIDOnBoard)
     {
         figureIDOnBoard = _figureIDOnBoard;
@@ -32,6 +38,8 @@ public class FigureParameter : MonoBehaviour
     {
         return figureIDOnBoard;
     }
+
+    //選択中フラグ
     public bool GetBeSelected()
     {
         return beSelected;
@@ -40,9 +48,16 @@ public class FigureParameter : MonoBehaviour
     {
         beSelected = _beSelcted;
     }
+
+    //プレイヤーのID(0 or 1)
     public int GetPlayerID()
     {
         return playerID;
+    }
+
+    public int GetAttackRange()
+    {
+        return attackRange;
     }
     // Start is called before the first frame update
     void Start()

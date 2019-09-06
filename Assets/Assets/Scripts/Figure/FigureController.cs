@@ -11,6 +11,7 @@ public class FigureController : MonoBehaviour
     private int nextNode;
     private Vector3 nextPosition;
     private float walkSpeed = 3f;
+    private GameObject walkFigure;
 
     //スクリプト変数宣言
     private FigureParameter figureParameter;
@@ -31,7 +32,9 @@ public class FigureController : MonoBehaviour
     private void Update()
     {
         //Walking状態の時,選択したフィギュアのみを動かす
-        if (boardController.GetPhaseState() == BoardController.PhaseState.Walking && figureParameter.GetBeSelected())
+        // && figureParameter.GetBeSelected())
+        if (boardController.GetPhaseState() == BoardController.PhaseState.Walking && 
+            this.gameObject == walkFigure)
         {
 
             transform.position += (nextPosition - transform.position).normalized * walkSpeed * Time.deltaTime;
@@ -43,9 +46,10 @@ public class FigureController : MonoBehaviour
                 {
                     //フィギュアの現在地を更新
                     figureParameter.SetPosition(nextNode);
-                    //ノーマル状態に戻る（実際はAfterWalkだが）
-                    boardController.SetPhaseState(BoardController.PhaseState.Normal);
-                    figureParameter.SetBeSelected(false);
+                    walkFigure = null;
+                    //遷移6番
+                    boardController.SetPhaseState(BoardController.PhaseState.AfterWalk);
+                    //figureParameter.SetBeSelected(false);
                 }
 
                 else
@@ -62,12 +66,13 @@ public class FigureController : MonoBehaviour
     }
     public void OnUserAction()
     {
-        boardController.FigureSelected(figureParameter.GetPlayerID(), figureParameter.GetFigureIDOnBoard());
+        boardController.FigureClicked(figureParameter.GetPlayerID(), figureParameter.GetFigureIDOnBoard());
     }
 
     //FigureSelect状態でcandidates内のノードが選択されたとき呼ばれる
     public void SetRoute(Stack<int> _route)
     {
+        walkFigure = boardController.GetCurrentFigure();
         route = _route;
         //初期位置を捨てる
         route.Pop();

@@ -4,33 +4,31 @@ using UnityEngine;
 
 public class SpinController : MonoBehaviour
 {
-    private RouletteMaker[] rouletteMaker = new RouletteMaker[2];
-    //private RouletteMaker ruletteMaker1;
     private BoardController boardController;
-    private DiskSpin diskSpin0;
-    private DiskSpin diskSpin1;
     [SerializeField] private List<GameObject> datadisks;
     // Start is called before the first frame update
     void Start()
     {
         boardController = GameObject.Find("BoardMaster").GetComponent<BoardController>();
 
+        RouletteMaker[] rouletteMaker = new RouletteMaker[2];
+
         int currentPlayerID = boardController.GetCurrentFigure().GetComponent<FigureParameter>().GetPlayerID();
+        Debug.Log("currentPlayerIDは" + currentPlayerID);
         rouletteMaker[currentPlayerID] = datadisks[currentPlayerID].GetComponent<RouletteMaker>();
         rouletteMaker[currentPlayerID].CreateRulette(boardController.GetCurrentFigure().GetComponent<FigureParameter>().GetData());
 
-        int opponentPlayerID = boardController.GetCurrentFigure().GetComponent<FigureParameter>().GetPlayerID();
+        int opponentPlayerID = boardController.GetOpponentFigure().GetComponent<FigureParameter>().GetPlayerID();
+        Debug.Log("opponentPlayerIDは" + opponentPlayerID);
         rouletteMaker[opponentPlayerID] = datadisks[opponentPlayerID].GetComponent<RouletteMaker>();
         rouletteMaker[opponentPlayerID].CreateRulette(boardController.GetOpponentFigure().GetComponent<FigureParameter>().GetData());
 
-        /*
-        getInfo = GameObject.Find("GameMaster").GetComponent<GetInfo>();
-        //Debug.Log(getInfo.GetData(0));
-        //ルーレット作成メソッドの呼び出し
-        ruletteMaker0.CreateRulette(getInfo.GetData(0));
-        diskSpin0 = datadisks[0].GetComponent<DiskSpin>();
-        diskSpin1 = datadisks[1].GetComponent<DiskSpin>();
-        */
+        DiskSpin[] diskSpin = new DiskSpin[2];
+        diskSpin[currentPlayerID] = datadisks[currentPlayerID].GetComponent<DiskSpin>();
+        diskSpin[opponentPlayerID] = datadisks[opponentPlayerID].GetComponent<DiskSpin>();
+
+        StartCoroutine(diskSpin[currentPlayerID].Spin(boardController.GetCurrentFigure().GetComponent<FigureParameter>().GetData()));
+        StartCoroutine(diskSpin[opponentPlayerID].Spin(boardController.GetOpponentFigure().GetComponent<FigureParameter>().GetData()));
     }
 
     // Update is called once per frame

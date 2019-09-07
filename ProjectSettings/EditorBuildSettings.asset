@@ -12,12 +12,15 @@ EditorBuildSettings:
     path: Assets/Assets/Scenes/GameScene.unity
     guid: dc409f36f4fdf0c4596db4b54545771e
   - enabled: 1
+    path: Assets/Assets/Scenes/BoardScene.unity
+    guid: baf67f6404f91d74b861fa0b8b991f8f
+  - enabled: 1
     path: Assets/Assets/Scenes/SpinScene.unity
     guid: f99370d31589d524e9c0739b74f3ee4d
-  - enabled: 1
-    path: Assets/Assets/Scenes/Test1.unity
-    guid: 77739779d2019384cb67abb61d999b05
-  - enabled: 1
-    path: Assets/Assets/Scenes/Test2.unity
-    guid: 76ece1d432912964884a0fefbdb29037
+  - enabled: 0
+    path: 
+    guid: 00000000000000000000000000000000
+  - enabled: 0
+    path: 
+    guid: 00000000000000000000000000000000
   m_configObjects: {}

@@ -164,6 +164,7 @@ public class BoardController : MonoBehaviour
             {
                 figureParameter.SetFigureIDOnBoard(figures[1].Count);
                 figures[1].Add(obj);
+                obj.transform.Rotate(0, 0, 180f);
                 obj.GetComponent<Renderer>().material.color = Color.red;
             }
         }
@@ -642,7 +643,7 @@ public class BoardController : MonoBehaviour
                     {
 
                         opponentExistInAttackCandidates = true;
-                        Debug.Log(opponentExistInAttackCandidates);
+                        //Debug.Log(opponentExistInAttackCandidates);
                     }
                 }
             }
@@ -658,7 +659,7 @@ public class BoardController : MonoBehaviour
                 image.color = Color.white;
             }
             //シーンを移動させる処理をここに
-            //SceneManager.LoadScene("SpinScene");
+            SceneManager.LoadScene("SpinScene");
             //一時的にここですぐにAfterBattleへ
             //SetPhaseState(PhaseState.AfterBattle);
         }

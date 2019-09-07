@@ -209,7 +209,7 @@ PrefabInstance:
     - target: {fileID: 6466999453798610235, guid: a5d439ef6e0784745b7ce5319c6a57ef,
         type: 3}
       propertyPath: m_Name
-      value: Player2
+      value: Player1
       objectReference: {fileID: 0}
     - target: {fileID: 8051056121905568160, guid: a5d439ef6e0784745b7ce5319c6a57ef,
         type: 3}
@@ -419,7 +419,7 @@ PrefabInstance:
     - target: {fileID: 6466999453798610235, guid: a5d439ef6e0784745b7ce5319c6a57ef,
         type: 3}
       propertyPath: m_Name
-      value: Player1
+      value: Player0
       objectReference: {fileID: 0}
     - target: {fileID: 8051056121905568160, guid: a5d439ef6e0784745b7ce5319c6a57ef,
         type: 3}
@@ -622,7 +622,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1204345193}
+      - m_Target: {fileID: 1395601194}
         m_MethodName: SpinStart
         m_Mode: 1
         m_Arguments:
@@ -633,7 +633,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 2000557151}
+      - m_Target: {fileID: 1395601194}
         m_MethodName: SpinStart
         m_Mode: 1
         m_Arguments:
@@ -1111,18 +1111,6 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 217612891}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1204345193 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5394365435378255210, guid: a5d439ef6e0784745b7ce5319c6a57ef,
-    type: 3}
-  m_PrefabInstance: {fileID: 217612891}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1204345192}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9ec8dbce9d9dbfe42a471fa27363fa38, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1231646321
 GameObject:
   m_ObjectHideFlags: 0
@@ -1205,7 +1193,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2000557151}
+      - m_Target: {fileID: 1395601194}
         m_MethodName: SpinStart
         m_Mode: 1
         m_Arguments:
@@ -1542,7 +1530,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1204345193}
+      - m_Target: {fileID: 1395601194}
         m_MethodName: SpinStart
         m_Mode: 1
         m_Arguments:
@@ -1599,18 +1587,6 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 92952944}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &2000557151 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5394365435378255210, guid: a5d439ef6e0784745b7ce5319c6a57ef,
-    type: 3}
-  m_PrefabInstance: {fileID: 92952944}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2000557150}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9ec8dbce9d9dbfe42a471fa27363fa38, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &2023919567
 GameObject:
   m_ObjectHideFlags: 0

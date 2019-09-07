@@ -59,10 +59,13 @@ public class FigureParameter : MonoBehaviour
     {
         return attackRange;
     }
+    public GameObject GetData()
+    {
+        return data;
+    }
     // Start is called before the first frame update
     void Start()
     {
-
     }
 
     // Update is called once per frame

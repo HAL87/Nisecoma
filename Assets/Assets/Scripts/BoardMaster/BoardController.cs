@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class BoardController : MonoBehaviour
 {
@@ -435,7 +436,7 @@ public class BoardController : MonoBehaviour
                 }
                 //光沢を初期化
                 currentFigure.GetComponent<Renderer>().material.SetFloat("_Metallic", 0.0f);
-                currentFigure.GetComponent<Renderer>().material.SetFloat("_Glossiness", 0.0f);
+                //currentFigure.GetComponent<Renderer>().material.SetFloat("_Glossiness", 0.0f);
                 //currentFigure更新
                 currentFigure = figures[_playerID][_figureIDOnBoard];
                 //状態変数更新
@@ -463,7 +464,7 @@ public class BoardController : MonoBehaviour
                     }
                     //光沢を初期化
                     currentFigure.GetComponent<Renderer>().material.SetFloat("_Metallic", 0.0f);
-                    currentFigure.GetComponent<Renderer>().material.SetFloat("_Glossiness", 0.0f);
+                    //currentFigure.GetComponent<Renderer>().material.SetFloat("_Glossiness", 0.0f);
 
                     //currentFigure更新
                     currentFigure = figures[_playerID][_figureIDOnBoard];
@@ -568,7 +569,7 @@ public class BoardController : MonoBehaviour
             if (currentFigure != null)
             {
                 currentFigure.GetComponent<Renderer>().material.SetFloat("_Metallic", 0.0f);
-                currentFigure.GetComponent<Renderer>().material.SetFloat("_Glossiness", 0.0f);
+                //currentFigure.GetComponent<Renderer>().material.SetFloat("_Glossiness", 0.0f);
             }
             currentFigure = null;
             for (int i = 0; i < prevNode.Length; i++) prevNode[i] = -1;
@@ -585,7 +586,7 @@ public class BoardController : MonoBehaviour
         {
             //選択したフィギュアを目立たせる
             currentFigure.GetComponent<Renderer>().material.SetFloat("_Metallic", 1.0f);
-            currentFigure.GetComponent<Renderer>().material.SetFloat("_Glossiness", 1.0f);
+            //currentFigure.GetComponent<Renderer>().material.SetFloat("_Glossiness", 1.0f);
 
 
             FigureParameter currentFigureParameter = currentFigure.GetComponent<FigureParameter>();
@@ -657,8 +658,9 @@ public class BoardController : MonoBehaviour
                 image.color = Color.white;
             }
             //シーンを移動させる処理をここに
+            //SceneManager.LoadScene("SpinScene");
             //一時的にここですぐにAfterBattleへ
-            SetPhaseState(PhaseState.AfterBattle);
+            //SetPhaseState(PhaseState.AfterBattle);
         }
         else if(phaseState == PhaseState.AfterBattle)
         {
@@ -685,6 +687,10 @@ public class BoardController : MonoBehaviour
     public GameObject GetCurrentFigure()
     {
         return currentFigure;
+    }
+    public GameObject GetOpponentFigure()
+    {
+        return opponentFigure;
     }
     // Update is called once per frame
 }

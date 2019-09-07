@@ -43,7 +43,6 @@ public class DiskSpin : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-       //StartCoroutine(Spin());
     }
 
     //引数はGameMasterから渡されるワザのデータ）

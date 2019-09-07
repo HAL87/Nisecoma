@@ -21,6 +21,7 @@ public class FigureController : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+        DontDestroyOnLoad(this);
         //positionに対応するノードの位置を初期位置とする（実際はベンチ）
         figureParameter = GetComponent<FigureParameter>();
         boardController = GameObject.Find("BoardMaster").GetComponent<BoardController>();

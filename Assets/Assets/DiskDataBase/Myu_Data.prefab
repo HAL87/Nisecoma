@@ -43,12 +43,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f651ee6aa951b9342b36b05be8327be7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  moveOfColorName: 0
   moveName: "\u30B5\u30A4\u30B3\u30AD\u30CD\u30B7\u30B9"
   moveRange: 24
-  moveOfColorName: 0
   color: {r: 1, g: 1, b: 1, a: 1}
   movePower: 100
   moveNumberOfStar: 0
+  OnInitDone:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 5792947785501538885, guid: c7f4954bb4b762d41a1a998e4e56fe9e,
+          type: 3}
+        m_MethodName: Scychokinesisu
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
 --- !u!1 &3736762212581912182
 GameObject:
   m_ObjectHideFlags: 0
@@ -73,7 +90,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3736762212581912182}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -92,12 +109,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f651ee6aa951b9342b36b05be8327be7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  moveOfColorName: 2
   moveName: "\u30B7\u30E3\u30C8\u30EB\u30D5\u30EA\u30C3\u30D7"
   moveRange: 24
-  moveOfColorName: 2
   color: {r: 0, g: 0.6025846, b: 1, a: 1}
   movePower: 0
   moveNumberOfStar: 0
+  OnInitDone:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 5792947785501538885, guid: c7f4954bb4b762d41a1a998e4e56fe9e,
+          type: 3}
+        m_MethodName: ShatolFlip
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
 --- !u!1 &3736762213078997167
 GameObject:
   m_ObjectHideFlags: 0
@@ -174,9 +208,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f651ee6aa951b9342b36b05be8327be7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  moveOfColorName: 3
   moveName: "\u30CF\u30A4\u30D1\u30FC\u30BD\u30CB\u30C3\u30AF"
   moveRange: 48
-  moveOfColorName: 3
   color: {r: 1, g: 1, b: 0, a: 1}
   movePower: 30
   moveNumberOfStar: 0
+  OnInitDone:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 5792947785501538885, guid: c7f4954bb4b762d41a1a998e4e56fe9e,
+          type: 3}
+        m_MethodName: HyperSonic
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null

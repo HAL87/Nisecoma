@@ -102,6 +102,7 @@ public class DiskSpin : MonoBehaviour
             {
                 //goalAngleに該当するワザ
                 Debug.Log("getMoveName = " + moveParameter.GetMoveName());
+                moveParameter.OnInitDone.Invoke();
             }
             totalRange += moveParameter.GetMoveRange();
         }

@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.Events;
 public class MoveParameter : MonoBehaviour
 {
     //moveDataの子要素である各ワザにそれぞれアタッチ
@@ -25,6 +25,7 @@ public class MoveParameter : MonoBehaviour
     [SerializeField] private int movePower;
     //星の数（紫のみ）
     [SerializeField] private int moveNumberOfStar;
+    public UnityEvent OnInitDone;
     // Start is called before the first frame update
     void Start()
     {

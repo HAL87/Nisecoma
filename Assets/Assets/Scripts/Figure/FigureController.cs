@@ -10,7 +10,7 @@ public class FigureController : MonoBehaviour
     private Stack<int> route = new Stack<int>();
     private int nextNode;
     private Vector3 nextPosition;
-    private float walkSpeed = 3f;
+    private float walkSpeed = 5f;
     private GameObject walkFigure;
 
     //スクリプト変数宣言

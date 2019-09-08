@@ -5,14 +5,14 @@ using UnityEngine;
 public class FigureParameter : MonoBehaviour
 {
     [SerializeField] private int mp;
-    [SerializeField] private int position;
     [SerializeField] private GameObject data;
     [SerializeField] private int playerID;
     [SerializeField] private int attackRange = 1;
     private bool beSelected = false;
     //ゲーム開始時にboardMasterによりセットされるID
     private int figureIDOnBoard;
-
+    private int benchID;
+    private int position;
     //mp
     public int GetMp()
     {
@@ -62,6 +62,15 @@ public class FigureParameter : MonoBehaviour
     public GameObject GetData()
     {
         return data;
+    }
+
+    public void SetBenchID(int _benchID)
+    {
+        benchID = _benchID;
+    }
+    public int GetBenchID()
+    {
+        return benchID;
     }
     // Start is called before the first frame update
     void Start()

@@ -21,7 +21,8 @@ public class NodeController : MonoBehaviour
     
     public void OnUserAction()
     {
-        boardController.NodeClicked(nodeParameter.GetNodeID());
+        StartCoroutine(boardController.NodeClicked(nodeParameter.GetNodeID()));
+        //boardController.NodeClicked(nodeParameter.GetNodeID());
     }
     
 }

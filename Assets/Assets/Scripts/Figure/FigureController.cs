@@ -5,13 +5,14 @@ using UnityEngine;
 
 public class FigureController : MonoBehaviour
 {
-    [SerializeField] private Transform nodesTransform;
+    private Transform nodesTransform;
 
-    private Stack<int> route = new Stack<int>();
-    private int nextNode;
-    private Vector3 nextPosition;
+    //private Stack<int> route = new Stack<int>();
+    //private int nextNode;
+    //private Vector3 nextPosition;
     private float walkSpeed = 5f;
-    private GameObject walkFigure;
+    private float fastSpeed = 10f;
+   // private GameObject walkFigure;
 
     //スクリプト変数宣言
     private FigureParameter figureParameter;
@@ -21,7 +22,9 @@ public class FigureController : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        //positionに対応するノードの位置を初期位置とする（実際はベンチ）
+        nodesTransform = GameObject.Find("Nodes").transform;
+        //positionに対応するノードの位置を初期位置とする
+        //先にBoardMasterのStartで各フィギュアにベンチ番号を割り振っている
         figureParameter = GetComponent<FigureParameter>();
         boardController = GameObject.Find("BoardMaster").GetComponent<BoardController>();
         transform.position = new Vector3(nodesTransform.GetChild(figureParameter.GetPosition()).position.x,
@@ -33,7 +36,7 @@ public class FigureController : MonoBehaviour
     {
         //Walking状態の時,選択したフィギュアのみを動かす
         // && figureParameter.GetBeSelected())
-        if (boardController.GetPhaseState() == BoardController.PhaseState.Walking && 
+        /*if (boardController.GetPhaseState() == BoardController.PhaseState.Walking && 
             this.gameObject == walkFigure)
         {
 
@@ -61,8 +64,8 @@ public class FigureController : MonoBehaviour
                                                nodesTransform.GetChild(nextNode).position.z);
                 }
             }
-        }
-        else if(boardController.GetPhaseState() == BoardController.PhaseState.Battle)
+        }*/
+        if(boardController.GetPhaseState() == BoardController.PhaseState.Battle)
         {
             this.gameObject.GetComponent<MeshRenderer>().enabled = false;
         }
@@ -74,7 +77,7 @@ public class FigureController : MonoBehaviour
     }
 
     //FigureSelect状態でcandidates内のノードが選択されたとき呼ばれる
-    public void SetRoute(Stack<int> _route)
+   /* public void SetRoute(Stack<int> _route)
     {
         walkFigure = boardController.GetCurrentFigure();
         route = _route;
@@ -85,8 +88,49 @@ public class FigureController : MonoBehaviour
                                    nodesTransform.GetChild(nextNode).position.y + positionOffset,
                                    nodesTransform.GetChild(nextNode).position.z);
         boardController.SetPhaseState(BoardController.PhaseState.Walking);
+    }*/
+
+    //routeに沿って1歩ずつ動く
+    public IEnumerator Figurewalk(Stack<int> _route)
+    {
+
+        boardController.SetPhaseState(BoardController.PhaseState.Walking);
+        int nextNode = -1;
+        _route.Pop();
+        //routeの残り数だけ繰り返す
+        while (_route.Count > 0)
+        {
+            nextNode = _route.Pop();
+            Vector3 nextPosition = new Vector3(nodesTransform.GetChild(nextNode).position.x,
+                                               nodesTransform.GetChild(nextNode).position.y + positionOffset,
+                                               nodesTransform.GetChild(nextNode).position.z);
+
+            while (Vector3.Distance(transform.position, nextPosition) > 0.1f)
+            {
+                transform.position += (nextPosition - transform.position).normalized * walkSpeed * Time.deltaTime;
+                yield return null;
+            }
+            //1マス移動する度にPositionを更新
+            //GetComponent<FigureParameter>().SetPosition(nextNode);
+        }
+        //目的地に着いたときだけPositionを更新
+        GetComponent<FigureParameter>().SetPosition(nextNode);
     }
-    
+    //目的地まで一気に動くタイプ
+    public IEnumerator FigureOneStepWalk(int _targetNode)
+    {
+        boardController.SetPhaseState(BoardController.PhaseState.Walking);
+        Vector3 targetPosition = new Vector3(nodesTransform.GetChild(_targetNode).position.x,
+                                   nodesTransform.GetChild(_targetNode).position.y + positionOffset,
+                                   nodesTransform.GetChild(_targetNode).position.z);
+        while (Vector3.Distance(transform.position, targetPosition) > 0.1f)
+        {
+            transform.position += (targetPosition - transform.position).normalized * fastSpeed * Time.deltaTime;
+            yield return null;
+        }
+        GetComponent<FigureParameter>().SetPosition(_targetNode);
+    }
+
 }
 
 

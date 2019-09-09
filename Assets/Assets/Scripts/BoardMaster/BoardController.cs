@@ -353,7 +353,7 @@ public class BoardController : MonoBehaviour
                 }
                 //光沢を初期化
                 currentFigure.GetComponent<Renderer>().material.SetFloat("_Metallic", 0.0f);
-                //currentFigure.GetComponent<Renderer>().material.SetFloat("_Glossiness", 0.0f);
+                currentFigure.GetComponent<Renderer>().material.SetFloat("_Glossiness", 1.0f);
                 //currentFigure更新
                 currentFigure = figures[_playerID][_figureIDOnBoard];
                 //状態変数更新
@@ -381,7 +381,7 @@ public class BoardController : MonoBehaviour
                     }
                     //光沢を初期化
                     currentFigure.GetComponent<Renderer>().material.SetFloat("_Metallic", 0.0f);
-                    //currentFigure.GetComponent<Renderer>().material.SetFloat("_Glossiness", 0.0f);
+                    currentFigure.GetComponent<Renderer>().material.SetFloat("_Glossiness", 1.0f);
 
                     //currentFigure更新
                     currentFigure = figures[_playerID][_figureIDOnBoard];
@@ -456,18 +456,29 @@ public class BoardController : MonoBehaviour
     
     //遷移4番 FigureSelect → Walking
     //FigureSelect状態でcandidates内のノードがクリックされたら、選択中のフィギュアに経路情報を渡す
-    public void NodeClicked(int _nodeID)
+    public IEnumerator NodeClicked(int _nodeID)
     {
-        if(phaseState == PhaseState.FigureSelected)
+        if (phaseState == PhaseState.FigureSelected)
         {
-            if(currentFigure.GetComponent<FigureParameter>().GetPlayerID() == turnNumber)
+            if (currentFigure.GetComponent<FigureParameter>().GetPlayerID() == turnNumber)
                 for (int i = 0; i < walkCandidates.Count; i++)
                 {
                     if (_nodeID == walkCandidates[i])
                     {
-                        FigureController currentfigureController = currentFigure.GetComponent<FigureController>();
                         //ここの引数のprevNodeはFigureSelectedが呼ばれたときに格納されているよ
-                        currentfigureController.SetRoute(DecideRoute(_nodeID, prevNode));                    
+ 
+                        Stack<int> route = DecideRoute(_nodeID, prevNode);
+                       //コルーチンを使った移動に変えた
+                        if (currentFigure.GetComponent<FigureParameter>().GetPosition() >= fieldNodeNumber)
+                        {
+                            route.Pop();
+                            yield return StartCoroutine(currentFigure.GetComponent<FigureController>().FigureOneStepWalk(route.Peek()));
+                        }
+                        if(route.Count >= 2)
+                        {
+                            yield return StartCoroutine(currentFigure.GetComponent<FigureController>().Figurewalk(route));
+                        }
+                        SetPhaseState(BoardController.PhaseState.AfterWalk);
                     }
                 }
         }
@@ -486,7 +497,7 @@ public class BoardController : MonoBehaviour
             if (currentFigure != null)
             {
                 currentFigure.GetComponent<Renderer>().material.SetFloat("_Metallic", 0.0f);
-                //currentFigure.GetComponent<Renderer>().material.SetFloat("_Glossiness", 0.0f);
+                currentFigure.GetComponent<Renderer>().material.SetFloat("_Glossiness", 1.0f);
             }
             currentFigure = null;
             for (int i = 0; i < prevNode.Length; i++) prevNode[i] = -1;
@@ -503,7 +514,7 @@ public class BoardController : MonoBehaviour
         {
             //選択したフィギュアを目立たせる
             currentFigure.GetComponent<Renderer>().material.SetFloat("_Metallic", 1.0f);
-            //currentFigure.GetComponent<Renderer>().material.SetFloat("_Glossiness", 1.0f);
+            currentFigure.GetComponent<Renderer>().material.SetFloat("_Glossiness", 0.0f);
 
 
             FigureParameter currentFigureParameter = currentFigure.GetComponent<FigureParameter>();

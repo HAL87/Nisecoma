@@ -25,7 +25,9 @@ public class MoveParameter : MonoBehaviour
     [SerializeField] private int movePower;
     //星の数（紫のみ）
     [SerializeField] private int moveNumberOfStar;
+    //技効果
     public UnityEvent OnInitDone;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -59,7 +61,6 @@ public class MoveParameter : MonoBehaviour
     {
         return color;
     }
-
 
     public void SetMovePower(int _movePower)
     {

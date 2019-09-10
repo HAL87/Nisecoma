@@ -102,11 +102,18 @@ public class DiskSpin : MonoBehaviour
             {
                 //goalAngleに該当するワザ
                 Debug.Log("getMoveName = " + moveParameter.GetMoveName());
+                Debug.Log("getMoveColor = " + moveParameter.GetMoveColorName());
                 moveParameter.OnInitDone.Invoke();
+                yield return moveParameter;
             }
             totalRange += moveParameter.GetMoveRange();
         }
         //次のスピンのためにオフセットを準備
         offsetAngle += goalAngle % 360;
+
+        // ここでmoveParameterから両者の技を参照して色判定を行う
+        // この実装だとfor文でcurrent側のmoveParameterが捨てられているので書き方を変える
+        // 勝敗結果と技の効果はSpinControllerに返した上、さらにboardControllerに渡したほうがいいよね～
+
     }
 }

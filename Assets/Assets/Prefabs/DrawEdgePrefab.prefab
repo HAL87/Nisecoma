@@ -46,7 +46,7 @@ LineRenderer:
   m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 0
   m_RenderingLayerMask: 1
-  m_RendererPriority: 0
+  m_RendererPriority: 1
   m_Materials:
   - {fileID: 2100000, guid: e1398e2d48cc79747a1c1a5e5bbab786, type: 2}
   m_StaticBatchInfo:
@@ -67,10 +67,10 @@ LineRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -850797021
   m_SortingLayer: 2
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Positions:
-  - {x: 3, y: 0.0100195315, z: -3}
-  - {x: 2, y: 0.0100195315, z: -3}
+  - {x: 2.4, y: -2, z: 0}
+  - {x: 1.6, y: -2, z: 0}
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 1

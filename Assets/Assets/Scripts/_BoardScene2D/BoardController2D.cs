@@ -737,6 +737,7 @@ public class BoardController2D : MonoBehaviour
         }
         else if (nextScene.name == "BoardScene2D")
         {
+            Destroy(GameObject.Find("BeforeStart"));
             //ノードを再表示
             for (int i = 0; i < 44; i++)
             {

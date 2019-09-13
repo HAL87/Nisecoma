@@ -30,10 +30,13 @@ public class FigureController2D : MonoBehaviour
 
     private void Update()
     {
+        /*
         if(boardController.GetPhaseState() == BoardController2D.PhaseState.Battle)
         {
+            
             this.gameObject.GetComponent<SpriteRenderer>().enabled = false;
-        }
+        }*/
+        
 
     }
     public void OnUserAction()
@@ -44,8 +47,6 @@ public class FigureController2D : MonoBehaviour
     //routeに沿って1歩ずつ動く
     public IEnumerator Figurewalk(Stack<int> _route)
     {
-
-        boardController.SetPhaseState(BoardController2D.PhaseState.Walking);
         int nextNode = -1;
         _route.Pop();
         //routeの残り数だけ繰り返す
@@ -68,16 +69,15 @@ public class FigureController2D : MonoBehaviour
     //目的地まで一気に動くタイプ
     public IEnumerator FigureOneStepWalk(int _targetNode)
     {
-        boardController.SetPhaseState(BoardController2D.PhaseState.Walking);
         Vector3 targetPosition = nodesTransform.GetChild(_targetNode).position;
         while (Vector3.Distance(transform.position, targetPosition) > 0.1f)
         {
             transform.position += (targetPosition - transform.position).normalized * fastSpeed * Time.deltaTime;
+
             yield return null;
         }
         GetComponent<FigureParameter>().SetPosition(_targetNode);
-    }
-    
+    }  
 }
 
 

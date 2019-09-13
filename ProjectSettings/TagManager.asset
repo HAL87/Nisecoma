@@ -7,6 +7,7 @@ TagManager:
   - New tag
   - Figure
   - Node
+  - DontDestroyObject
   layers:
   - Default
   - TransparentFX

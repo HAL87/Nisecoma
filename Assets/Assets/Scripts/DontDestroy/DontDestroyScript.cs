@@ -4,15 +4,28 @@ using UnityEngine;
 
 public class DontDestroyScript : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    private static DontDestroyScript instance = null;
+
+    // GameControllerインスタンスのプロパティーは、実体が存在しないとき（＝初回参照時）実体を探して登録する
+    public static DontDestroyScript Instance => instance
+        ?? (instance = GameObject.FindWithTag("DontDestroyObject").GetComponent<DontDestroyScript>());
+
+    private void Awake()
     {
-        DontDestroyOnLoad(this);
+        // もしインスタンスが複数存在するなら、自らを破棄する
+        if (this != Instance)
+        {
+            Destroy(this.gameObject);
+            return;
+        }
+
+        // 唯一のインスタンスなら、シーン遷移しても残す
+        DontDestroyOnLoad(this.gameObject);
     }
 
-    // Update is called once per frame
-    void Update()
+    private void OnDestroy()
     {
-        
+        // 破棄時に、登録した実体の解除を行う
+        if (this == Instance) instance = null;
     }
 }

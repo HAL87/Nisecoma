@@ -143,7 +143,7 @@ public class BoardController2D : MonoBehaviour
         edges[36].Add(0); edges[36].Add(6);
         edges[37].Add(0); edges[37].Add(6);
         edges[38].Add(0); edges[38].Add(6);
-        edges[38].Add(0); edges[38].Add(6);
+        edges[39].Add(0); edges[39].Add(6);
 
         //第一成分のインデックスはプレイヤーID、第二成分のインデックス0番が左エントリー, インデックス1番が右エントリー
         for (int i = 0; i < entryNodeID.Length; i++) entryNodeID[i] = new int[2];

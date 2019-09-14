@@ -30,7 +30,12 @@ public class RouletteMaker : MonoBehaviour
             obj.transform.rotation = q * obj.transform.rotation;
 
             //ルーレットの色を決定
-            obj.color = moveParameter.GetColor();
+            if (moveParameter.GetMoveColorName() == MoveParameter.MoveOfColorName.White) obj.color = Color.white;
+            else if (moveParameter.GetMoveColorName() == MoveParameter.MoveOfColorName.Blue) obj.color = new Color(0,154,255,255);
+            else if (moveParameter.GetMoveColorName() == MoveParameter.MoveOfColorName.Purple) obj.color = Color.magenta;
+            else if (moveParameter.GetMoveColorName() == MoveParameter.MoveOfColorName.Gold) obj.color = Color.yellow;
+            else if (moveParameter.GetMoveColorName() == MoveParameter.MoveOfColorName.Red) obj.color = Color.red;
+
 
             //ワザの名前を入力
             Text[] texts = obj.GetComponentsInChildren<Text>();

@@ -20,7 +20,7 @@ public class MoveParameter : MonoBehaviour
     //ピース幅
     [SerializeField] private int moveRange;
     //ピースの色
-    [SerializeField] private Color color;
+    //[SerializeField] private Color color;
     //打点（白、金のみ）
     [SerializeField] private int movePower;
     //星の数（紫のみ）
@@ -57,10 +57,10 @@ public class MoveParameter : MonoBehaviour
     {
         return moveOfColorName;
     }
-    public Color GetColor()
+    /*public Color GetColor()
     {
         return color;
-    }
+    }*/
 
     public void SetMovePower(int _movePower)
     {

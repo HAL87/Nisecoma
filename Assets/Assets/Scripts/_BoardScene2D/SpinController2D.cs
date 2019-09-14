@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class SpinController2D : MonoBehaviour
 {
@@ -9,6 +10,12 @@ public class SpinController2D : MonoBehaviour
     [SerializeField] private List<GameObject> datadisks;
     //変更点
     public static (int result, bool currentMoveAwake, bool opponentMoveAwake, bool currentDeath, bool oppnentDeath) BattleResult;
+
+    [SerializeField] private Text[] moveText = new Text[2];
+    [SerializeField] private Text[] battleResultText = new Text[2];
+ //   [SerializeField] private Text buttleResultText0;
+ //   [SerializeField] private Text buttleResultText1;
+
     // Start is called before the first frame update
     IEnumerator Start()
     {
@@ -29,6 +36,7 @@ public class SpinController2D : MonoBehaviour
         DiskSpin[] diskSpin = new DiskSpin[2];
         diskSpin[currentPlayerID] = datadisks[currentPlayerID].GetComponent<DiskSpin>();
         diskSpin[opponentPlayerID] = datadisks[opponentPlayerID].GetComponent<DiskSpin>();
+
         var ie0 = diskSpin[currentPlayerID].Spin(boardController.GetCurrentFigure().GetComponent<FigureParameter>().GetData());
         var ie1 = diskSpin[opponentPlayerID].Spin(boardController.GetOpponentFigure().GetComponent<FigureParameter>().GetData());
         var coroutine0 = StartCoroutine(ie0);
@@ -40,21 +48,36 @@ public class SpinController2D : MonoBehaviour
 
         BattleResult = Judge(mp0, mp1);
 
+
+        //moveText0.GetComponent<Text>();
+        //moveText1.GetComponent<Text>();
+
+        moveText[boardController.GetCurrentFigure().GetComponent<FigureParameter>().GetPlayerID()].text = mp0.GetMoveName();
+        moveText[boardController.GetOpponentFigure().GetComponent<FigureParameter>().GetPlayerID()].text = mp1.GetMoveName();
+
         Debug.Log(mp0.GetMoveName() + " vs " + mp1.GetMoveName());
         if (0 == BattleResult.result)
         {
             Debug.Log(mp0.GetMoveName() + "の勝ち！");
+            battleResultText[boardController.GetCurrentFigure().GetComponent<FigureParameter>().GetPlayerID()].text = "Win!!";
+            battleResultText[boardController.GetOpponentFigure().GetComponent<FigureParameter>().GetPlayerID()].text = "Lose...";
         }
         else if(1 == BattleResult.result)
         {
             Debug.Log(mp1.GetMoveName() + "の勝ち！");
+            battleResultText[boardController.GetCurrentFigure().GetComponent<FigureParameter>().GetPlayerID()].text = "Lose...";
+            battleResultText[boardController.GetOpponentFigure().GetComponent<FigureParameter>().GetPlayerID()].text = "Win!!";
         }
         else
         {
             Debug.Log("引き分け！");
+            battleResultText[boardController.GetCurrentFigure().GetComponent<FigureParameter>().GetPlayerID()].text = "Draw";
+            battleResultText[boardController.GetOpponentFigure().GetComponent<FigureParameter>().GetPlayerID()].text = "Draw";
         }
-        yield return new WaitForSeconds(0.5f);
+        //yield return new WaitForSeconds(0.5f);
+        yield return new WaitUntil(() => Input.GetMouseButtonDown(0));
         SceneManager.LoadScene("BoardScene2D");
+        
     }
 
     // Update is called once per frame

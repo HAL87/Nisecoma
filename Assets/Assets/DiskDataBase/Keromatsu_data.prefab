@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8101316936673856703}
   m_Layer: 0
-  m_Name: Keromatsu_data 1
+  m_Name: Keromatsu_data
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -41,11 +41,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 8101316936673856703}
     m_Modifications:
-    - target: {fileID: 1011802958474078826, guid: 13e2671cc2a8fde41a10ac171188fbb5,
-        type: 3}
-      propertyPath: m_Name
-      value: "\u30DF\u30B9"
-      objectReference: {fileID: 0}
     - target: {fileID: 7519580867211877143, guid: 13e2671cc2a8fde41a10ac171188fbb5,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -101,6 +96,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1011802958474078826, guid: 13e2671cc2a8fde41a10ac171188fbb5,
+        type: 3}
+      propertyPath: m_Name
+      value: "\u30DF\u30B9"
+      objectReference: {fileID: 0}
     - target: {fileID: 4107265009833948539, guid: 13e2671cc2a8fde41a10ac171188fbb5,
         type: 3}
       propertyPath: moveOfColorName
@@ -109,7 +109,7 @@ PrefabInstance:
     - target: {fileID: 4107265009833948539, guid: 13e2671cc2a8fde41a10ac171188fbb5,
         type: 3}
       propertyPath: moveName
-      value: 
+      value: "\u30DF\u30B9"
       objectReference: {fileID: 0}
     - target: {fileID: 4107265009833948539, guid: 13e2671cc2a8fde41a10ac171188fbb5,
         type: 3}
@@ -151,11 +151,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 8101316936673856703}
     m_Modifications:
-    - target: {fileID: 1011802958474078826, guid: 13e2671cc2a8fde41a10ac171188fbb5,
-        type: 3}
-      propertyPath: m_Name
-      value: "\u30DF\u30B9"
-      objectReference: {fileID: 0}
     - target: {fileID: 7519580867211877143, guid: 13e2671cc2a8fde41a10ac171188fbb5,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -211,6 +206,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1011802958474078826, guid: 13e2671cc2a8fde41a10ac171188fbb5,
+        type: 3}
+      propertyPath: m_Name
+      value: "\u30DF\u30B9"
+      objectReference: {fileID: 0}
     - target: {fileID: 4107265009833948539, guid: 13e2671cc2a8fde41a10ac171188fbb5,
         type: 3}
       propertyPath: moveOfColorName
@@ -219,7 +219,7 @@ PrefabInstance:
     - target: {fileID: 4107265009833948539, guid: 13e2671cc2a8fde41a10ac171188fbb5,
         type: 3}
       propertyPath: moveName
-      value: 
+      value: "\u30DF\u30B9"
       objectReference: {fileID: 0}
     - target: {fileID: 4107265009833948539, guid: 13e2671cc2a8fde41a10ac171188fbb5,
         type: 3}
@@ -261,11 +261,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 8101316936673856703}
     m_Modifications:
-    - target: {fileID: 1011802958474078826, guid: 13e2671cc2a8fde41a10ac171188fbb5,
-        type: 3}
-      propertyPath: m_Name
-      value: "\u3042\u308F"
-      objectReference: {fileID: 0}
     - target: {fileID: 7519580867211877143, guid: 13e2671cc2a8fde41a10ac171188fbb5,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -320,6 +315,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1011802958474078826, guid: 13e2671cc2a8fde41a10ac171188fbb5,
+        type: 3}
+      propertyPath: m_Name
+      value: "\u3042\u308F"
       objectReference: {fileID: 0}
     - target: {fileID: 4107265009833948539, guid: 13e2671cc2a8fde41a10ac171188fbb5,
         type: 3}
@@ -371,11 +371,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 8101316936673856703}
     m_Modifications:
-    - target: {fileID: 1011802958474078826, guid: 13e2671cc2a8fde41a10ac171188fbb5,
-        type: 3}
-      propertyPath: m_Name
-      value: "\u304B\u308F\u3059"
-      objectReference: {fileID: 0}
     - target: {fileID: 7519580867211877143, guid: 13e2671cc2a8fde41a10ac171188fbb5,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -430,6 +425,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1011802958474078826, guid: 13e2671cc2a8fde41a10ac171188fbb5,
+        type: 3}
+      propertyPath: m_Name
+      value: "\u304B\u308F\u3059"
       objectReference: {fileID: 0}
     - target: {fileID: 4107265009833948539, guid: 13e2671cc2a8fde41a10ac171188fbb5,
         type: 3}

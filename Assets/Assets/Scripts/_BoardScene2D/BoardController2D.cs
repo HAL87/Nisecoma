@@ -30,6 +30,8 @@ public class BoardController2D : MonoBehaviour
     [SerializeField] private GameObject startText;
     [SerializeField] private List<GameObject> playerTurnText;
     [SerializeField] private GameObject restTurnText;
+    [SerializeField] private GameObject gameEndText;
+    [SerializeField] private GameObject turnEndButton;
     //そのノードにつく前はどこにいたのかを表す
     private int[] prevNode = new int[44];
 
@@ -49,7 +51,7 @@ public class BoardController2D : MonoBehaviour
     private int restTurn = 300;
     public enum PhaseState
     {
-        Start,
+        TurnStart,
         Normal,
         FigureSelected,
         Walking,
@@ -57,7 +59,8 @@ public class BoardController2D : MonoBehaviour
         ConfirmFigure,
         Battle,
         AfterBattle,
-        End
+        TurnEnd,
+        GameEnd
     };
     //ゲームのの状態変数
     private PhaseState phaseState;
@@ -70,9 +73,10 @@ public class BoardController2D : MonoBehaviour
         EdgeDraw();
         DivideFigures();
         yield return FadeInOut(startText, 1);
+        Destroy(startText);
         //暫定的にプレイヤー0のターンに固定
         turnNumber = 0;
-        StartCoroutine(SetPhaseState(PhaseState.Start));
+        StartCoroutine(SetPhaseState(PhaseState.TurnStart));
 
 
         Debug.Log("プレイヤー" + turnNumber + "のターンです");
@@ -520,7 +524,7 @@ public class BoardController2D : MonoBehaviour
     {
         phaseState = _tempState;
         Debug.Log(GetPhaseState());
-        if(phaseState == PhaseState.Start)
+        if(phaseState == PhaseState.TurnStart)
         {
             restTurnText.GetComponent<TextMeshProUGUI>().text = restTurn.ToString();
             yield return FadeInOut(playerTurnText[turnNumber], 0.5f);
@@ -605,13 +609,22 @@ public class BoardController2D : MonoBehaviour
                 {
                     if (j == figures[opponentID][i].GetComponent<FigureParameter>().GetPosition())
                     {
-
                         opponentExistInAttackCandidates = true;
-                        //Debug.Log(opponentExistInAttackCandidates);
                     }
+                    
                 }
             }
-            if (opponentExistInAttackCandidates == false) StartCoroutine(SetPhaseState(PhaseState.End));
+            //今ゴール処理は通常移動後しか考えてない。ワザの効果で移動するときもな
+            if (currentFigure.GetComponent<FigureParameter>().GetPosition() == goalNodeID[opponentID])
+            {
+                StartCoroutine(SetPhaseState(PhaseState.GameEnd));
+            }
+            else if (opponentExistInAttackCandidates == false) StartCoroutine(SetPhaseState(PhaseState.TurnEnd));
+            
+            else if (opponentExistInAttackCandidates == true)
+            {
+                turnEndButton.SetActive(true);
+            }
 
         }
         else if (phaseState == PhaseState.Battle)
@@ -640,16 +653,24 @@ public class BoardController2D : MonoBehaviour
             {
                 yield return Death(opponentFigure);
             }
-            StartCoroutine(SetPhaseState(PhaseState.End));
+            StartCoroutine(SetPhaseState(PhaseState.TurnEnd));
         }
-        else if (phaseState == PhaseState.End)
+        else if (phaseState == PhaseState.TurnEnd)
         {
             //相手のターンにして残りのターン数を更新
             if (turnNumber == 0) turnNumber = 1;
             else if (turnNumber == 1) turnNumber = 0;
             restTurn--;
-            Debug.Log("プレイヤー" + turnNumber + "のターンです");
-            StartCoroutine(SetPhaseState(PhaseState.Start));
+            turnEndButton.SetActive(false);
+            //Debug.Log("プレイヤー" + turnNumber + "のターンです");
+            StartCoroutine(SetPhaseState(PhaseState.TurnStart));
+        }
+        else if(phaseState == PhaseState.GameEnd)
+        {
+            //もう少し真面目にかけ
+            //実際はどっかのタイミングで全部のフィギュアの位置調べて相手のゴールにいればなんちゃらみたいな感じかなあ知らんけど
+                gameEndText.SetActive(true);
+                gameEndText.GetComponent<TextMeshProUGUI>().text = "PLAYER" + currentFigure.GetComponent<FigureParameter>().GetPlayerID() + " WIN!";
         }
         else yield return null;
         //yield return null;
@@ -734,7 +755,11 @@ public class BoardController2D : MonoBehaviour
                 }
             }
 
+            //UIの非表示
+            restTurnText.GetComponent<TextMeshProUGUI>().enabled = false;
+            turnEndButton.SetActive(false);
         }
+        //SpinSceneからBoardSceneに帰ってきた
         else if (nextScene.name == "BoardScene2D")
         {
             Destroy(GameObject.Find("BeforeStart"));
@@ -759,6 +784,11 @@ public class BoardController2D : MonoBehaviour
                     }
                 }
             }
+            //UIの表示
+            restTurnText.GetComponent<TextMeshProUGUI>().enabled = true;
+            turnEndButton.SetActive(true);
+            
+            //バトル後の処理
             StartCoroutine(SetPhaseState(BoardController2D.PhaseState.AfterBattle));
         }
     }
@@ -779,5 +809,10 @@ public class BoardController2D : MonoBehaviour
             yield return null;
         }
 
+    }
+
+    public void turnEnd()
+    {
+        StartCoroutine(SetPhaseState(PhaseState.TurnEnd));
     }
 }

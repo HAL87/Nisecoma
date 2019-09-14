@@ -17,8 +17,6 @@ public class FigureController : MonoBehaviour
     //スクリプト変数宣言
     private FigureParameter figureParameter;
     private BoardController boardController;
-
-    [SerializeField] private float positionOffset;
     // Use this for initialization
     void Start()
     {
@@ -27,48 +25,18 @@ public class FigureController : MonoBehaviour
         //先にBoardMasterのStartで各フィギュアにベンチ番号を割り振っている
         figureParameter = GetComponent<FigureParameter>();
         boardController = GameObject.Find("BoardMaster").GetComponent<BoardController>();
-        transform.position = new Vector3(nodesTransform.GetChild(figureParameter.GetPosition()).position.x,
-                                         nodesTransform.GetChild(figureParameter.GetPosition()).position.y + positionOffset,
-                                         nodesTransform.GetChild(figureParameter.GetPosition()).position.z);
+        transform.position = nodesTransform.GetChild(figureParameter.GetPosition()).position;
     }
 
     private void Update()
     {
-        //Walking状態の時,選択したフィギュアのみを動かす
-        // && figureParameter.GetBeSelected())
-        /*if (boardController.GetPhaseState() == BoardController.PhaseState.Walking && 
-            this.gameObject == walkFigure)
+        /*
+        if(boardController.GetPhaseState() == BoardController2D.PhaseState.Battle)
         {
-
-            transform.position += (nextPosition - transform.position).normalized * walkSpeed * Time.deltaTime;
-            //次に行きたいノードの場所に来た時
-            if (Vector3.Distance(transform.position, nextPosition) < 0.05f)
-            {
-                //もうroute内にノードがない = destNodeに到着したとき
-                if (route.Count == 0)
-                {
-                    //フィギュアの現在地を更新
-                    figureParameter.SetPosition(nextNode);
-                    walkFigure = null;
-                    //遷移6番
-                    boardController.SetPhaseState(BoardController.PhaseState.AfterWalk);
-                    //figureParameter.SetBeSelected(false);
-                }
-
-                else
-                {
-                    //次に行きたいノードの更新
-                    nextNode = route.Pop();
-                    nextPosition = new Vector3(nodesTransform.GetChild(nextNode).position.x,
-                                               nodesTransform.GetChild(nextNode).position.y + positionOffset,
-                                               nodesTransform.GetChild(nextNode).position.z);
-                }
-            }
+            
+            this.gameObject.GetComponent<SpriteRenderer>().enabled = false;
         }*/
-        if(boardController.GetPhaseState() == BoardController.PhaseState.Battle)
-        {
-            this.gameObject.GetComponent<MeshRenderer>().enabled = false;
-        }
+        
 
     }
     public void OnUserAction()
@@ -76,34 +44,16 @@ public class FigureController : MonoBehaviour
         boardController.FigureClicked(figureParameter.GetPlayerID(), figureParameter.GetFigureIDOnBoard());
     }
 
-    //FigureSelect状態でcandidates内のノードが選択されたとき呼ばれる
-   /* public void SetRoute(Stack<int> _route)
-    {
-        walkFigure = boardController.GetCurrentFigure();
-        route = _route;
-        //初期位置を捨てる
-        route.Pop();
-        nextNode = route.Pop();
-        nextPosition = new Vector3(nodesTransform.GetChild(nextNode).position.x,
-                                   nodesTransform.GetChild(nextNode).position.y + positionOffset,
-                                   nodesTransform.GetChild(nextNode).position.z);
-        boardController.SetPhaseState(BoardController.PhaseState.Walking);
-    }*/
-
     //routeに沿って1歩ずつ動く
     public IEnumerator Figurewalk(Stack<int> _route)
     {
-
-        boardController.SetPhaseState(BoardController.PhaseState.Walking);
         int nextNode = -1;
         _route.Pop();
         //routeの残り数だけ繰り返す
         while (_route.Count > 0)
         {
             nextNode = _route.Pop();
-            Vector3 nextPosition = new Vector3(nodesTransform.GetChild(nextNode).position.x,
-                                               nodesTransform.GetChild(nextNode).position.y + positionOffset,
-                                               nodesTransform.GetChild(nextNode).position.z);
+            Vector3 nextPosition = nodesTransform.GetChild(nextNode).position;
 
             while (Vector3.Distance(transform.position, nextPosition) > 0.1f)
             {
@@ -119,18 +69,15 @@ public class FigureController : MonoBehaviour
     //目的地まで一気に動くタイプ
     public IEnumerator FigureOneStepWalk(int _targetNode)
     {
-        boardController.SetPhaseState(BoardController.PhaseState.Walking);
-        Vector3 targetPosition = new Vector3(nodesTransform.GetChild(_targetNode).position.x,
-                                   nodesTransform.GetChild(_targetNode).position.y + positionOffset,
-                                   nodesTransform.GetChild(_targetNode).position.z);
+        Vector3 targetPosition = nodesTransform.GetChild(_targetNode).position;
         while (Vector3.Distance(transform.position, targetPosition) > 0.1f)
         {
             transform.position += (targetPosition - transform.position).normalized * fastSpeed * Time.deltaTime;
+
             yield return null;
         }
         GetComponent<FigureParameter>().SetPosition(_targetNode);
-    }
-
+    }  
 }
 
 

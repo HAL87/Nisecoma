@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class FigureParameter : MonoBehaviour
 {
@@ -8,11 +9,14 @@ public class FigureParameter : MonoBehaviour
     [SerializeField] private GameObject data;
     [SerializeField] private int playerID;
     [SerializeField] private int attackRange = 1;
+    [SerializeField] private GameObject waitCounter;
+    [SerializeField] private Text waitCounterText;
     private bool beSelected = false;
     //ゲーム開始時にboardMasterによりセットされるID
     private int figureIDOnBoard;
     private int benchID;
     private int position;
+    private int waitCount = 0;  // ウェイト デフォルトは0
     //mp
     public int GetMp()
     {
@@ -72,6 +76,44 @@ public class FigureParameter : MonoBehaviour
     {
         return benchID;
     }
+    // ウェイトカウントをセットする
+    // ウェイト1以上の場合はカウンターを表示する
+    public void SetWaitCount(int _waitCount)
+    {
+        waitCount = _waitCount;
+        if(waitCount >= 1)
+        {
+            waitCounterText.text = "" + waitCount;
+            waitCounter.SetActive(true);
+        }
+    }
+
+    public int GetWaitCount()
+    {
+        return waitCount;
+    }
+
+    // ウェイトを1つ減らす
+    // 正値の保証は使用者が行う
+    public void decreaseWaitCount()
+    {
+        waitCount--;
+        waitCounterText.text = "" + waitCount;
+        if (waitCount >= 1)
+        {
+            waitCounter.SetActive(true);
+        }
+        else
+        {
+            waitCounter.SetActive(false);
+        }
+    }
+
+    public GameObject GetWaitCounter()
+    {
+        return waitCounter;
+    }
+
     // Start is called before the first frame update
     void Start()
     {

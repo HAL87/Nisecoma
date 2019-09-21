@@ -32,6 +32,7 @@ public class BoardController : MonoBehaviour
     [SerializeField] private GameObject restTurnText;
     [SerializeField] private GameObject gameEndText;
     [SerializeField] private GameObject turnEndButton;
+
     //そのノードにつく前はどこにいたのかを表す
     private int[] prevNode = new int[44];
 
@@ -60,9 +61,10 @@ public class BoardController : MonoBehaviour
         Battle,
         AfterBattle,
         TurnEnd,
-        GameEnd
+        GameEnd, 
+        Forfeit
     };
-    //ゲームのの状態変数
+    //ゲームの状態変数
     private PhaseState phaseState;
     // Start is called before the first frame update
     void Start()
@@ -423,7 +425,7 @@ public class BoardController : MonoBehaviour
                     //状態変数更新
                     StartCoroutine(SetPhaseState(PhaseState.FigureSelected));
                 }
-                //敵が攻撃範囲にいたとき、遷移5番: FigureSelect→Batle
+                //敵が攻撃範囲にいたとき、遷移5番: FigureSelect→Battle
                 else
                 {
                     opponentFigure = figures[_playerID][_figureIDOnBoard];
@@ -494,30 +496,36 @@ public class BoardController : MonoBehaviour
     //FigureSelect状態でcandidates内のノードがクリックされたら、選択中のフィギュアに経路情報を渡す
     public IEnumerator NodeClicked(int _nodeID)
     {
+
         if (phaseState == PhaseState.FigureSelected)
         {
             if (currentFigure.GetComponent<FigureParameter>().GetPlayerID() == turnNumber)
-                for (int i = 0; i < walkCandidates.Count; i++)
+            {
+                if(currentFigure.GetComponent<FigureParameter>().GetWaitCount() == 0)
                 {
-                    if (_nodeID == walkCandidates[i])
+                    for (int i = 0; i < walkCandidates.Count; i++)
                     {
-                        StartCoroutine(SetPhaseState(PhaseState.Walking));
-                        //ここの引数のprevNodeはFigureSelectedが呼ばれたときに格納されているよ
+                        if (_nodeID == walkCandidates[i])
+                        {
+                            StartCoroutine(SetPhaseState(PhaseState.Walking));
+                            //ここの引数のprevNodeはFigureSelectedが呼ばれたときに格納されているよ
 
-                        Stack<int> route = DecideRoute(_nodeID, prevNode);
-                        //コルーチンを使った移動に変えた
-                        if (currentFigure.GetComponent<FigureParameter>().GetPosition() >= 28)
-                        {
-                            route.Pop();
-                            yield return StartCoroutine(currentFigure.GetComponent<FigureController>().FigureOneStepWalk(route.Peek()));
+                            Stack<int> route = DecideRoute(_nodeID, prevNode);
+                            //コルーチンを使った移動に変えた
+                            if (currentFigure.GetComponent<FigureParameter>().GetPosition() >= 28)
+                            {
+                                route.Pop();
+                                yield return StartCoroutine(currentFigure.GetComponent<FigureController>().FigureOneStepWalk(route.Peek()));
+                            }
+                            if (route.Count >= 2)
+                            {
+                                yield return StartCoroutine(currentFigure.GetComponent<FigureController>().Figurewalk(route));
+                            }
+                            StartCoroutine(SetPhaseState(PhaseState.AfterWalk));
                         }
-                        if (route.Count >= 2)
-                        {
-                            yield return StartCoroutine(currentFigure.GetComponent<FigureController>().Figurewalk(route));
-                        }
-                        StartCoroutine(SetPhaseState(PhaseState.AfterWalk));
                     }
                 }
+            }
         }
     }
 
@@ -598,7 +606,7 @@ public class BoardController : MonoBehaviour
             //実際はこれに加えて眠り、氷、mpマイナスマーカーの味方がいたとき
 
             FigureParameter currentFigureParameter = currentFigure.GetComponent<FigureParameter>();
-            bool opponentExistInAttackCandidates = false;
+            bool opponentExistInAttackCandidates = false;   // バトル候補がいるかどうか
             int opponentID;
             if (currentFigureParameter.GetPlayerID() == 0) opponentID = 1;
             else opponentID = 0;
@@ -664,9 +672,30 @@ public class BoardController : MonoBehaviour
         else if (phaseState == PhaseState.TurnEnd)
         {
             //相手のターンにして残りのターン数を更新
-            if (turnNumber == 0) turnNumber = 1;
-            else if (turnNumber == 1) turnNumber = 0;
+            if (turnNumber == 0)
+            {
+                turnNumber = 1;
+            }
+            else if (turnNumber == 1)
+            {
+                turnNumber = 0;
+            }
             restTurn--;
+
+            // ウェイトが付いているフィギュアのウェイトを更新
+            // ウェイト0になったらウェイトカウンターの描画を終了する
+            for(int i = 0; i < 2; i++)
+            {
+                List<GameObject> deck = figures[i];
+                foreach(GameObject figure in deck)
+                {
+                    if(figure.GetComponent<FigureParameter>().GetWaitCount() >= 1)
+                    {
+                        figure.GetComponent<FigureParameter>().decreaseWaitCount();
+                    }
+                }
+            }
+
             turnEndButton.SetActive(false);
             //Debug.Log("プレイヤー" + turnNumber + "のターンです");
             StartCoroutine(SetPhaseState(PhaseState.TurnStart));
@@ -678,6 +707,14 @@ public class BoardController : MonoBehaviour
                 gameEndText.SetActive(true);
                 gameEndText.GetComponent<TextMeshProUGUI>().text = "PLAYER" + currentFigure.GetComponent<FigureParameter>().GetPlayerID() + " WIN!";
         }
+        else if(phaseState == PhaseState.Forfeit)
+        {
+//            Debug.Log("CurrentPlayerId = " + currentFigure.GetComponent<FigureParameter>().GetPlayerID());
+//            Debug.Log("OpponentPlayerId = " + opponentFigure.GetComponent<FigureParameter>().GetPlayerID());
+            gameEndText.SetActive(true);
+            gameEndText.GetComponent<TextMeshProUGUI>().text = "PLAYER" + (turnNumber + 1) % 2 + " WIN!";
+        }
+        
         else yield return null;
         //yield return null;
     }
@@ -718,6 +755,8 @@ public class BoardController : MonoBehaviour
         //PC1からベンチへ移動
         if (backBenchFigure != null)
         {
+            // ウェイト2を付与
+            backBenchFigure.GetComponent<FigureParameter>().SetWaitCount(2);
             yield return backBenchFigure.GetComponent<FigureController>().FigureOneStepWalk(backBenchFigure.GetComponent<FigureParameter>().GetBenchID());
         }
         //PC0からPC1へ移動
@@ -824,5 +863,10 @@ public class BoardController : MonoBehaviour
     public void turnEnd()
     {
         StartCoroutine(SetPhaseState(PhaseState.TurnEnd));
+    }
+
+    public void forFeit()
+    {
+        StartCoroutine(SetPhaseState(PhaseState.Forfeit));
     }
 }

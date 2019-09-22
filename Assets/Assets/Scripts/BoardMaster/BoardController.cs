@@ -10,15 +10,16 @@ public class BoardController : MonoBehaviour
 {
     //あるノードから別のノードへのエッジをListで表現
     //edgesは配列であり、各成分がint型のList
+    public const int NUMBER_OF_PLAYERS = 2;
     private List<int>[] edges = new List<int>[44];
-    private int[][] entryNodeID = new int[2][];
-    private int[] goalNodeID = new int[2];
-    private int[][] benchNodeID = new int[2][];
-    private int[][] pcNodeID = new int[2][];
+    private int[][] entryNodeID = new int[NUMBER_OF_PLAYERS][];
+    private int[] goalNodeID = new int[NUMBER_OF_PLAYERS];
+    private int[][] benchNodeID = new int[NUMBER_OF_PLAYERS][];
+    private int[][] pcNodeID = new int[NUMBER_OF_PLAYERS][];
 
     //第一要素がプレイヤー番号(0 or 1)、第二要素がfigureIDOnBoard
     //ゲーム開始時に敵味方それぞれのフィギュアを認識してfigureIDOnBoardを振る
-    private List<GameObject>[] figures = new List<GameObject>[2];
+    private List<GameObject>[] figures = new List<GameObject>[NUMBER_OF_PLAYERS];
 
     //ノードの親要素
     [SerializeField] private GameObject nodes;
@@ -150,7 +151,7 @@ public class BoardController : MonoBehaviour
         edges[39].Add(0); edges[39].Add(6);
 
         //第一成分のインデックスはプレイヤーID、第二成分のインデックス0番が左エントリー, インデックス1番が右エントリー
-        for (int i = 0; i < entryNodeID.Length; i++) entryNodeID[i] = new int[2];
+        for (int i = 0; i < entryNodeID.Length; i++) entryNodeID[i] = new int[NUMBER_OF_PLAYERS];
         entryNodeID[0][0] = 21; entryNodeID[0][1] = 27;
         entryNodeID[1][0] = 6; entryNodeID[1][1] = 0;
 
@@ -163,7 +164,7 @@ public class BoardController : MonoBehaviour
         for (int i = 0; i < 6; i++) benchNodeID[1][i] = 28 + 6 + i;
 
         //第一成分のインデックスはプレイヤーID , 第二成分のインデックス0番は先に入るPC, インデックス1番は後に入るPC
-        for (int i = 0; i < pcNodeID.Length; i++) pcNodeID[i] = new int[2];
+        for (int i = 0; i < pcNodeID.Length; i++) pcNodeID[i] = new int[NUMBER_OF_PLAYERS];
         pcNodeID[0][0] = 40; pcNodeID[0][1] = 41;
         pcNodeID[1][0] = 42; pcNodeID[1][1] = 43;
     }
@@ -497,36 +498,49 @@ public class BoardController : MonoBehaviour
     public IEnumerator NodeClicked(int _nodeID)
     {
 
-        if (phaseState == PhaseState.FigureSelected)
+        // 状態チェック
+        if (phaseState != PhaseState.FigureSelected)
         {
-            if (currentFigure.GetComponent<FigureParameter>().GetPlayerID() == turnNumber)
-            {
-                if(currentFigure.GetComponent<FigureParameter>().GetWaitCount() == 0)
-                {
-                    for (int i = 0; i < walkCandidates.Count; i++)
-                    {
-                        if (_nodeID == walkCandidates[i])
-                        {
-                            StartCoroutine(SetPhaseState(PhaseState.Walking));
-                            //ここの引数のprevNodeはFigureSelectedが呼ばれたときに格納されているよ
+            yield break;
+        }
 
-                            Stack<int> route = DecideRoute(_nodeID, prevNode);
-                            //コルーチンを使った移動に変えた
-                            if (currentFigure.GetComponent<FigureParameter>().GetPosition() >= 28)
-                            {
-                                route.Pop();
-                                yield return StartCoroutine(currentFigure.GetComponent<FigureController>().FigureOneStepWalk(route.Peek()));
-                            }
-                            if (route.Count >= 2)
-                            {
-                                yield return StartCoroutine(currentFigure.GetComponent<FigureController>().Figurewalk(route));
-                            }
-                            StartCoroutine(SetPhaseState(PhaseState.AfterWalk));
-                        }
-                    }
+        // 選択フィギュアの所有権チェック
+        if (currentFigure.GetComponent<FigureParameter>().GetPlayerID() != turnNumber)
+        {
+            yield break;
+        }
+
+        // ウェイトチェック
+        if(currentFigure.GetComponent<FigureParameter>().GetWaitCount() >= 1)
+        {
+            yield break;
+        }
+
+        // MP移動先候補とクリックされたノードIDが一致したらWalking状態に遷移して移動を行い、
+        // その後AfterWalk状態に遷移する
+        for (int i = 0; i < walkCandidates.Count; i++)
+        {
+            if (_nodeID == walkCandidates[i])
+            {
+                StartCoroutine(SetPhaseState(PhaseState.Walking));
+                //ここの引数のprevNodeはFigureSelectedが呼ばれたときに格納されているよ
+
+                Stack<int> route = DecideRoute(_nodeID, prevNode);
+                //コルーチンを使った移動に変えた
+                if (currentFigure.GetComponent<FigureParameter>().GetPosition() >= 28)
+                {
+                    route.Pop();
+                    yield return StartCoroutine(currentFigure.GetComponent<FigureController>().FigureOneStepWalk(route.Peek()));
                 }
+                if (route.Count >= 2)
+                {
+                    yield return StartCoroutine(currentFigure.GetComponent<FigureController>().Figurewalk(route));
+                }
+                StartCoroutine(SetPhaseState(PhaseState.AfterWalk));
             }
         }
+
+        yield break;
     }
 
     //ゲームの状態変数のゲッター、セッター
@@ -600,6 +614,14 @@ public class BoardController : MonoBehaviour
             for (int i = 0; i < 28; i++)
             {
                 nodes.transform.GetChild(i).GetComponent<SpriteRenderer>().color = Color.white;
+            }
+
+            // 包囲処理
+            int currentFigureNode = currentFigure.GetComponent<FigureParameter>().GetPosition();
+            foreach (int i in edges[currentFigureNode])
+            {
+                GameObject adjacentFigure = GetFigureOnBoard(i);
+                yield return KnockedOutBySurrounding(adjacentFigure);
             }
 
             //周囲に敵が誰もいなければターンエンド
@@ -802,6 +824,7 @@ public class BoardController : MonoBehaviour
 
             //UIの非表示
             turnEndButton.SetActive(false);
+
             //UIカット
             //restTurnText.GetComponent<TextMeshProUGUI>().enabled = false;
 
@@ -868,5 +891,72 @@ public class BoardController : MonoBehaviour
     public void forFeit()
     {
         StartCoroutine(SetPhaseState(PhaseState.Forfeit));
+    }
+
+    // figureが相手のフィギュアに包囲されているかを判定する
+    public bool IsSurrounded(GameObject figure)
+    {
+        // figureの所有者のID
+        int currentId = figure.GetComponent<FigureParameter>().GetPlayerID();
+        // figureに隣接するフィギュア
+        GameObject adjacentFigure;
+
+        // figureに隣接するフィギュアが全て相手のフィギュアでなければfalseを返す
+        // それ以外であればtrueを返す
+        foreach(int adjacentNode in edges[figure.GetComponent<FigureParameter>().GetPosition()])
+        {
+            adjacentFigure = GetFigureOnBoard(adjacentNode);
+            if (null == adjacentFigure)
+            {
+                return false;
+            }
+
+            if (currentId == adjacentFigure.GetComponent<FigureParameter>().GetPlayerID())
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    // figureの包囲判定と気絶処理を行う
+    public IEnumerator KnockedOutBySurrounding(GameObject figure)
+    {
+        Debug.Log("KnockedOutBySurrounding is called.");
+        if(null == figure)
+        {
+            yield break;
+        }
+        bool isSurrounded = IsSurrounded(figure);
+
+        if (isSurrounded)
+        {
+            Debug.Log("Knocked out by surrounding!!");
+            yield return Death(figure);
+        }
+    }
+
+    // ボード上のノード(nodeId)にあるフィギュアオブジェクトを取得する
+    // フィギュアが存在しない場合はnullを返す
+    public GameObject GetFigureOnBoard(int nodeId)
+    {
+        for(int playerId = 0; playerId < NUMBER_OF_PLAYERS; playerId++)
+        {
+            foreach (GameObject figure in figures[playerId])
+            {
+                if(nodeId == figure.GetComponent<FigureParameter>().GetPosition())
+                {
+                    return figure;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public int GetTheOtherPlayerId(int onePlayerId)
+    {
+        return (onePlayerId + 1) % 2;
     }
 }

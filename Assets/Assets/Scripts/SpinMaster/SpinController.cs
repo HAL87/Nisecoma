@@ -11,8 +11,8 @@ public class SpinController : MonoBehaviour
     //変更点
     public static (int result, bool currentMoveAwake, bool opponentMoveAwake, bool currentDeath, bool oppnentDeath) BattleResult;
 
-    [SerializeField] private Text[] moveText = new Text[2];
-    [SerializeField] private Text[] battleResultText = new Text[2];
+    [SerializeField] private Text[] moveText = new Text[BoardController.NUMBER_OF_PLAYERS];
+    [SerializeField] private Text[] battleResultText = new Text[BoardController.NUMBER_OF_PLAYERS];
  //   [SerializeField] private Text buttleResultText0;
  //   [SerializeField] private Text buttleResultText1;
 
@@ -21,7 +21,7 @@ public class SpinController : MonoBehaviour
     {
         boardController = GameObject.Find("BoardMaster").GetComponent<BoardController>();
 
-        RouletteMaker[] rouletteMaker = new RouletteMaker[2];
+        RouletteMaker[] rouletteMaker = new RouletteMaker[BoardController.NUMBER_OF_PLAYERS];
 
         int currentPlayerID = boardController.GetCurrentFigure().GetComponent<FigureParameter>().GetPlayerID();
         Debug.Log("currentPlayerIDは" + currentPlayerID);
@@ -33,7 +33,7 @@ public class SpinController : MonoBehaviour
         rouletteMaker[opponentPlayerID] = datadisks[opponentPlayerID].GetComponent<RouletteMaker>();
         rouletteMaker[opponentPlayerID].CreateRulette(boardController.GetOpponentFigure().GetComponent<FigureParameter>().GetData());
 
-        DiskSpin[] diskSpin = new DiskSpin[2];
+        DiskSpin[] diskSpin = new DiskSpin[BoardController.NUMBER_OF_PLAYERS];
         diskSpin[currentPlayerID] = datadisks[currentPlayerID].GetComponent<DiskSpin>();
         diskSpin[opponentPlayerID] = datadisks[opponentPlayerID].GetComponent<DiskSpin>();
 

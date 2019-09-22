@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 public class GetInfo : MonoBehaviour
 {
-    private GameObject[] data = new GameObject[2];
+    private GameObject[] data = new GameObject[BoardController.NUMBER_OF_PLAYERS];
     //使い方: 何らかのトリガーで(ボタンとか)フィギュアの情報を取得
     public void SetData(GameObject _data, int player)
     {

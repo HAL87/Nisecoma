@@ -54,6 +54,11 @@ public class FigureParameter : MonoBehaviour
     }
 
     // プレイヤーのID(0 or 1)
+
+    public void SetPlayerId(int _playerId)
+    {
+        playerId = _playerId;
+    }
     public int GetPlayerId()
     {
         return playerId;

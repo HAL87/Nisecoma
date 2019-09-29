@@ -25,7 +25,7 @@ public class FigureController : MonoBehaviour
         // 先にBoardMasterのStartで各フィギュアにベンチ番号を割り振っている
         figureParameter = GetComponent<FigureParameter>();
         boardController = GameObject.Find("BoardMaster").GetComponent<BoardController>();
-        //transform.position = nodesTransform.GetChild(figureParameter.GetPosition()).position;
+        transform.position = nodesTransform.GetChild(figureParameter.GetPosition()).position;
     }
 
     private void Update()

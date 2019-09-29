@@ -8,21 +8,18 @@ EditorBuildSettings:
   - enabled: 0
     path: 
     guid: 00000000000000000000000000000000
-  - enabled: 0
+  - enabled: 1
     path: Assets/Assets/Scenes/GameScene.unity
     guid: dc409f36f4fdf0c4596db4b54545771e
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
   - enabled: 1
-    path: Assets/Assets/Scenes/LobbyScene.unity
-    guid: 35e69b0b05363bf4d9c6730f1140f010
+    path: Assets/Assets/Scenes/BoardScene.unity
+    guid: baf67f6404f91d74b861fa0b8b991f8f
+  - enabled: 1
+    path: Assets/Assets/Scenes/SpinScene.unity
+    guid: f99370d31589d524e9c0739b74f3ee4d
+  - enabled: 0
+    path: 
+    guid: 00000000000000000000000000000000
   - enabled: 0
     path: 
     guid: 00000000000000000000000000000000

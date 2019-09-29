@@ -9,8 +9,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
-using Photon.Pun;
-using Photon.Realtime;
 
 public class BoardController : MonoBehaviour
 {
@@ -119,16 +117,6 @@ public class BoardController : MonoBehaviour
     // ゲームの状態変数
     private PhaseState phaseState;
 
-    // プレイヤーID。最初に入ったら0番、後に入ったら1番
-    private int myPlayerId;
-
-    //テスト用
-    //デッキに入れたいポケモンの文字列を渡してやる
-    [SerializeField] private List<String> deckList0 = new List<String>();
-    [SerializeField] private List<String> deckList1 = new List<String>();
-
-    //カメラの位置
-    [SerializeField] private Transform cameraTransform;
     /***************************************************************/
     /*                      プロトタイプ関数宣言                   */
     /***************************************************************/
@@ -139,60 +127,28 @@ public class BoardController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        PhotonNetwork.IsMessageQueueRunning = true;
-        myPlayerId = PhotonNetwork.LocalPlayer.ActorNumber - 1;
-        Debug.Log("プレイヤーIDは" + myPlayerId);
-        if (myPlayerId == 1)
-        {
-            cameraTransform.Rotate(0, 0, 180f);
-        }
         // ボードのデータ構造作成（ゲームの最初に1回だけ呼ばれる
         CreateBoard();
         EdgeDraw();
-
-        InstantiateMyFigure();
-
-        // イベントにイベントハンドラーを追加
-        SceneManager.sceneLoaded += SceneLoaded;
-
-        StartCoroutine(GameStart());
-    }
-    void Update()
-    {
-
-    }
-
-    //ゲーム開始
-    IEnumerator GameStart()
-    {
-        //Debug.Log(PhotonNetwork.CountOfPlayersInRooms);
-        //2人来るまで待機
-        while (PhotonNetwork.PlayerList.Length < 2)
-        {
-            yield return null;
-        }
-        yield return new WaitForSeconds(2);
         DivideFigures();
         /* UIカット
         yield return FadeInOut(startText, 1);
         Destroy(startText);
         */
-        GameObject[] objs = GameObject.FindGameObjectsWithTag("Figure");
-        foreach (GameObject obj in objs)
-        {
-            FigureParameter figureParameter = obj.GetComponent<FigureParameter>();
-            Debug.Log(obj);
-            Debug.Log(figureParameter.GetPlayerId());
-            Debug.Log(figureParameter.GetBenchId());
-            Debug.Log(figureParameter.GetPosition());
-        }
-
-        //暫定的にプレイヤー0のターンに固定
+        // 暫定的にプレイヤー0のターンに固定
         turnNumber = 0;
         StartCoroutine(SetPhaseState(PhaseState.TurnStart));
 
 
-        Debug.Log("プレイヤー" + turnNumber + "のターンです");
+        // Debug.Log("プレイヤー" + turnNumber + "のターンです");
+        // Debug.Log(figures.Length);
+
+        // イベントにイベントハンドラーを追加
+        SceneManager.sceneLoaded += SceneLoaded;
+    }
+    void Update()
+    {
+
     }
 
     // ボード、フィギュアの初期化処理
@@ -321,32 +277,6 @@ public class BoardController : MonoBehaviour
         }
     }
 
-    void InstantiateMyFigure()
-    {
-        GameObject obj;
-        //本当はデッキを参照する
-        //テストだからゆるして
-        if (myPlayerId == 0)
-        {
-            for (int i = 0; i < deckList0.Count; i++)
-            {
-                obj = PhotonNetwork.Instantiate(deckList0[i], transform.position, Quaternion.identity, 0);
-                obj.transform.Find("FigureBack2").GetComponent<SpriteRenderer>().color = Color.blue;
-            }
-
-        }
-
-        else if (myPlayerId == 1)
-        {
-            for (int i = 0; i < deckList1.Count; i++)
-            {
-                obj = PhotonNetwork.Instantiate(deckList1[i], transform.position, Quaternion.identity, 0);
-                obj.transform.Find("FigureBack2").GetComponent<SpriteRenderer>().color = Color.blue;
-            }
-        }
-
-    }
-
     // 各フィギュアをplayerIDに従って分けてfigureという箱に入れる
     // 配列の第二要素のインデックスに対応する値(figureIdOnBoard)を各フィギュアに割り振る
     void DivideFigures()
@@ -354,46 +284,35 @@ public class BoardController : MonoBehaviour
         figures[0] = new List<GameObject>();
         figures[1] = new List<GameObject>();
         GameObject[] objs = GameObject.FindGameObjectsWithTag("Figure");
-        int count0 = 0;
-        int count1 = 0;
+
         foreach (GameObject obj in objs)
         {
             FigureParameter figureParameter = obj.GetComponent<FigureParameter>();
-            //Debug.Log(obj.GetComponent<PhotonView>().OwnerActorNr - 1);
-            obj.GetComponent<FigureParameter>().SetPlayerId(obj.GetComponent<PhotonView>().OwnerActorNr - 1);
-
             if (figureParameter.GetPlayerId() == 0)
             {
                 figureParameter.SetFigureIdOnBoard(figures[0].Count);
                 figures[0].Add(obj);
-                obj.GetComponent<FigureParameter>().SetBenchId(count0 + 28);
-                obj.GetComponent<FigureParameter>().SetPosition(count0 + 28);
-                obj.transform.position = nodes.transform.GetChild(28 + count0).transform.position;
-                if (myPlayerId == 1)
-                {
-                    obj.transform.Find("FigureBack2").GetComponent<SpriteRenderer>().color = Color.red;
-                }
-                count0++;
-                //obj.transform.Find("FigureBack2").GetComponent<SpriteRenderer>().color = Color.blue;
-
-                //Debug.Log(figures[0][figureParameter.GetFigureIdOnBoard()]);
+                obj.transform.Find("FigureBack2").GetComponent<SpriteRenderer>().color = Color.blue;
+                // Debug.Log(figures[0][figureParameter.GetFigureIDOnBoard()]);
             }
             else if (figureParameter.GetPlayerId() == 1)
             {
                 figureParameter.SetFigureIdOnBoard(figures[1].Count);
                 figures[1].Add(obj);
                 obj.transform.Rotate(0, 0, 180f);
-                obj.GetComponent<FigureParameter>().SetBenchId(count1 + 34);
-                obj.GetComponent<FigureParameter>().SetPosition(count1 + 34);
-                obj.transform.position = nodes.transform.GetChild(34 + count1).transform.position;
-                if (myPlayerId == 0)
-                {
-                    obj.transform.Find("FigureBack2").GetComponent<SpriteRenderer>().color = Color.red;
-                }
-                count1++;
-                //obj.transform.Find("FigureBack2").GetComponent<SpriteRenderer>().color = Color.red;
+                obj.transform.Find("FigureBack2").GetComponent<SpriteRenderer>().color = Color.red;
             }
 
+            for (int i = 0; i < figures[0].Count; i++)
+            {
+                figures[0][i].GetComponent<FigureParameter>().SetBenchId(NUMBER_OF_FIELD_NODES + i);
+                figures[0][i].GetComponent<FigureParameter>().SetPosition(NUMBER_OF_FIELD_NODES + i);
+            }
+            for (int i = 0; i < figures[1].Count; i++)
+            {
+                figures[1][i].GetComponent<FigureParameter>().SetBenchId(NUMBER_OF_FIELD_NODES + 6 + i);
+                figures[1][i].GetComponent<FigureParameter>().SetPosition(NUMBER_OF_FIELD_NODES + 6 + i);
+            }
         }
     }
 
@@ -514,9 +433,7 @@ public class BoardController : MonoBehaviour
     // フィギュアがクリックされたときの処理
     public void FigureClicked(int _playerId, int _figureIdOnBoard)
     {
-        // fはテスト用
-        GameObject f = figures[_playerId][_figureIdOnBoard];
-        Debug.Log(f + "の位置は" + f.GetComponent<FigureParameter>().GetPosition());
+        Debug.Log(figures[_playerId][_figureIdOnBoard]);
 
         switch (phaseState)
         {

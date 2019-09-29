@@ -7,7 +7,7 @@ public class FigureParameter : MonoBehaviour
 {
     [SerializeField] private int mp;
     [SerializeField] private GameObject data;
-    private int playerId = -1;
+    [SerializeField] private int playerId;
     [SerializeField] private int attackRange = 1;
     [SerializeField] private GameObject waitCounter;
     [SerializeField] private Text waitCounterText;
@@ -54,10 +54,6 @@ public class FigureParameter : MonoBehaviour
     }
 
     // プレイヤーのID(0 or 1)
-    public void SetPlayerId(int _playerId)
-    {
-        playerId = _playerId;
-    }
     public int GetPlayerId()
     {
         return playerId;

@@ -5,11 +5,11 @@ using UnityEngine.UI;
 
 public class RouletteMaker : MonoBehaviour
 {
-    //ルーレットの表示場所
+    // ルーレットの表示場所
     [SerializeField] private Transform imageParentTransform;
-    //白い円の画像
+    // 白い円の画像
     [SerializeField] private Image rouletteImage;
-    //[SerializeField] private GameObject data;
+    // [SerializeField] private GameObject data;
 
     private MoveParameter moveParameter;
     private float convertConstant = 360f / 96f;
@@ -23,13 +23,13 @@ public class RouletteMaker : MonoBehaviour
             var obj = Instantiate(rouletteImage, imageParentTransform);
             obj.fillAmount = moveParameter.GetMoveRange() / 96f;
 
-            //ピースの回転
+            // ピースの回転
             Vector3 axis = new Vector3(0f, 0f, -1f);
             float angle = convertConstant * totalRange;
             Quaternion q = Quaternion.AngleAxis(angle, axis);
             obj.transform.rotation = q * obj.transform.rotation;
 
-            //ルーレットの色を決定
+            // ルーレットの色を決定
             if (moveParameter.GetMoveColorName() == MoveParameter.MoveOfColorName.White) obj.color = Color.white;
             else if (moveParameter.GetMoveColorName() == MoveParameter.MoveOfColorName.Blue) obj.color = new Color(0,154,255,255);
             else if (moveParameter.GetMoveColorName() == MoveParameter.MoveOfColorName.Purple) obj.color = Color.magenta;
@@ -37,7 +37,7 @@ public class RouletteMaker : MonoBehaviour
             else if (moveParameter.GetMoveColorName() == MoveParameter.MoveOfColorName.Red) obj.color = Color.red;
 
 
-            //ワザの名前を入力
+            // ワザの名前を入力
             Text[] texts = obj.GetComponentsInChildren<Text>();
             texts[0].text = moveParameter.GetMoveName();
             if(moveParameter.GetMoveColorName() == MoveParameter.MoveOfColorName.White ||
@@ -63,7 +63,7 @@ public class RouletteMaker : MonoBehaviour
             obj.transform.GetChild(0).transform.rotation = Quaternion.Euler(0, 0, -(moveParameter.GetMoveRange() / 2 + totalRange) * convertConstant);
             totalRange += moveParameter.GetMoveRange();
 
-            //Debug.Log(moveParameter.GetMoveName());
+            // Debug.Log(moveParameter.GetMoveName());
         }
 
     }

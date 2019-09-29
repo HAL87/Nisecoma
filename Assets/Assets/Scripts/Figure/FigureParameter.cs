@@ -12,18 +12,18 @@ public class FigureParameter : MonoBehaviour
     [SerializeField] private GameObject waitCounter;
     [SerializeField] private Text waitCounterText;
     private bool beSelected = false;
-    //ゲーム開始時にboardMasterによりセットされるID
+    // ゲーム開始時にboardMasterによりセットされるID
     private int figureIdOnBoard;
     private int benchId;
     private int position;
     private int waitCount = 0;  // ウェイト デフォルトは0
-    //mp
+    // mp
     public int GetMp()
     {
         return mp;
     }
 
-    //現在地のノードID
+    // 現在地のノードID
     public void SetPosition(int _position)
     {
         position = _position;
@@ -33,7 +33,7 @@ public class FigureParameter : MonoBehaviour
         return position;
     }
 
-    //ゲーム開始時に定められるID
+    // ゲーム開始時に定められるID
     public void SetFigureIdOnBoard(int _figureIdOnBoard)
     {
         figureIdOnBoard = _figureIdOnBoard;
@@ -43,7 +43,7 @@ public class FigureParameter : MonoBehaviour
         return figureIdOnBoard;
     }
 
-    //選択中フラグ
+    // 選択中フラグ
     public bool GetBeSelected()
     {
         return beSelected;
@@ -53,7 +53,7 @@ public class FigureParameter : MonoBehaviour
         beSelected = _beSelcted;
     }
 
-    //プレイヤーのID(0 or 1)
+    // プレイヤーのID(0 or 1)
     public int GetPlayerId()
     {
         return playerId;

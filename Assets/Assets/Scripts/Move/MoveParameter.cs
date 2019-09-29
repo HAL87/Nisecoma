@@ -4,8 +4,8 @@ using UnityEngine;
 using UnityEngine.Events;
 public class MoveParameter : MonoBehaviour
 {
-    //moveDataの子要素である各ワザにそれぞれアタッチ
-    //色の名前
+    // moveDataの子要素である各ワザにそれぞれアタッチ
+    // 色の名前
     public enum MoveOfColorName
     {
         White,
@@ -15,17 +15,17 @@ public class MoveParameter : MonoBehaviour
         Red
     };
     [SerializeField] private MoveOfColorName moveOfColorName;
-    //ワザの名前
+    // ワザの名前
     [SerializeField] private string moveName;
-    //ピース幅
+    // ピース幅
     [SerializeField] private int moveRange;
-    //ピースの色
-    //[SerializeField] private Color color;
-    //打点（白、金のみ）
+    // ピースの色
+    // [SerializeField] private Color color;
+    // 打点（白、金のみ）
     [SerializeField] private int movePower;
-    //星の数（紫のみ）
+    // 星の数（紫のみ）
     [SerializeField] private int moveNumberOfStar;
-    //技効果
+    // 技効果
     public UnityEvent OnInitDone;
 
     // Start is called before the first frame update

@@ -8,7 +8,7 @@ public class SpinController : MonoBehaviour
 {
     private BoardController boardController;
     [SerializeField] private List<GameObject> datadisks;
-    //変更点
+    // 変更点
     public static (int result, bool currentMoveAwake, bool opponentMoveAwake, bool currentDeath, bool oppnentDeath) BattleResult;
 
     [SerializeField] private Text[] moveText = new Text[BoardController.NUMBER_OF_PLAYERS];
@@ -49,8 +49,8 @@ public class SpinController : MonoBehaviour
         BattleResult = Judge(mp0, mp1);
 
 
-        //moveText0.GetComponent<Text>();
-        //moveText1.GetComponent<Text>();
+        // moveText0.GetComponent<Text>();
+        // moveText1.GetComponent<Text>();
 
         moveText[boardController.GetCurrentFigure().GetComponent<FigureParameter>().GetPlayerId()].text = mp0.GetMoveName();
         moveText[boardController.GetOpponentFigure().GetComponent<FigureParameter>().GetPlayerId()].text = mp1.GetMoveName();
@@ -74,7 +74,7 @@ public class SpinController : MonoBehaviour
             battleResultText[boardController.GetCurrentFigure().GetComponent<FigureParameter>().GetPlayerId()].text = "Draw";
             battleResultText[boardController.GetOpponentFigure().GetComponent<FigureParameter>().GetPlayerId()].text = "Draw";
         }
-        //yield return new WaitForSeconds(0.5f);
+        // yield return new WaitForSeconds(0.5f);
         yield return new WaitUntil(() => Input.GetMouseButtonDown(0));
         SceneManager.LoadScene("BoardScene");
         

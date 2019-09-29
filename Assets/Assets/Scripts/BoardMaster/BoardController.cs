@@ -21,8 +21,8 @@ public class BoardController : MonoBehaviour
     // ノード数
     public const int NUMBER_OF_FIELD_NODES = 28;    // フィールド
     public const int NUMBER_OF_BENCH_NODES = 12;    // ベンチ
-    public const int NUMBER_OF_WALK_NODES = NUMBER_OF_FIELD_NODES + NUMBER_OF_BENCH_NODES;  // フィールド+ベンチ(MP移動するノード)
     public const int NUMBER_OF_PC_NODES = 4;        // PC
+    public const int NUMBER_OF_WALK_NODES = NUMBER_OF_FIELD_NODES + NUMBER_OF_BENCH_NODES + NUMBER_OF_PC_NODES;  // フィールド+ベンチ(MP移動するノード)
     public const int NUMBER_OF_US_NODES = 12;       // ウルトラスペース
     public const int NUMBER_OF_REMOVED_NODES = 12;  // 除外ゾーン
 
@@ -34,8 +34,8 @@ public class BoardController : MonoBehaviour
     public const int NODE_ID_ENTRY_PLAYER1_RIGHT = 6;
 
     // ゴール
-    public const int NODE_ID_GOAL_PLAYER0 = 3;
-    public const int NODE_ID_GOAL_PLAYER1 = 24;
+    public const int NODE_ID_GOAL_PLAYER0 = 24;
+    public const int NODE_ID_GOAL_PLAYER1 = 3;
 
     // ベンチ(各プレイヤーについてFigureParameterのbenchIdの最若のものから連番)
     public const int NODE_ID_BENCH_PLAYER0_TOP = 28;
@@ -65,40 +65,40 @@ public class BoardController : MonoBehaviour
     private int[][] benchNodeId = new int[NUMBER_OF_PLAYERS][];
     private int[][] pcNodeId    = new int[NUMBER_OF_PLAYERS][];
 
-    //第一要素がプレイヤー番号(0 or 1)、第二要素がfigureIDOnBoard
-    //ゲーム開始時に敵味方それぞれのフィギュアを認識してfigureIDOnBoardを振る
+    // 第一要素がプレイヤー番号(0 or 1)、第二要素がfigureIDOnBoard
+    // ゲーム開始時に敵味方それぞれのフィギュアを認識してfigureIDOnBoardを振る
     private List<GameObject>[] figures = new List<GameObject>[NUMBER_OF_PLAYERS];
 
-    //ノードの親要素
+    // ノードの親要素
     [SerializeField] private GameObject nodes;
 
-    //エッジ描画のためのprefab
+    // エッジ描画のためのprefab
     [SerializeField] private GameObject drawEdgePrefab;
 
-    //UI
+    // UI
     [SerializeField] private GameObject startText;
     [SerializeField] private List<GameObject> playerTurnText;
     [SerializeField] private GameObject restTurnText;
     [SerializeField] private GameObject gameEndText;
     [SerializeField] private GameObject turnEndButton;
 
-    //そのノードにつく前はどこにいたのかを表す
+    // そのノードにつく前はどこにいたのかを表す
     private int[] prevNode = new int[NUMBER_OF_WALK_NODES];
 
-    //移動、バトルの主体となるフィギュア（"使用"するフィギュア）
+    // 移動、バトルの主体となるフィギュア（"使用"するフィギュア）
     private GameObject currentFigure = null;
-    //歩行範囲
+    // 歩行範囲
     private List<int> walkCandidates = new List<int>();
-    //攻撃範囲
+    // 攻撃範囲
     private List<int> attackCandidates = new List<int>();
-    //バトル相手のフィギュア
+    // バトル相手のフィギュア
     private GameObject opponentFigure = null;
-    //効果の対象など
+    // 効果の対象など
     private GameObject targetFigure = null;
 
-    //どちらのターンかを表す。{0,1}で定められる
+    // どちらのターンかを表す。{0,1}で定められる
     private int turnNumber = 0;
-    //残りターン数
+    // 残りターン数
     private int restTurn = 300;
     public enum PhaseState
     {
@@ -114,7 +114,7 @@ public class BoardController : MonoBehaviour
         GameEnd, 
         Forfeit
     };
-    //ゲームの状態変数
+    // ゲームの状態変数
     private PhaseState phaseState;
 
     /***************************************************************/
@@ -127,7 +127,7 @@ public class BoardController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        //ボードのデータ構造作成（ゲームの最初に1回だけ呼ばれる
+        // ボードのデータ構造作成（ゲームの最初に1回だけ呼ばれる
         CreateBoard();
         EdgeDraw();
         DivideFigures();
@@ -135,13 +135,13 @@ public class BoardController : MonoBehaviour
         yield return FadeInOut(startText, 1);
         Destroy(startText);
         */
-        //暫定的にプレイヤー0のターンに固定
+        // 暫定的にプレイヤー0のターンに固定
         turnNumber = 0;
         StartCoroutine(SetPhaseState(PhaseState.TurnStart));
 
 
-        //Debug.Log("プレイヤー" + turnNumber + "のターンです");
-        //Debug.Log(figures.Length);
+        // Debug.Log("プレイヤー" + turnNumber + "のターンです");
+        // Debug.Log(figures.Length);
 
         // イベントにイベントハンドラーを追加
         SceneManager.sceneLoaded += SceneLoaded;
@@ -151,12 +151,12 @@ public class BoardController : MonoBehaviour
 
     }
 
-    //ボード、フィギュアの初期化処理
-    //ボードのデータ構造を表現
+    // ボード、フィギュアの初期化処理
+    // ボードのデータ構造を表現
     void CreateBoard()
     {
-        //暫定のデータ構造
-        //ベンチ、PC、US、除外を連番にするか別にするかは検討
+        // 暫定のデータ構造
+        // ベンチ、PC、US、除外を連番にするか別にするかは検討
         for (int i = 0; i < NUMBER_OF_WALK_NODES; i++)
         {
             nodes.transform.GetChild(i).GetComponent<NodeParameter>().SetNodeID(i);
@@ -250,7 +250,7 @@ public class BoardController : MonoBehaviour
         pcNodeId[1][0] = NODE_ID_PC_PLAYER1_0; pcNodeId[1][1] = NODE_ID_PC_PLAYER1_1;
     }
 
-    //エッジの描画
+    // エッジの描画
     void EdgeDraw()
     {
         for (int i = 0; i < NUMBER_OF_FIELD_NODES; i++)
@@ -264,7 +264,7 @@ public class BoardController : MonoBehaviour
                 line.startWidth = 0.05f;
                 line.endWidth = 0.05f;
 
-                //頂点の数を決める
+                // 頂点の数を決める
                 line.positionCount = 2;
 
                 Vector3 startDrawPosition = nodes.transform.GetChild(i).position;
@@ -277,8 +277,8 @@ public class BoardController : MonoBehaviour
         }
     }
 
-    //各フィギュアをplayerIDに従って分けてfigureという箱に入れる
-    //配列の第二要素のインデックスに対応する値(figureIdOnBoard)を各フィギュアに割り振る
+    // 各フィギュアをplayerIDに従って分けてfigureという箱に入れる
+    // 配列の第二要素のインデックスに対応する値(figureIdOnBoard)を各フィギュアに割り振る
     void DivideFigures()
     {
         figures[0] = new List<GameObject>();
@@ -293,7 +293,7 @@ public class BoardController : MonoBehaviour
                 figureParameter.SetFigureIdOnBoard(figures[0].Count);
                 figures[0].Add(obj);
                 obj.transform.Find("FigureBack2").GetComponent<SpriteRenderer>().color = Color.blue;
-                //Debug.Log(figures[0][figureParameter.GetFigureIDOnBoard()]);
+                // Debug.Log(figures[0][figureParameter.GetFigureIDOnBoard()]);
             }
             else if (figureParameter.GetPlayerId() == 1)
             {
@@ -316,38 +316,41 @@ public class BoardController : MonoBehaviour
         }
     }
 
-    //マスク配列の作成。
-    //とりあえず場にいるすべてのフィギュアを障害物と認識するだけだが、すり抜けとかの実装の際要拡張
+    // マスク配列の作成。
+    // とりあえず場にいるすべてのフィギュアを障害物と認識するだけだが、すり抜けとかの実装の際要拡張
     bool[] CreateNormalMask()
     {
-        //該当するノードのmaskNodeがtrueの時すり抜け可能、falseなら障害物扱い
+        // 該当するノードのmaskNodeがtrueの時すり抜け可能、falseなら障害物扱い
         bool[] maskNode = new bool[NUMBER_OF_WALK_NODES];
-        for (int i = 0; i < maskNode.Length; i++) maskNode[i] = true;
+        for (int i = 0; i < maskNode.Length; i++)
+        {
+            maskNode[i] = true;
+        }
         for (int i = 0; i < figures.Length; i++)
         {
             for (int j = 0; j < figures[i].Count; j++)
             {
                 FigureParameter figureParameter = figures[i][j].GetComponent<FigureParameter>();
                 maskNode[figureParameter.GetPosition()] = false;
-                //Debug.Log(figureParameter.GetPosition());
+                // Debug.Log(figureParameter.GetPosition());
             }
         }
 
         return maskNode;
     }
 
-    //始点から各ノードへの距離を計算
+    // 始点から各ノードへの距離を計算
     (int[] distances, int[] prevNode) CalculateDistance(int _startNode, bool[] _maskNode)
     {
         int[] distances = new int[NUMBER_OF_WALK_NODES];
         int[] prevNode = new int[NUMBER_OF_WALK_NODES];
-        //幅優先探索を素直に実装
+        // 幅優先探索を素直に実装
         Queue<int> q = new Queue<int>();
 
-        //各ノードの到着フラグ
+        // 各ノードの到着フラグ
         bool[] reachedFlag = new bool[NUMBER_OF_WALK_NODES];
 
-        //distancesと到着フラグの初期化
+        // distancesと到着フラグの初期化
         for (int i = 0; i < NUMBER_OF_WALK_NODES; i++)
         {
             distances[i] = 99;
@@ -355,24 +358,24 @@ public class BoardController : MonoBehaviour
             prevNode[i] = -1;
         }
 
-        //初期ノードについての処理
+        // 初期ノードについての処理
         q.Enqueue(_startNode);
         reachedFlag[_startNode] = true;
         distances[_startNode] = 0;
 
         while (true)
         {
-            //キューの先頭のノードを取り出す
+            // キューの先頭のノードを取り出す
             int currentNode = q.Dequeue();
             for (int i = 0; i < edges[currentNode].Count; i++)
             {
-                //現在ノードにつながっているノード（=nextNode)を見る
+                // 現在ノードにつながっているノード（=nextNode)を見る
                 int nextNode = edges[currentNode][i];
-                //nextNodeに到着していなければ
-                //maskがfalseのノードは障害物アリなので行けない
+                // nextNodeに到着していなければ
+                // maskがfalseのノードは障害物アリなので行けない
                 if (reachedFlag[nextNode] == false && _maskNode[nextNode] == true)
                 {
-                    //キューにnextNodeを入れ、到着フラグをtrueにし、distanceの計算をし、どこから来たのかを記録
+                    // キューにnextNodeを入れ、到着フラグをtrueにし、distanceの計算をし、どこから来たのかを記録
                     q.Enqueue(nextNode);
                     reachedFlag[nextNode] = true;
                     distances[nextNode] = distances[currentNode] + 1;
@@ -380,37 +383,46 @@ public class BoardController : MonoBehaviour
                 }
 
             }
-            //キューの中身が空になればループから抜ける
-            if (q.Count == 0) break;
+            // キューの中身が空になればループから抜ける
+            if (q.Count == 0)
+            {
+                break;
+            }
         }
         return (distances, prevNode);
     }
 
-    //始点からの距離がmoveNumber以下のノードを出力
+    // 始点からの距離がmoveNumber以下のノードを出力
     List<int> FindCandidateofDestinaitonLessThan(int _moveNumber, int[] _distances)
     {
         List<int> candidates = new List<int>();
         for (int i = 0; i < NUMBER_OF_FIELD_NODES; i++)
         {
-            //始点から各ノードへの距離がmoveNumber以下であるノードを全て格納
-            if (_distances[i] <= _moveNumber) candidates.Add(i);
+            // 始点から各ノードへの距離がmoveNumber以下であるノードを全て格納
+            if (_distances[i] <= _moveNumber)
+            {
+                candidates.Add(i);
+            }
         }
         return candidates;
     }
 
-    //始点から終点までのルートを出力（最短距離を表現するような全ノードを列挙）
+    // 始点から終点までのルートを出力（最短距離を表現するような全ノードを列挙）
     Stack<int> DecideRoute(int _destNode, int[] _prevNode)
     {
-        //始点と終点を与えたときそれらのノード間の最短経路を格納
+        // 始点と終点を与えたときそれらのノード間の最短経路を格納
         Stack<int> route = new Stack<int>();
 
         int currentNode = _destNode;
         while (true)
         {
-            //終点から始点に向かってノードを積み上げていく
+            // 終点から始点に向かってノードを積み上げていく
             route.Push(currentNode);
             currentNode = _prevNode[currentNode];
-            if (currentNode == -1) break;
+            if (currentNode == -1)
+            {
+                break;
+            }
         }
         return route;
     }
@@ -418,51 +430,53 @@ public class BoardController : MonoBehaviour
     
     // 手番中のユーザ入力処理(クリックされたのがフィギュアかノードかで処理を分ける)
 
-    //フィギュアがクリックされたときの処理
+    // フィギュアがクリックされたときの処理
     public void FigureClicked(int _playerId, int _figureIdOnBoard)
     {
         Debug.Log(figures[_playerId][_figureIdOnBoard]);
 
         switch (phaseState)
         {
-        //ノーマル状態の時
+        // ノーマル状態の時
         case PhaseState.Normal:
-            //遷移1番: Normal → FigureSelect
-            //遷移条件: 任意のフィギュアをクリック
+            // 遷移1番: Normal → FigureSelect
+            // 遷移条件: 任意のフィギュアをクリック
 
-            //currentFigure更新
+            // currentFigure更新
             currentFigure = figures[_playerId][_figureIdOnBoard];
 
-            //状態変数更新
-            //moveCandidates, walkCandidates, prevNodeの更新
+            // 状態変数更新
+            // moveCandidates, walkCandidates, prevNodeの更新
             StartCoroutine(SetPhaseState(PhaseState.FigureSelected));
             break;
 
         // フィギュア選択状態
         case PhaseState.FigureSelected:
-            //遷移2番: FigureSelect → Normal
-            //遷移条件: クリックしたフィギュアがcurrentFigureと同じ
+            // 遷移2番: FigureSelect → Normal
+            // 遷移条件: クリックしたフィギュアがcurrentFigureと同じ
             if (figures[_playerId][_figureIdOnBoard] == currentFigure)
             {
                 StartCoroutine(SetPhaseState(PhaseState.Normal));
             }
-            //遷移3番: FigureSelect→FigureSelect
+
+            // 遷移3番: FigureSelect→FigureSelect
             else if (figures[_playerId][_figureIdOnBoard].GetComponent<FigureParameter>().GetPlayerId() == turnNumber)
             {
-                //ノードの色を初期化
+                // ノードの色を初期化
                 for (int i = 0; i < NUMBER_OF_FIELD_NODES; i++)
                 {
                     nodes.transform.GetChild(i).GetComponent<SpriteRenderer>().color = Color.white;
                 }
-                //光沢を初期化
+                // 光沢を初期化
                 currentFigure.GetComponent<Renderer>().material.SetFloat("_Metallic", 0.0f);
                 currentFigure.GetComponent<Renderer>().material.SetFloat("_Glossiness", 1.0f);
-                //currentFigure更新
+                // currentFigure更新
                 currentFigure = figures[_playerId][_figureIdOnBoard];
-                //状態変数更新
+                // 状態変数更新
                 StartCoroutine(SetPhaseState(PhaseState.FigureSelected));
             }
-            //相手のコマをタッチしたとき
+
+            // 相手のコマをタッチしたとき
             else if (figures[_playerId][_figureIdOnBoard].GetComponent<FigureParameter>().GetPlayerId() != turnNumber)
             {
                 bool attackOK = false;
@@ -473,24 +487,28 @@ public class BoardController : MonoBehaviour
                         attackOK = true;
                     }
                 }
-                //敵が攻撃範囲内にいなかったとき、遷移3番: FigureSelect→FigureSelect
+
+                // 遷移3番: FigureSelect→FigureSelect
+                // 敵が攻撃範囲内にいなかったとき
                 if (attackOK == false)
                 {
-                    //ノードの色を初期化
+                    // ノードの色を初期化
                     for (int i = 0; i < NUMBER_OF_FIELD_NODES; i++)
                     {
                         nodes.transform.GetChild(i).GetComponent<SpriteRenderer>().color = Color.white;
                     }
-                    //光沢を初期化
+                    // 光沢を初期化
                     currentFigure.GetComponent<Renderer>().material.SetFloat("_Metallic", 0.0f);
                     currentFigure.GetComponent<Renderer>().material.SetFloat("_Glossiness", 1.0f);
 
-                    //currentFigure更新
+                    // currentFigure更新
                     currentFigure = figures[_playerId][_figureIdOnBoard];
-                    //状態変数更新
+                    // 状態変数更新
                     StartCoroutine(SetPhaseState(PhaseState.FigureSelected));
                 }
-                //敵が攻撃範囲にいたとき、遷移5番: FigureSelect→Battle
+
+                // 遷移5番: FigureSelect→Battle
+                // 敵が攻撃範囲にいたとき
                 else
                 {
                     opponentFigure = figures[_playerId][_figureIdOnBoard];
@@ -506,17 +524,20 @@ public class BoardController : MonoBehaviour
 
         // フィギュア移動後状態
         case PhaseState.AfterWalk:
-            //遷移10番: AfterWalk→AfterWalk
+            // 遷移10番: AfterWalk→AfterWalk
             if (figures[_playerId][_figureIdOnBoard] == currentFigure)
             {
-                //情報表示だけ
+                // 情報表示だけ
             }
-            //遷移7番: AfterWalk→ConfirmFigure
+
+            // 自分のフィギュアをタッチしたとき
+            // 遷移7番: AfterWalk→ConfirmFigure
             else if (figures[_playerId][_figureIdOnBoard].GetComponent<FigureParameter>().GetPlayerId() == turnNumber)
             {
                 StartCoroutine(SetPhaseState(PhaseState.ConfirmFigure));
             }
 
+            // 相手フィギュアをタッチしたとき
             else if (figures[_playerId][_figureIdOnBoard].GetComponent<FigureParameter>().GetPlayerId() != turnNumber)
             {
                 bool attackOK = false;
@@ -527,13 +548,17 @@ public class BoardController : MonoBehaviour
                         attackOK = true;
                     }
                 }
-                //敵が攻撃範囲にいなかったとき、遷移7番: AfterWalk→ConfirmFigure
+
+                // 遷移7番: AfterWalk→ConfirmFigure
+                // 敵が攻撃範囲にいなかったとき
                 if (attackOK == false)
                 {
-                    //状態変数更新
+                    // 状態変数更新
                     StartCoroutine(SetPhaseState(PhaseState.ConfirmFigure));
                 }
-                //敵が攻撃範囲にいたとき、遷移11番: FigureSelect→Batle
+
+                // 遷移11番: FigureSelect→Batle
+                // 敵が攻撃範囲にいたとき
                 else
                 {
                     opponentFigure = figures[_playerId][_figureIdOnBoard];
@@ -544,12 +569,13 @@ public class BoardController : MonoBehaviour
 
         // フィギュア確認状態
         case PhaseState.ConfirmFigure:
-            //遷移8番: ConfirmFigure →ConfirmFigure
+            // 遷移8番: ConfirmFigure →ConfirmFigure
             if (figures[_playerId][_figureIdOnBoard] != currentFigure)
             {
-                //情報表示だけ
+                // 情報表示だけ
             }
-            //遷移9番: ConfirmFigure→AfterWalk
+
+            // 遷移9番: ConfirmFigure→AfterWalk
             else if (figures[_playerId][_figureIdOnBoard] == currentFigure)
             {
                 StartCoroutine(SetPhaseState(PhaseState.AfterWalk));
@@ -561,8 +587,8 @@ public class BoardController : MonoBehaviour
         }
     }
 
-    //遷移4番 FigureSelect → Walking
-    //FigureSelect状態でcandidates内のノードがクリックされたら、選択中のフィギュアに経路情報を渡す
+    // 遷移4番 FigureSelect → Walking
+    // FigureSelect状態でcandidates内のノードがクリックされたら、選択中のフィギュアに経路情報を渡す
     public IEnumerator NodeClicked(int _nodeId)
     {
         // 状態チェック
@@ -591,15 +617,15 @@ public class BoardController : MonoBehaviour
             if (_nodeId == walkCandidates[i])
             {
                 StartCoroutine(SetPhaseState(PhaseState.Walking));
-                //ここの引数のprevNodeはFigureSelectedが呼ばれたときに格納されているよ
+                // ここの引数のprevNodeはFigureSelectedが呼ばれたときに格納されているよ
 
                 Stack<int> route = DecideRoute(_nodeId, prevNode);
-                //コルーチンを使った移動に変えた
                 if (currentFigure.GetComponent<FigureParameter>().GetPosition() >= NUMBER_OF_FIELD_NODES)
                 {
                     route.Pop();
                     yield return StartCoroutine(currentFigure.GetComponent<FigureController>().FigureOneStepWalk(route.Peek()));
                 }
+
                 if (route.Count >= 2)
                 {
                     yield return StartCoroutine(currentFigure.GetComponent<FigureController>().Figurewalk(route));
@@ -611,13 +637,13 @@ public class BoardController : MonoBehaviour
         yield break;
     }
 
-    //ゲームの状態変数のゲッター、セッター
+    // ゲームの状態変数のゲッター、セッター
     public IEnumerator SetPhaseState(PhaseState _tempState)
     {
         phaseState = _tempState;
         Debug.Log(GetPhaseState());
 
-        //ターンの開始時
+        // ターンの開始時
         if(phaseState == PhaseState.TurnStart)
         {
             /*UIカット
@@ -628,18 +654,23 @@ public class BoardController : MonoBehaviour
         }
         else if (phaseState == PhaseState.Normal)
         {
-            //各種変数の初期化
-            //光沢を消す
+            // 各種変数の初期化
+            // 光沢を消す
             if (currentFigure != null)
             {
                 currentFigure.GetComponent<Renderer>().material.SetFloat("_Metallic", 0.0f);
                 currentFigure.GetComponent<Renderer>().material.SetFloat("_Glossiness", 1.0f);
             }
+
             currentFigure = null;
-            for (int i = 0; i < prevNode.Length; i++) prevNode[i] = -1;
+            for (int i = 0; i < prevNode.Length; i++)
+            {
+                prevNode[i] = -1;
+            }
             walkCandidates.Clear();
             attackCandidates.Clear();
-            //ノードの色を初期化
+
+            // ノードの色を初期化
             for (int i = 0; i < NUMBER_OF_FIELD_NODES; i++)
             {
                 nodes.transform.GetChild(i).GetComponent<SpriteRenderer>().color = Color.white;
@@ -647,38 +678,46 @@ public class BoardController : MonoBehaviour
         }
         else if (phaseState == PhaseState.FigureSelected)
         {
-            //選択したフィギュアを目立たせる
+            // 選択したフィギュアを目立たせる
             currentFigure.GetComponent<Renderer>().material.SetFloat("_Metallic", 1.0f);
             currentFigure.GetComponent<Renderer>().material.SetFloat("_Glossiness", 0.0f);
 
 
             FigureParameter currentFigureParameter = currentFigure.GetComponent<FigureParameter>();
-            //他のフィギュアを障害物として認識
+            // 他のフィギュアを障害物として認識
             bool[] maskWalkNode = CreateNormalMask();
-            //現在地から全ノードへの距離を計算
+            // 現在地から全ノードへの距離を計算
             var calculateWalkDistance = CalculateDistance(currentFigureParameter.GetPosition(), maskWalkNode);
-            //この計算の時にDecideRouteに必要なprevNodeを記録
+            // この計算の時にDecideRouteに必要なprevNodeを記録
             prevNode = calculateWalkDistance.prevNode;
-            //現在地からmp以内で移動可能な全ノードの色を紫色にする
+            // 現在地からmp以内で移動可能な全ノードの色を紫色にする
             if (restTurn == 300)
             {
                 walkCandidates = FindCandidateofDestinaitonLessThan(currentFigureParameter.GetMp() - 1, calculateWalkDistance.distances);
             }
-            else walkCandidates = FindCandidateofDestinaitonLessThan(currentFigureParameter.GetMp(), calculateWalkDistance.distances);
+            else
+            {
+                walkCandidates = FindCandidateofDestinaitonLessThan(currentFigureParameter.GetMp(), calculateWalkDistance.distances);
+            }
+
             for (int i = 0; i < walkCandidates.Count; i++)
             {
                 nodes.transform.GetChild(walkCandidates[i]).GetComponent<SpriteRenderer>().color = Color.magenta;
             }
 
-            //攻撃範囲の計算
+            // 攻撃範囲の計算
             bool[] maskAttackNode = new bool[NUMBER_OF_WALK_NODES];
-            for (int i = 0; i < maskAttackNode.Length; i++) maskAttackNode[i] = true;
+            for (int i = 0; i < maskAttackNode.Length; i++)
+            {
+                maskAttackNode[i] = true;
+            }
+
             var calculateAttackDistance = CalculateDistance(currentFigureParameter.GetPosition(), maskAttackNode);
             attackCandidates = FindCandidateofDestinaitonLessThan(currentFigureParameter.GetAttackRange(), calculateAttackDistance.distances);
         }
         else if (phaseState == PhaseState.AfterWalk)
         {
-            //ノードの色を初期化
+            // ノードの色を初期化
             for (int i = 0; i < NUMBER_OF_FIELD_NODES; i++)
             {
                 nodes.transform.GetChild(i).GetComponent<SpriteRenderer>().color = Color.white;
@@ -692,20 +731,29 @@ public class BoardController : MonoBehaviour
                 yield return KnockedOutBySurrounding(adjacentFigure);
             }
 
-            //周囲に敵が誰もいなければターンエンド
-            //実際はこれに加えて眠り、氷、mpマイナスマーカーの味方がいたとき
+            // 周囲に敵が誰もいなければターンエンド
+            // 実際はこれに加えて眠り、氷、mpマイナスマーカーの味方がいたとき
 
             FigureParameter currentFigureParameter = currentFigure.GetComponent<FigureParameter>();
             bool opponentExistInAttackCandidates = false;   // バトル候補がいるかどうか
             int opponentID;
-            if (currentFigureParameter.GetPlayerId() == 0) opponentID = 1;
-            else opponentID = 0;
+            if (currentFigureParameter.GetPlayerId() == 0)
+            {
+                opponentID = 1;
+            }
+            else
+            {
+                opponentID = 0;
+            }
 
             bool[] maskAttackNode = new bool[NUMBER_OF_FIELD_NODES];
-            for (int i = 0; i < maskAttackNode.Length; i++) maskAttackNode[i] = true;
+            for (int i = 0; i < maskAttackNode.Length; i++)
+            {
+                maskAttackNode[i] = true;
+            }
             var calculateAttackDistance = CalculateDistance(currentFigureParameter.GetPosition(), maskAttackNode);
             attackCandidates = FindCandidateofDestinaitonLessThan(currentFigureParameter.GetAttackRange(), calculateAttackDistance.distances);
-            //Debug.Log(opponentID);
+            // Debug.Log(opponentID);
 
             for (int i = 0; i < figures[opponentID].Count; i++)
             {
@@ -718,13 +766,15 @@ public class BoardController : MonoBehaviour
                     
                 }
             }
-            //今ゴール処理は通常移動後しか考えてない。ワザの効果で移動するときもな
+            // 今ゴール処理は通常移動後しか考えてない。ワザの効果で移動するときもな
             if (currentFigure.GetComponent<FigureParameter>().GetPosition() == goalNodeId[opponentID])
             {
                 StartCoroutine(SetPhaseState(PhaseState.GameEnd));
             }
-            else if (opponentExistInAttackCandidates == false) StartCoroutine(SetPhaseState(PhaseState.TurnEnd));
-            
+            else if (opponentExistInAttackCandidates == false)
+            {
+                StartCoroutine(SetPhaseState(PhaseState.TurnEnd));
+            }
             else if (opponentExistInAttackCandidates == true)
             {
                 turnEndButton.SetActive(true);
@@ -737,9 +787,9 @@ public class BoardController : MonoBehaviour
         }
         else if (phaseState == PhaseState.AfterBattle)
         {
-            //バトル後の処理をここに
+            // バトル後の処理をここに
 
-            //バトル結果の受け取り
+            // バトル結果の受け取り
             var BattleResult = SpinController.GetBattleResult();
             int result = BattleResult.Item1;
             bool currentMoveAwake = BattleResult.Item2;
@@ -747,8 +797,8 @@ public class BoardController : MonoBehaviour
             bool currentDeath = BattleResult.Item4;
             bool opponentDeath = BattleResult.Item5;
             Debug.Log("boardで" + BattleResult);
-            //if(currentMoveAwake){}
-            //if(opponentMoveAwake){}
+            // if(currentMoveAwake){}
+            // if(opponentMoveAwake){}
             if (currentDeath)
             {
                 yield return Death(currentFigure);
@@ -761,7 +811,7 @@ public class BoardController : MonoBehaviour
         }
         else if (phaseState == PhaseState.TurnEnd)
         {
-            //相手のターンにして残りのターン数を更新
+            // 相手のターンにして残りのターン数を更新
             if (turnNumber == 0)
             {
                 turnNumber = 1;
@@ -787,13 +837,13 @@ public class BoardController : MonoBehaviour
             }
 
             turnEndButton.SetActive(false);
-            //Debug.Log("プレイヤー" + turnNumber + "のターンです");
+            // Debug.Log("プレイヤー" + turnNumber + "のターンです");
             StartCoroutine(SetPhaseState(PhaseState.TurnStart));
         }
         else if(phaseState == PhaseState.GameEnd)
         {
-            //もう少し真面目にかけ
-            //実際はどっかのタイミングで全部のフィギュアの位置調べて相手のゴールにいればなんちゃらみたいな感じかなあ知らんけど
+            // もう少し真面目にかけ
+            // 実際はどっかのタイミングで全部のフィギュアの位置調べて相手のゴールにいればなんちゃらみたいな感じかなあ知らんけど
                 gameEndText.SetActive(true);
                 gameEndText.GetComponent<TextMeshProUGUI>().text = "PLAYER" + currentFigure.GetComponent<FigureParameter>().GetPlayerId() + " WIN!";
         }
@@ -805,8 +855,11 @@ public class BoardController : MonoBehaviour
             gameEndText.GetComponent<TextMeshProUGUI>().text = "PLAYER" + (turnNumber + 1) % 2 + " WIN!";
         }
         
-        else yield return null;
-        //yield return null;
+        else
+        {
+            yield return null;
+        }
+        // yield return null;
     }
 
     public PhaseState GetPhaseState()
@@ -842,19 +895,19 @@ public class BoardController : MonoBehaviour
             }
         }
 
-        //PC1からベンチへ移動
+        // PC1からベンチへ移動
         if (backBenchFigure != null)
         {
             // ウェイト2を付与
             backBenchFigure.GetComponent<FigureParameter>().SetWaitCount(2);
             yield return backBenchFigure.GetComponent<FigureController>().FigureOneStepWalk(backBenchFigure.GetComponent<FigureParameter>().GetBenchId());
         }
-        //PC0からPC1へ移動
+        // PC0からPC1へ移動
         if (moveAnotherPCFigure != null)
         {
             yield return moveAnotherPCFigure.GetComponent<FigureController>().FigureOneStepWalk(pcNodeId[playerID][1]);
         }
-        //フィールドからPC0へ移動
+        // フィールドからPC0へ移動
         yield return _figure.GetComponent<FigureController>().FigureOneStepWalk(pcNodeId[playerID][0]);
     }
 
@@ -862,23 +915,23 @@ public class BoardController : MonoBehaviour
     {
         if (nextScene.name == "SpinScene")
         {
-            //ノードの色を初期化
+            // ノードの色を初期化
             for (int i = 0; i < NUMBER_OF_FIELD_NODES; i++)
             {
                 nodes.transform.GetChild(i).GetComponent<SpriteRenderer>().color = Color.white;
             }
-            //ノードを非表示
+            // ノードを非表示
             for (int i = 0; i < NUMBER_OF_WALK_NODES; i++)
             {
                 nodes.transform.GetChild(i).GetComponent<SpriteRenderer>().enabled = false;
             }
-            //エッジを非表示
+            // エッジを非表示
             for (int i = 0; i < this.transform.childCount; i++)
             {
                 transform.GetChild(i).GetComponent<LineRenderer>().enabled = false;
             }
 
-            //フィギュアを非表示にする
+            // フィギュアを非表示にする
             for (int i = 0; i < 2; i++)
             {
                 foreach (GameObject obj in figures[i])
@@ -890,28 +943,28 @@ public class BoardController : MonoBehaviour
                 }
             }
 
-            //UIの非表示
+            // UIの非表示
             turnEndButton.SetActive(false);
 
-            //UIカット
-            //restTurnText.GetComponent<TextMeshProUGUI>().enabled = false;
+            // UIカット
+            // restTurnText.GetComponent<TextMeshProUGUI>().enabled = false;
 
         }
-        //SpinSceneからBoardSceneに帰ってきた
+        // SpinSceneからBoardSceneに帰ってきた
         else if (nextScene.name == "BoardScene")
         {
             Destroy(GameObject.Find("BeforeStart"));
-            //ノードを再表示
+            // ノードを再表示
             for (int i = 0; i < NUMBER_OF_WALK_NODES; i++)
             {
                 nodes.transform.GetChild(i).GetComponent<SpriteRenderer>().enabled = true;
             }
-            //エッジを再表示
+            // エッジを再表示
             for (int i = 0; i < this.transform.childCount; i++)
             {
                 transform.GetChild(i).GetComponent<LineRenderer>().enabled = true;
             }
-            //フィギュアを再表示
+            // フィギュアを再表示
             for (int i = 0; i < 2; i++)
             {
                 foreach (GameObject obj in figures[i])
@@ -922,13 +975,13 @@ public class BoardController : MonoBehaviour
                     }
                 }
             }
-            //UIの表示
+            // UIの表示
             turnEndButton.SetActive(true);
-            //UIカット
-            //restTurnText.GetComponent<TextMeshProUGUI>().enabled = true;
+            // UIカット
+            // restTurnText.GetComponent<TextMeshProUGUI>().enabled = true;
 
             
-            //バトル後の処理
+            // バトル後の処理
             StartCoroutine(SetPhaseState(PhaseState.AfterBattle));
         }
     }

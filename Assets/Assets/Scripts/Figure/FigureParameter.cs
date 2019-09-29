@@ -7,14 +7,14 @@ public class FigureParameter : MonoBehaviour
 {
     [SerializeField] private int mp;
     [SerializeField] private GameObject data;
-    [SerializeField] private int playerID;
+    [SerializeField] private int playerId;
     [SerializeField] private int attackRange = 1;
     [SerializeField] private GameObject waitCounter;
     [SerializeField] private Text waitCounterText;
     private bool beSelected = false;
     //ゲーム開始時にboardMasterによりセットされるID
-    private int figureIDOnBoard;
-    private int benchID;
+    private int figureIdOnBoard;
+    private int benchId;
     private int position;
     private int waitCount = 0;  // ウェイト デフォルトは0
     //mp
@@ -34,13 +34,13 @@ public class FigureParameter : MonoBehaviour
     }
 
     //ゲーム開始時に定められるID
-    public void SetFigureIDOnBoard(int _figureIDOnBoard)
+    public void SetFigureIdOnBoard(int _figureIdOnBoard)
     {
-        figureIDOnBoard = _figureIDOnBoard;
+        figureIdOnBoard = _figureIdOnBoard;
     }
-    public int GetFigureIDOnBoard()
+    public int GetFigureIdOnBoard()
     {
-        return figureIDOnBoard;
+        return figureIdOnBoard;
     }
 
     //選択中フラグ
@@ -54,9 +54,9 @@ public class FigureParameter : MonoBehaviour
     }
 
     //プレイヤーのID(0 or 1)
-    public int GetPlayerID()
+    public int GetPlayerId()
     {
-        return playerID;
+        return playerId;
     }
 
     public int GetAttackRange()
@@ -68,20 +68,20 @@ public class FigureParameter : MonoBehaviour
         return data;
     }
 
-    public void SetBenchID(int _benchID)
+    public void SetBenchId(int _benchId)
     {
-        benchID = _benchID;
+        benchId = _benchId;
     }
-    public int GetBenchID()
+    public int GetBenchId()
     {
-        return benchID;
+        return benchId;
     }
     // ウェイトカウントをセットする
     // ウェイト1以上の場合はカウンターを表示する
     public void SetWaitCount(int _waitCount)
     {
         waitCount = _waitCount;
-        if(waitCount >= 1)
+        if(1 <= waitCount)
         {
             waitCounterText.text = "" + waitCount;
             waitCounter.SetActive(true);
@@ -95,11 +95,11 @@ public class FigureParameter : MonoBehaviour
 
     // ウェイトを1つ減らす
     // 正値の保証は使用者が行う
-    public void decreaseWaitCount()
+    public void DecreaseWaitCount()
     {
         waitCount--;
         waitCounterText.text = "" + waitCount;
-        if (waitCount >= 1)
+        if (1 <= waitCount)
         {
             waitCounter.SetActive(true);
         }

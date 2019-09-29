@@ -41,7 +41,7 @@ public class FigureController : MonoBehaviour
     }
     public void OnUserAction()
     {
-        boardController.FigureClicked(figureParameter.GetPlayerID(), figureParameter.GetFigureIDOnBoard());
+        boardController.FigureClicked(figureParameter.GetPlayerId(), figureParameter.GetFigureIdOnBoard());
     }
 
     //routeに沿って1歩ずつ動く

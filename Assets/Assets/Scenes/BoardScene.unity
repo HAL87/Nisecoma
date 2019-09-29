@@ -2855,6 +2855,10 @@ PrefabInstance:
       propertyPath: waitCounterText
       value: 
       objectReference: {fileID: 1012545764}
+    - target: {fileID: 1203023450, guid: 2c86aacc2d372ad469bcf98ebc71fb64, type: 3}
+      propertyPath: playerId
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2c86aacc2d372ad469bcf98ebc71fb64, type: 3}
 --- !u!4 &606942834 stripped
@@ -3994,6 +3998,10 @@ PrefabInstance:
       propertyPath: waitCounterText
       value: 
       objectReference: {fileID: 1843882869}
+    - target: {fileID: 1203023450, guid: 2c86aacc2d372ad469bcf98ebc71fb64, type: 3}
+      propertyPath: playerId
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2c86aacc2d372ad469bcf98ebc71fb64, type: 3}
 --- !u!4 &880122093 stripped
@@ -4069,6 +4077,10 @@ PrefabInstance:
       propertyPath: waitCounterText
       value: 
       objectReference: {fileID: 1557808103}
+    - target: {fileID: 1203023450, guid: 2c86aacc2d372ad469bcf98ebc71fb64, type: 3}
+      propertyPath: playerId
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2c86aacc2d372ad469bcf98ebc71fb64, type: 3}
 --- !u!4 &884977715 stripped
@@ -6035,6 +6047,10 @@ PrefabInstance:
       propertyPath: waitCounterText
       value: 
       objectReference: {fileID: 1046374673}
+    - target: {fileID: 1398104308, guid: 727a9bf846036da4daa5a508aff1a25b, type: 3}
+      propertyPath: playerId
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 727a9bf846036da4daa5a508aff1a25b, type: 3}
 --- !u!4 &1167915806 stripped
@@ -8633,6 +8649,10 @@ PrefabInstance:
       propertyPath: waitCounterText
       value: 
       objectReference: {fileID: 52560326}
+    - target: {fileID: 1398104308, guid: 727a9bf846036da4daa5a508aff1a25b, type: 3}
+      propertyPath: playerId
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 727a9bf846036da4daa5a508aff1a25b, type: 3}
 --- !u!4 &1686124464 stripped
@@ -10397,6 +10417,10 @@ PrefabInstance:
       propertyPath: waitCounterText
       value: 
       objectReference: {fileID: 516799536}
+    - target: {fileID: 1398104308, guid: 727a9bf846036da4daa5a508aff1a25b, type: 3}
+      propertyPath: playerId
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 727a9bf846036da4daa5a508aff1a25b, type: 3}
 --- !u!4 &2056046643 stripped

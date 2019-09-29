@@ -93,12 +93,12 @@ public class DiskSpin : MonoBehaviour
             moveParameter = data.transform.GetChild(i).GetComponent<MoveParameter>();
 
             //不等式の両端
-            float leftAngle = (totalRange * 3.75f) % 360;
+            float leftAngle = totalRange * 3.75f;
             float rightAngle = leftAngle + moveParameter.GetMoveRange() * 3.75f;
 
             //Debug.Log(leftAngle + "から" + rightAngle);
-            if (leftAngle < (goalAngle + offsetAngle) % 360 && 
-                (goalAngle + offsetAngle) % 360 <= rightAngle)
+            if (leftAngle <= (goalAngle + offsetAngle) % 360 && 
+                (goalAngle + offsetAngle) % 360 < rightAngle)
             {
                 //goalAngleに該当するワザ
                 Debug.Log("getMoveName = " + moveParameter.GetMoveName());

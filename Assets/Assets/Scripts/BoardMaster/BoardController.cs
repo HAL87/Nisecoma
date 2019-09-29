@@ -1,4 +1,8 @@
-﻿using System.Collections;
+﻿/*****************************************************************/
+/* Class:   BoardController.cs                                   */
+/* Assets:  BoardScene\DontDestroyObjects\BoardMaster            */
+/*****************************************************************/
+using System.Collections;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,14 +12,58 @@ using TMPro;
 
 public class BoardController : MonoBehaviour
 {
-    //あるノードから別のノードへのエッジをListで表現
-    //edgesは配列であり、各成分がint型のList
+    /****************************************************************/
+    /*                          定数宣言                            */
+    /****************************************************************/
+    // プレイヤー数
     public const int NUMBER_OF_PLAYERS = 2;
-    private List<int>[] edges = new List<int>[44];
-    private int[][] entryNodeID = new int[NUMBER_OF_PLAYERS][];
-    private int[] goalNodeID = new int[NUMBER_OF_PLAYERS];
-    private int[][] benchNodeID = new int[NUMBER_OF_PLAYERS][];
-    private int[][] pcNodeID = new int[NUMBER_OF_PLAYERS][];
+
+    // ノード数
+    public const int NUMBER_OF_FIELD_NODES = 28;    // フィールド
+    public const int NUMBER_OF_BENCH_NODES = 12;    // ベンチ
+    public const int NUMBER_OF_WALK_NODES = NUMBER_OF_FIELD_NODES + NUMBER_OF_BENCH_NODES;  // フィールド+ベンチ(MP移動するノード)
+    public const int NUMBER_OF_PC_NODES = 4;        // PC
+    public const int NUMBER_OF_US_NODES = 12;       // ウルトラスペース
+    public const int NUMBER_OF_REMOVED_NODES = 12;  // 除外ゾーン
+
+    // 特別なノード番号
+    // エントリー
+    public const int NODE_ID_ENTRY_PLAYER0_LEFT = 21;
+    public const int NODE_ID_ENTRY_PLAYER0_RIGHT = 27;
+    public const int NODE_ID_ENTRY_PLAYER1_LEFT = 0;
+    public const int NODE_ID_ENTRY_PLAYER1_RIGHT = 6;
+
+    // ゴール
+    public const int NODE_ID_GOAL_PLAYER0 = 3;
+    public const int NODE_ID_GOAL_PLAYER1 = 24;
+
+    // ベンチ(各プレイヤーについてFigureParameterのbenchIdの最若のものから連番)
+    public const int NODE_ID_BENCH_PLAYER0_TOP = 28;
+    public const int NODE_ID_BENCH_PLAYER1_TOP = 34;
+
+    // PC
+    // _Xは気絶して格納される側を0とした
+    public const int NODE_ID_PC_PLAYER0_0 = 40;
+    public const int NODE_ID_PC_PLAYER0_1 = 41;
+    public const int NODE_ID_PC_PLAYER1_0 = 42;
+    public const int NODE_ID_PC_PLAYER1_1 = 43;
+
+    // US
+
+    // 除外ゾーン
+
+
+    /****************************************************************/
+    /*                          メンバ変数宣言                      */
+    /****************************************************************/
+    // あるノードから別のノードへのエッジをListで表現
+    // edgesは配列であり、各成分がint型のList
+    // 
+    private List<int>[] edges   = new List<int>[NUMBER_OF_WALK_NODES];
+    private int[][] entryNodeId = new int[NUMBER_OF_PLAYERS][];
+    private int[] goalNodeId    = new int[NUMBER_OF_PLAYERS];
+    private int[][] benchNodeId = new int[NUMBER_OF_PLAYERS][];
+    private int[][] pcNodeId    = new int[NUMBER_OF_PLAYERS][];
 
     //第一要素がプレイヤー番号(0 or 1)、第二要素がfigureIDOnBoard
     //ゲーム開始時に敵味方それぞれのフィギュアを認識してfigureIDOnBoardを振る
@@ -35,12 +83,13 @@ public class BoardController : MonoBehaviour
     [SerializeField] private GameObject turnEndButton;
 
     //そのノードにつく前はどこにいたのかを表す
-    private int[] prevNode = new int[44];
+    private int[] prevNode = new int[NUMBER_OF_WALK_NODES];
 
     //移動、バトルの主体となるフィギュア（"使用"するフィギュア）
     private GameObject currentFigure = null;
-    //歩行範囲と攻撃範囲
+    //歩行範囲
     private List<int> walkCandidates = new List<int>();
+    //攻撃範囲
     private List<int> attackCandidates = new List<int>();
     //バトル相手のフィギュア
     private GameObject opponentFigure = null;
@@ -67,10 +116,17 @@ public class BoardController : MonoBehaviour
     };
     //ゲームの状態変数
     private PhaseState phaseState;
+
+    /***************************************************************/
+    /*                      プロトタイプ関数宣言                   */
+    /***************************************************************/
+
+    /****************************************************************/
+    /*                          関数定義                            */
+    /****************************************************************/
     // Start is called before the first frame update
     void Start()
     {
-
         //ボードのデータ構造作成（ゲームの最初に1回だけ呼ばれる
         CreateBoard();
         EdgeDraw();
@@ -96,17 +152,18 @@ public class BoardController : MonoBehaviour
     }
 
     //ボード、フィギュアの初期化処理
-    //
     //ボードのデータ構造を表現
     void CreateBoard()
     {
         //暫定のデータ構造
         //ベンチ、PC、US、除外を連番にするか別にするかは検討
-        for (int i = 0; i < 44; i++)
+        for (int i = 0; i < NUMBER_OF_WALK_NODES; i++)
         {
             nodes.transform.GetChild(i).GetComponent<NodeParameter>().SetNodeID(i);
             edges[i] = new List<int>();
         }
+
+        // フィールドノード間のエッジ定義
         edges[0].Add(1); edges[0].Add(7); edges[0].Add(8);
         edges[1].Add(0); edges[1].Add(2);
         edges[2].Add(1); edges[2].Add(3); edges[2].Add(9);
@@ -136,6 +193,7 @@ public class BoardController : MonoBehaviour
         edges[26].Add(25); edges[26].Add(27);
         edges[27].Add(19); edges[27].Add(20); edges[27].Add(26);
 
+        // ベンチからエントリーへのエッジ(Player0側)
         edges[28].Add(21); edges[28].Add(27);
         edges[29].Add(21); edges[29].Add(27);
         edges[30].Add(21); edges[30].Add(27);
@@ -143,6 +201,7 @@ public class BoardController : MonoBehaviour
         edges[32].Add(21); edges[32].Add(27);
         edges[33].Add(21); edges[33].Add(27);
 
+        // ベンチからエントリーへのエッジ(Player1側)
         edges[34].Add(0); edges[34].Add(6);
         edges[35].Add(0); edges[35].Add(6);
         edges[36].Add(0); edges[36].Add(6);
@@ -150,28 +209,51 @@ public class BoardController : MonoBehaviour
         edges[38].Add(0); edges[38].Add(6);
         edges[39].Add(0); edges[39].Add(6);
 
-        //第一成分のインデックスはプレイヤーID、第二成分のインデックス0番が左エントリー, インデックス1番が右エントリー
-        for (int i = 0; i < entryNodeID.Length; i++) entryNodeID[i] = new int[NUMBER_OF_PLAYERS];
-        entryNodeID[0][0] = 21; entryNodeID[0][1] = 27;
-        entryNodeID[1][0] = 6; entryNodeID[1][1] = 0;
+        // エントリー
+        // entryNodeId[PlayerId][Left/Right]
+        // 左右はPlayer0側視点
+        for (int i = 0; i < entryNodeId.Length; i++)
+        {
+            entryNodeId[i] = new int[NUMBER_OF_PLAYERS];
+        }
+        entryNodeId[0][0] = NODE_ID_ENTRY_PLAYER0_LEFT; entryNodeId[0][1] = NODE_ID_ENTRY_PLAYER0_RIGHT;
+        entryNodeId[1][0] = NODE_ID_ENTRY_PLAYER1_LEFT; entryNodeId[1][1] = NODE_ID_ENTRY_PLAYER1_RIGHT;
 
-        //第一成分のインデックスはプレイヤーID
-        goalNodeID[0] = 24; goalNodeID[1] = 3;
+        // ゴール
+        // goal[PlayerId]
+        goalNodeId[0] = NODE_ID_GOAL_PLAYER0;
+        goalNodeId[1] = NODE_ID_GOAL_PLAYER1;
 
-        //第一成分のインデックスはプレイヤーID, 各要素figureParameterのbenchIDに対応
-        for (int i = 0; i < benchNodeID.Length; i++) benchNodeID[i] = new int[6];
-        for (int i = 0; i < 6; i++) benchNodeID[0][i] = 28 + i;
-        for (int i = 0; i < 6; i++) benchNodeID[1][i] = 28 + 6 + i;
+        // ベンチ
+        // benchNodeId[PlayerId][figureParameter.benchId]
+        for (int i = 0; i < benchNodeId.Length; i++)
+        {
+            benchNodeId[i] = new int[6];
+        }
+        for (int i = 0; i < 6; i++)
+        {
+            benchNodeId[0][i] = NODE_ID_BENCH_PLAYER0_TOP + i;
+        }
+        for (int i = 0; i < 6; i++)
+        {
+            benchNodeId[1][i] = NODE_ID_BENCH_PLAYER1_TOP + i;
+        }
 
-        //第一成分のインデックスはプレイヤーID , 第二成分のインデックス0番は先に入るPC, インデックス1番は後に入るPC
-        for (int i = 0; i < pcNodeID.Length; i++) pcNodeID[i] = new int[NUMBER_OF_PLAYERS];
-        pcNodeID[0][0] = 40; pcNodeID[0][1] = 41;
-        pcNodeID[1][0] = 42; pcNodeID[1][1] = 43;
+        // PC
+        // pcNodeId[PlayerId][X]
+        // X = 0: 先に入るPC, X = 1: 後に入るPC
+        for (int i = 0; i < pcNodeId.Length; i++)
+        {
+            pcNodeId[i] = new int[NUMBER_OF_PLAYERS];
+        }
+        pcNodeId[0][0] = NODE_ID_PC_PLAYER0_0; pcNodeId[0][1] = NODE_ID_PC_PLAYER0_1;
+        pcNodeId[1][0] = NODE_ID_PC_PLAYER1_0; pcNodeId[1][1] = NODE_ID_PC_PLAYER1_1;
     }
+
     //エッジの描画
     void EdgeDraw()
     {
-        for (int i = 0; i < 28; i++)
+        for (int i = 0; i < NUMBER_OF_FIELD_NODES; i++)
         {
             for (int j = 0; j < edges[i].Count; j++)
             {
@@ -196,53 +278,50 @@ public class BoardController : MonoBehaviour
     }
 
     //各フィギュアをplayerIDに従って分けてfigureという箱に入れる
-    //配列の第二要素のインデックスに対応する値(figureIDOnBoard)を各フィギュアに割り振る
+    //配列の第二要素のインデックスに対応する値(figureIdOnBoard)を各フィギュアに割り振る
     void DivideFigures()
     {
         figures[0] = new List<GameObject>();
         figures[1] = new List<GameObject>();
         GameObject[] objs = GameObject.FindGameObjectsWithTag("Figure");
+
         foreach (GameObject obj in objs)
         {
             FigureParameter figureParameter = obj.GetComponent<FigureParameter>();
-            if (figureParameter.GetPlayerID() == 0)
+            if (figureParameter.GetPlayerId() == 0)
             {
-                figureParameter.SetFigureIDOnBoard(figures[0].Count);
+                figureParameter.SetFigureIdOnBoard(figures[0].Count);
                 figures[0].Add(obj);
                 obj.transform.Find("FigureBack2").GetComponent<SpriteRenderer>().color = Color.blue;
                 //Debug.Log(figures[0][figureParameter.GetFigureIDOnBoard()]);
             }
-            else if (figureParameter.GetPlayerID() == 1)
+            else if (figureParameter.GetPlayerId() == 1)
             {
-                figureParameter.SetFigureIDOnBoard(figures[1].Count);
+                figureParameter.SetFigureIdOnBoard(figures[1].Count);
                 figures[1].Add(obj);
                 obj.transform.Rotate(0, 0, 180f);
                 obj.transform.Find("FigureBack2").GetComponent<SpriteRenderer>().color = Color.red;
             }
+
             for (int i = 0; i < figures[0].Count; i++)
             {
-                figures[0][i].GetComponent<FigureParameter>().SetBenchID(28 + i);
-                figures[0][i].GetComponent<FigureParameter>().SetPosition(28 + i);
+                figures[0][i].GetComponent<FigureParameter>().SetBenchId(NUMBER_OF_FIELD_NODES + i);
+                figures[0][i].GetComponent<FigureParameter>().SetPosition(NUMBER_OF_FIELD_NODES + i);
             }
             for (int i = 0; i < figures[1].Count; i++)
             {
-                figures[1][i].GetComponent<FigureParameter>().SetBenchID(28 + 6 + i);
-                figures[1][i].GetComponent<FigureParameter>().SetPosition(28 + 6 + i);
+                figures[1][i].GetComponent<FigureParameter>().SetBenchId(NUMBER_OF_FIELD_NODES + 6 + i);
+                figures[1][i].GetComponent<FigureParameter>().SetPosition(NUMBER_OF_FIELD_NODES + 6 + i);
             }
         }
     }
-    //
-    //
 
-
-    //
-    //
     //マスク配列の作成。
     //とりあえず場にいるすべてのフィギュアを障害物と認識するだけだが、すり抜けとかの実装の際要拡張
     bool[] CreateNormalMask()
     {
         //該当するノードのmaskNodeがtrueの時すり抜け可能、falseなら障害物扱い
-        bool[] maskNode = new bool[44];
+        bool[] maskNode = new bool[NUMBER_OF_WALK_NODES];
         for (int i = 0; i < maskNode.Length; i++) maskNode[i] = true;
         for (int i = 0; i < figures.Length; i++)
         {
@@ -254,23 +333,22 @@ public class BoardController : MonoBehaviour
             }
         }
 
-
         return maskNode;
     }
 
     //始点から各ノードへの距離を計算
     (int[] distances, int[] prevNode) CalculateDistance(int _startNode, bool[] _maskNode)
     {
-        int[] distances = new int[44];
-        int[] prevNode = new int[44];
+        int[] distances = new int[NUMBER_OF_WALK_NODES];
+        int[] prevNode = new int[NUMBER_OF_WALK_NODES];
         //幅優先探索を素直に実装
         Queue<int> q = new Queue<int>();
 
         //各ノードの到着フラグ
-        bool[] reachedFlag = new bool[44];
+        bool[] reachedFlag = new bool[NUMBER_OF_WALK_NODES];
 
         //distancesと到着フラグの初期化
-        for (int i = 0; i < 44; i++)
+        for (int i = 0; i < NUMBER_OF_WALK_NODES; i++)
         {
             distances[i] = 99;
             reachedFlag[i] = false;
@@ -308,25 +386,11 @@ public class BoardController : MonoBehaviour
         return (distances, prevNode);
     }
 
-    //始点からの距離がmoveNumberと等しいノードを出力
-    List<int> FindCandidateofDestinaitonEqual(int _moveNumber, int[] _distances)
-    {
-        List<int> candidates = new List<int>();
-        for (int i = 0; i < 28; i++)
-        {
-            //始点から各ノードへの距離がmoveNumberと等しいであるノードを全て格納
-            if (_distances[i] == _moveNumber) candidates.Add(i);
-        }
-
-        //for(int i = 0; i < candidates.Count; i++){Debug.Log(candidates[i]);
-        return candidates;
-    }
-
     //始点からの距離がmoveNumber以下のノードを出力
     List<int> FindCandidateofDestinaitonLessThan(int _moveNumber, int[] _distances)
     {
         List<int> candidates = new List<int>();
-        for (int i = 0; i < 28; i++)
+        for (int i = 0; i < NUMBER_OF_FIELD_NODES; i++)
         {
             //始点から各ノードへの距離がmoveNumber以下であるノードを全て格納
             if (_distances[i] <= _moveNumber) candidates.Add(i);
@@ -351,42 +415,42 @@ public class BoardController : MonoBehaviour
         return route;
     }
 
-    //フィギュアとノードをクリックされたときの処理をまとめる。
-    //つまりraycastを用いてクリックしたオブジェクトのタグを取得し、それがフィギュアなら、ノードなら、とする
-    //フィギュアの時とノードの時で分けてその中でState別に考えるのが丸いか。
-    //どうせノードクリックしたときの処理はFigureSelect→Walkingだけだし
+    
+    // 手番中のユーザ入力処理(クリックされたのがフィギュアかノードかで処理を分ける)
 
     //フィギュアがクリックされたときの処理
-    public void FigureClicked(int _playerID, int _figureIDOnBoard)
+    public void FigureClicked(int _playerId, int _figureIdOnBoard)
     {
-        Debug.Log(figures[_playerID][_figureIDOnBoard]);
-        //ノーマル状態の時
-        if (phaseState == PhaseState.Normal)
+        Debug.Log(figures[_playerId][_figureIdOnBoard]);
+
+        switch (phaseState)
         {
+        //ノーマル状態の時
+        case PhaseState.Normal:
             //遷移1番: Normal → FigureSelect
             //遷移条件: 任意のフィギュアをクリック
 
             //currentFigure更新
-            currentFigure = figures[_playerID][_figureIDOnBoard];
+            currentFigure = figures[_playerId][_figureIdOnBoard];
 
             //状態変数更新
             //moveCandidates, walkCandidates, prevNodeの更新
             StartCoroutine(SetPhaseState(PhaseState.FigureSelected));
-        }
+            break;
 
-        else if (phaseState == PhaseState.FigureSelected)
-        {
+        // フィギュア選択状態
+        case PhaseState.FigureSelected:
             //遷移2番: FigureSelect → Normal
             //遷移条件: クリックしたフィギュアがcurrentFigureと同じ
-            if (figures[_playerID][_figureIDOnBoard] == currentFigure)
+            if (figures[_playerId][_figureIdOnBoard] == currentFigure)
             {
                 StartCoroutine(SetPhaseState(PhaseState.Normal));
             }
             //遷移3番: FigureSelect→FigureSelect
-            else if (figures[_playerID][_figureIDOnBoard].GetComponent<FigureParameter>().GetPlayerID() == turnNumber)
+            else if (figures[_playerId][_figureIdOnBoard].GetComponent<FigureParameter>().GetPlayerId() == turnNumber)
             {
                 //ノードの色を初期化
-                for (int i = 0; i < 28; i++)
+                for (int i = 0; i < NUMBER_OF_FIELD_NODES; i++)
                 {
                     nodes.transform.GetChild(i).GetComponent<SpriteRenderer>().color = Color.white;
                 }
@@ -394,17 +458,17 @@ public class BoardController : MonoBehaviour
                 currentFigure.GetComponent<Renderer>().material.SetFloat("_Metallic", 0.0f);
                 currentFigure.GetComponent<Renderer>().material.SetFloat("_Glossiness", 1.0f);
                 //currentFigure更新
-                currentFigure = figures[_playerID][_figureIDOnBoard];
+                currentFigure = figures[_playerId][_figureIdOnBoard];
                 //状態変数更新
                 StartCoroutine(SetPhaseState(PhaseState.FigureSelected));
             }
             //相手のコマをタッチしたとき
-            else if (figures[_playerID][_figureIDOnBoard].GetComponent<FigureParameter>().GetPlayerID() != turnNumber)
+            else if (figures[_playerId][_figureIdOnBoard].GetComponent<FigureParameter>().GetPlayerId() != turnNumber)
             {
                 bool attackOK = false;
                 foreach (int i in attackCandidates)
                 {
-                    if (i == figures[_playerID][_figureIDOnBoard].GetComponent<FigureParameter>().GetPosition())
+                    if (i == figures[_playerId][_figureIdOnBoard].GetComponent<FigureParameter>().GetPosition())
                     {
                         attackOK = true;
                     }
@@ -413,7 +477,7 @@ public class BoardController : MonoBehaviour
                 if (attackOK == false)
                 {
                     //ノードの色を初期化
-                    for (int i = 0; i < 28; i++)
+                    for (int i = 0; i < NUMBER_OF_FIELD_NODES; i++)
                     {
                         nodes.transform.GetChild(i).GetComponent<SpriteRenderer>().color = Color.white;
                     }
@@ -422,41 +486,43 @@ public class BoardController : MonoBehaviour
                     currentFigure.GetComponent<Renderer>().material.SetFloat("_Glossiness", 1.0f);
 
                     //currentFigure更新
-                    currentFigure = figures[_playerID][_figureIDOnBoard];
+                    currentFigure = figures[_playerId][_figureIdOnBoard];
                     //状態変数更新
                     StartCoroutine(SetPhaseState(PhaseState.FigureSelected));
                 }
                 //敵が攻撃範囲にいたとき、遷移5番: FigureSelect→Battle
                 else
                 {
-                    opponentFigure = figures[_playerID][_figureIDOnBoard];
+                    opponentFigure = figures[_playerId][_figureIdOnBoard];
                     StartCoroutine(SetPhaseState(PhaseState.Battle));
                 }
             }
-        }
-        else if (phaseState == PhaseState.Walking)
-        {
+            break;
+        
+        // フィギュア移動中状態
+        case PhaseState.Walking:
+            // 何も行わない
+            break;
 
-        }
-        else if (phaseState == PhaseState.AfterWalk)
-        {
+        // フィギュア移動後状態
+        case PhaseState.AfterWalk:
             //遷移10番: AfterWalk→AfterWalk
-            if (figures[_playerID][_figureIDOnBoard] == currentFigure)
+            if (figures[_playerId][_figureIdOnBoard] == currentFigure)
             {
                 //情報表示だけ
             }
             //遷移7番: AfterWalk→ConfirmFigure
-            else if (figures[_playerID][_figureIDOnBoard].GetComponent<FigureParameter>().GetPlayerID() == turnNumber)
+            else if (figures[_playerId][_figureIdOnBoard].GetComponent<FigureParameter>().GetPlayerId() == turnNumber)
             {
                 StartCoroutine(SetPhaseState(PhaseState.ConfirmFigure));
             }
 
-            else if (figures[_playerID][_figureIDOnBoard].GetComponent<FigureParameter>().GetPlayerID() != turnNumber)
+            else if (figures[_playerId][_figureIdOnBoard].GetComponent<FigureParameter>().GetPlayerId() != turnNumber)
             {
                 bool attackOK = false;
                 foreach (int i in attackCandidates)
                 {
-                    if (i == figures[_playerID][_figureIDOnBoard].GetComponent<FigureParameter>().GetPosition())
+                    if (i == figures[_playerId][_figureIdOnBoard].GetComponent<FigureParameter>().GetPosition())
                     {
                         attackOK = true;
                     }
@@ -470,34 +536,35 @@ public class BoardController : MonoBehaviour
                 //敵が攻撃範囲にいたとき、遷移11番: FigureSelect→Batle
                 else
                 {
-                    opponentFigure = figures[_playerID][_figureIDOnBoard];
+                    opponentFigure = figures[_playerId][_figureIdOnBoard];
                     StartCoroutine(SetPhaseState(PhaseState.Battle));
                 }
             }
+            break;
 
-        }
-
-        else if (phaseState == PhaseState.ConfirmFigure)
-        {
+        // フィギュア確認状態
+        case PhaseState.ConfirmFigure:
             //遷移8番: ConfirmFigure →ConfirmFigure
-            if (figures[_playerID][_figureIDOnBoard] != currentFigure)
+            if (figures[_playerId][_figureIdOnBoard] != currentFigure)
             {
                 //情報表示だけ
             }
             //遷移9番: ConfirmFigure→AfterWalk
-            else if (figures[_playerID][_figureIDOnBoard] == currentFigure)
+            else if (figures[_playerId][_figureIdOnBoard] == currentFigure)
             {
                 StartCoroutine(SetPhaseState(PhaseState.AfterWalk));
             }
+            break;
+
+        default:
+            break;
         }
-        else return;
     }
 
     //遷移4番 FigureSelect → Walking
     //FigureSelect状態でcandidates内のノードがクリックされたら、選択中のフィギュアに経路情報を渡す
-    public IEnumerator NodeClicked(int _nodeID)
+    public IEnumerator NodeClicked(int _nodeId)
     {
-
         // 状態チェック
         if (phaseState != PhaseState.FigureSelected)
         {
@@ -505,13 +572,14 @@ public class BoardController : MonoBehaviour
         }
 
         // 選択フィギュアの所有権チェック
-        if (currentFigure.GetComponent<FigureParameter>().GetPlayerID() != turnNumber)
+        if (currentFigure.GetComponent<FigureParameter>().GetPlayerId() != turnNumber)
         {
+            Debug.Log("Current Player ID = " + currentFigure.GetComponent<FigureParameter>().GetPlayerId() + ", turnNumber = " + turnNumber);
             yield break;
         }
 
         // ウェイトチェック
-        if(currentFigure.GetComponent<FigureParameter>().GetWaitCount() >= 1)
+        if (currentFigure.GetComponent<FigureParameter>().GetWaitCount() >= 1)
         {
             yield break;
         }
@@ -520,14 +588,14 @@ public class BoardController : MonoBehaviour
         // その後AfterWalk状態に遷移する
         for (int i = 0; i < walkCandidates.Count; i++)
         {
-            if (_nodeID == walkCandidates[i])
+            if (_nodeId == walkCandidates[i])
             {
                 StartCoroutine(SetPhaseState(PhaseState.Walking));
                 //ここの引数のprevNodeはFigureSelectedが呼ばれたときに格納されているよ
 
-                Stack<int> route = DecideRoute(_nodeID, prevNode);
+                Stack<int> route = DecideRoute(_nodeId, prevNode);
                 //コルーチンを使った移動に変えた
-                if (currentFigure.GetComponent<FigureParameter>().GetPosition() >= 28)
+                if (currentFigure.GetComponent<FigureParameter>().GetPosition() >= NUMBER_OF_FIELD_NODES)
                 {
                     route.Pop();
                     yield return StartCoroutine(currentFigure.GetComponent<FigureController>().FigureOneStepWalk(route.Peek()));
@@ -572,7 +640,7 @@ public class BoardController : MonoBehaviour
             walkCandidates.Clear();
             attackCandidates.Clear();
             //ノードの色を初期化
-            for (int i = 0; i < 28; i++)
+            for (int i = 0; i < NUMBER_OF_FIELD_NODES; i++)
             {
                 nodes.transform.GetChild(i).GetComponent<SpriteRenderer>().color = Color.white;
             }
@@ -603,7 +671,7 @@ public class BoardController : MonoBehaviour
             }
 
             //攻撃範囲の計算
-            bool[] maskAttackNode = new bool[44];
+            bool[] maskAttackNode = new bool[NUMBER_OF_WALK_NODES];
             for (int i = 0; i < maskAttackNode.Length; i++) maskAttackNode[i] = true;
             var calculateAttackDistance = CalculateDistance(currentFigureParameter.GetPosition(), maskAttackNode);
             attackCandidates = FindCandidateofDestinaitonLessThan(currentFigureParameter.GetAttackRange(), calculateAttackDistance.distances);
@@ -611,7 +679,7 @@ public class BoardController : MonoBehaviour
         else if (phaseState == PhaseState.AfterWalk)
         {
             //ノードの色を初期化
-            for (int i = 0; i < 28; i++)
+            for (int i = 0; i < NUMBER_OF_FIELD_NODES; i++)
             {
                 nodes.transform.GetChild(i).GetComponent<SpriteRenderer>().color = Color.white;
             }
@@ -630,10 +698,10 @@ public class BoardController : MonoBehaviour
             FigureParameter currentFigureParameter = currentFigure.GetComponent<FigureParameter>();
             bool opponentExistInAttackCandidates = false;   // バトル候補がいるかどうか
             int opponentID;
-            if (currentFigureParameter.GetPlayerID() == 0) opponentID = 1;
+            if (currentFigureParameter.GetPlayerId() == 0) opponentID = 1;
             else opponentID = 0;
 
-            bool[] maskAttackNode = new bool[28];
+            bool[] maskAttackNode = new bool[NUMBER_OF_FIELD_NODES];
             for (int i = 0; i < maskAttackNode.Length; i++) maskAttackNode[i] = true;
             var calculateAttackDistance = CalculateDistance(currentFigureParameter.GetPosition(), maskAttackNode);
             attackCandidates = FindCandidateofDestinaitonLessThan(currentFigureParameter.GetAttackRange(), calculateAttackDistance.distances);
@@ -651,7 +719,7 @@ public class BoardController : MonoBehaviour
                 }
             }
             //今ゴール処理は通常移動後しか考えてない。ワザの効果で移動するときもな
-            if (currentFigure.GetComponent<FigureParameter>().GetPosition() == goalNodeID[opponentID])
+            if (currentFigure.GetComponent<FigureParameter>().GetPosition() == goalNodeId[opponentID])
             {
                 StartCoroutine(SetPhaseState(PhaseState.GameEnd));
             }
@@ -713,7 +781,7 @@ public class BoardController : MonoBehaviour
                 {
                     if(figure.GetComponent<FigureParameter>().GetWaitCount() >= 1)
                     {
-                        figure.GetComponent<FigureParameter>().decreaseWaitCount();
+                        figure.GetComponent<FigureParameter>().DecreaseWaitCount();
                     }
                 }
             }
@@ -727,12 +795,12 @@ public class BoardController : MonoBehaviour
             //もう少し真面目にかけ
             //実際はどっかのタイミングで全部のフィギュアの位置調べて相手のゴールにいればなんちゃらみたいな感じかなあ知らんけど
                 gameEndText.SetActive(true);
-                gameEndText.GetComponent<TextMeshProUGUI>().text = "PLAYER" + currentFigure.GetComponent<FigureParameter>().GetPlayerID() + " WIN!";
+                gameEndText.GetComponent<TextMeshProUGUI>().text = "PLAYER" + currentFigure.GetComponent<FigureParameter>().GetPlayerId() + " WIN!";
         }
         else if(phaseState == PhaseState.Forfeit)
         {
-//            Debug.Log("CurrentPlayerId = " + currentFigure.GetComponent<FigureParameter>().GetPlayerID());
-//            Debug.Log("OpponentPlayerId = " + opponentFigure.GetComponent<FigureParameter>().GetPlayerID());
+//            Debug.Log("CurrentPlayerId = " + currentFigure.GetComponent<FigureParameter>().GetPlayerId());
+//            Debug.Log("OpponentPlayerId = " + opponentFigure.GetComponent<FigureParameter>().GetPlayerId());
             gameEndText.SetActive(true);
             gameEndText.GetComponent<TextMeshProUGUI>().text = "PLAYER" + (turnNumber + 1) % 2 + " WIN!";
         }
@@ -759,16 +827,16 @@ public class BoardController : MonoBehaviour
     {
         GameObject backBenchFigure = null;
         GameObject moveAnotherPCFigure = null;
-        int playerID = _figure.GetComponent<FigureParameter>().GetPlayerID();
+        int playerID = _figure.GetComponent<FigureParameter>().GetPlayerId();
 
         for (int i = 0; i < figures[playerID].Count; i++)
         {
-            if (figures[playerID][i].GetComponent<FigureParameter>().GetPosition() == pcNodeID[playerID][1])
+            if (figures[playerID][i].GetComponent<FigureParameter>().GetPosition() == pcNodeId[playerID][1])
             {
 
                 backBenchFigure = figures[playerID][i];
             }
-            else if (figures[playerID][i].GetComponent<FigureParameter>().GetPosition() == pcNodeID[playerID][0])
+            else if (figures[playerID][i].GetComponent<FigureParameter>().GetPosition() == pcNodeId[playerID][0])
             {
                 moveAnotherPCFigure = figures[playerID][i];
             }
@@ -779,15 +847,15 @@ public class BoardController : MonoBehaviour
         {
             // ウェイト2を付与
             backBenchFigure.GetComponent<FigureParameter>().SetWaitCount(2);
-            yield return backBenchFigure.GetComponent<FigureController>().FigureOneStepWalk(backBenchFigure.GetComponent<FigureParameter>().GetBenchID());
+            yield return backBenchFigure.GetComponent<FigureController>().FigureOneStepWalk(backBenchFigure.GetComponent<FigureParameter>().GetBenchId());
         }
         //PC0からPC1へ移動
         if (moveAnotherPCFigure != null)
         {
-            yield return moveAnotherPCFigure.GetComponent<FigureController>().FigureOneStepWalk(pcNodeID[playerID][1]);
+            yield return moveAnotherPCFigure.GetComponent<FigureController>().FigureOneStepWalk(pcNodeId[playerID][1]);
         }
         //フィールドからPC0へ移動
-        yield return _figure.GetComponent<FigureController>().FigureOneStepWalk(pcNodeID[playerID][0]);
+        yield return _figure.GetComponent<FigureController>().FigureOneStepWalk(pcNodeId[playerID][0]);
     }
 
     void SceneLoaded(Scene nextScene, LoadSceneMode mode)
@@ -795,12 +863,12 @@ public class BoardController : MonoBehaviour
         if (nextScene.name == "SpinScene")
         {
             //ノードの色を初期化
-            for (int i = 0; i < 28; i++)
+            for (int i = 0; i < NUMBER_OF_FIELD_NODES; i++)
             {
                 nodes.transform.GetChild(i).GetComponent<SpriteRenderer>().color = Color.white;
             }
             //ノードを非表示
-            for (int i = 0; i < 44; i++)
+            for (int i = 0; i < NUMBER_OF_WALK_NODES; i++)
             {
                 nodes.transform.GetChild(i).GetComponent<SpriteRenderer>().enabled = false;
             }
@@ -834,7 +902,7 @@ public class BoardController : MonoBehaviour
         {
             Destroy(GameObject.Find("BeforeStart"));
             //ノードを再表示
-            for (int i = 0; i < 44; i++)
+            for (int i = 0; i < NUMBER_OF_WALK_NODES; i++)
             {
                 nodes.transform.GetChild(i).GetComponent<SpriteRenderer>().enabled = true;
             }
@@ -883,12 +951,14 @@ public class BoardController : MonoBehaviour
 
     }
 
-    public void turnEnd()
+    // Assets:  BoardScene\DontDestroyObjects\Canvas\TurnEndButton
+    public void TurnEnd()
     {
         StartCoroutine(SetPhaseState(PhaseState.TurnEnd));
     }
 
-    public void forFeit()
+    // Assets:  BoardScene\DontDestroyObjects\Canvas\ForfeitButton
+    public void ForFeit()
     {
         StartCoroutine(SetPhaseState(PhaseState.Forfeit));
     }
@@ -897,7 +967,7 @@ public class BoardController : MonoBehaviour
     public bool IsSurrounded(GameObject figure)
     {
         // figureの所有者のID
-        int currentId = figure.GetComponent<FigureParameter>().GetPlayerID();
+        int currentId = figure.GetComponent<FigureParameter>().GetPlayerId();
         // figureに隣接するフィギュア
         GameObject adjacentFigure;
 
@@ -911,7 +981,7 @@ public class BoardController : MonoBehaviour
                 return false;
             }
 
-            if (currentId == adjacentFigure.GetComponent<FigureParameter>().GetPlayerID())
+            if (currentId == adjacentFigure.GetComponent<FigureParameter>().GetPlayerId())
             {
                 return false;
             }
@@ -923,16 +993,14 @@ public class BoardController : MonoBehaviour
     // figureの包囲判定と気絶処理を行う
     public IEnumerator KnockedOutBySurrounding(GameObject figure)
     {
-        Debug.Log("KnockedOutBySurrounding is called.");
         if(null == figure)
         {
             yield break;
         }
-        bool isSurrounded = IsSurrounded(figure);
 
+        bool isSurrounded = IsSurrounded(figure);
         if (isSurrounded)
         {
-            Debug.Log("Knocked out by surrounding!!");
             yield return Death(figure);
         }
     }
@@ -941,7 +1009,7 @@ public class BoardController : MonoBehaviour
     // フィギュアが存在しない場合はnullを返す
     public GameObject GetFigureOnBoard(int nodeId)
     {
-        for(int playerId = 0; playerId < NUMBER_OF_PLAYERS; playerId++)
+        for(int playerId = 0; NUMBER_OF_PLAYERS > playerId; playerId++)
         {
             foreach (GameObject figure in figures[playerId])
             {

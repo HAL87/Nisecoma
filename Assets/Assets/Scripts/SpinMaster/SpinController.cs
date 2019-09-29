@@ -23,12 +23,12 @@ public class SpinController : MonoBehaviour
 
         RouletteMaker[] rouletteMaker = new RouletteMaker[BoardController.NUMBER_OF_PLAYERS];
 
-        int currentPlayerID = boardController.GetCurrentFigure().GetComponent<FigureParameter>().GetPlayerID();
+        int currentPlayerID = boardController.GetCurrentFigure().GetComponent<FigureParameter>().GetPlayerId();
         Debug.Log("currentPlayerIDは" + currentPlayerID);
         rouletteMaker[currentPlayerID] = datadisks[currentPlayerID].GetComponent<RouletteMaker>();
         rouletteMaker[currentPlayerID].CreateRulette(boardController.GetCurrentFigure().GetComponent<FigureParameter>().GetData());
 
-        int opponentPlayerID = boardController.GetOpponentFigure().GetComponent<FigureParameter>().GetPlayerID();
+        int opponentPlayerID = boardController.GetOpponentFigure().GetComponent<FigureParameter>().GetPlayerId();
         Debug.Log("opponentPlayerIDは" + opponentPlayerID);
         rouletteMaker[opponentPlayerID] = datadisks[opponentPlayerID].GetComponent<RouletteMaker>();
         rouletteMaker[opponentPlayerID].CreateRulette(boardController.GetOpponentFigure().GetComponent<FigureParameter>().GetData());
@@ -52,27 +52,27 @@ public class SpinController : MonoBehaviour
         //moveText0.GetComponent<Text>();
         //moveText1.GetComponent<Text>();
 
-        moveText[boardController.GetCurrentFigure().GetComponent<FigureParameter>().GetPlayerID()].text = mp0.GetMoveName();
-        moveText[boardController.GetOpponentFigure().GetComponent<FigureParameter>().GetPlayerID()].text = mp1.GetMoveName();
+        moveText[boardController.GetCurrentFigure().GetComponent<FigureParameter>().GetPlayerId()].text = mp0.GetMoveName();
+        moveText[boardController.GetOpponentFigure().GetComponent<FigureParameter>().GetPlayerId()].text = mp1.GetMoveName();
 
         Debug.Log(mp0.GetMoveName() + " vs " + mp1.GetMoveName());
         if (0 == BattleResult.result)
         {
             Debug.Log(mp0.GetMoveName() + "の勝ち！");
-            battleResultText[boardController.GetCurrentFigure().GetComponent<FigureParameter>().GetPlayerID()].text = "Win!!";
-            battleResultText[boardController.GetOpponentFigure().GetComponent<FigureParameter>().GetPlayerID()].text = "Lose...";
+            battleResultText[boardController.GetCurrentFigure().GetComponent<FigureParameter>().GetPlayerId()].text = "Win!!";
+            battleResultText[boardController.GetOpponentFigure().GetComponent<FigureParameter>().GetPlayerId()].text = "Lose...";
         }
         else if(1 == BattleResult.result)
         {
             Debug.Log(mp1.GetMoveName() + "の勝ち！");
-            battleResultText[boardController.GetCurrentFigure().GetComponent<FigureParameter>().GetPlayerID()].text = "Lose...";
-            battleResultText[boardController.GetOpponentFigure().GetComponent<FigureParameter>().GetPlayerID()].text = "Win!!";
+            battleResultText[boardController.GetCurrentFigure().GetComponent<FigureParameter>().GetPlayerId()].text = "Lose...";
+            battleResultText[boardController.GetOpponentFigure().GetComponent<FigureParameter>().GetPlayerId()].text = "Win!!";
         }
         else
         {
             Debug.Log("引き分け！");
-            battleResultText[boardController.GetCurrentFigure().GetComponent<FigureParameter>().GetPlayerID()].text = "Draw";
-            battleResultText[boardController.GetOpponentFigure().GetComponent<FigureParameter>().GetPlayerID()].text = "Draw";
+            battleResultText[boardController.GetCurrentFigure().GetComponent<FigureParameter>().GetPlayerId()].text = "Draw";
+            battleResultText[boardController.GetOpponentFigure().GetComponent<FigureParameter>().GetPlayerId()].text = "Draw";
         }
         //yield return new WaitForSeconds(0.5f);
         yield return new WaitUntil(() => Input.GetMouseButtonDown(0));

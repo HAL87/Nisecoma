@@ -1,0 +1,1 @@
+BoardSceneでゲーム開始

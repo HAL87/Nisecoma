@@ -31,8 +31,8 @@ public class SpinControllerDebug : MonoBehaviour
 
     public void SpinStart()
     {
-        
-        StartCoroutine(diskSpin0.Spin(getInfo.GetData(0)));
+        // 2019.09.30 Spin(GameObject data, BoardController.PhaseState phaseState)の仕様変更に伴いコメントアウト
+        // (diskSpin0.Spin(getInfo.GetData(0)));
 
     }
 

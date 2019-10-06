@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+
 public class MoveParameter : MonoBehaviour
 {
     // moveDataの子要素である各ワザにそれぞれアタッチ
@@ -26,7 +27,10 @@ public class MoveParameter : MonoBehaviour
     // 星の数（紫のみ）
     [SerializeField] private int moveNumberOfStar;
     // 技効果
-    public UnityEvent OnInitDone;
+    // 動的引数付きシリアル関数は抽象クラスなので、独自クラスを作って継承させないといけない
+    [System.Serializable] public class MyEvent : UnityEvent<BoardController.PhaseState> { }
+    // 技効果関数
+    [SerializeField] MyEvent MoveEffect;
 
     // Start is called before the first frame update
     void Start()
@@ -80,4 +84,22 @@ public class MoveParameter : MonoBehaviour
         return moveNumberOfStar;
     }
     
+    public void ExecMoveEffect(BoardController.PhaseState phaseState)
+    {
+        if(MoveEffect != null)
+        {
+            MoveEffect.Invoke(phaseState);
+        }
+    }
+
+    public MyEvent GetMoveEffect()
+    {
+        // 追加効果のない技をnullにするかどうかは要検討
+        if(MoveEffect != null)
+        {
+            return MoveEffect;
+        }
+
+        return null;
+    }
 }

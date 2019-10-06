@@ -600,7 +600,6 @@ public class BoardController : MonoBehaviour
         // 選択フィギュアの所有権チェック
         if (currentFigure.GetComponent<FigureParameter>().GetPlayerId() != turnNumber)
         {
-            Debug.Log("Current Player ID = " + currentFigure.GetComponent<FigureParameter>().GetPlayerId() + ", turnNumber = " + turnNumber);
             yield break;
         }
 
@@ -646,10 +645,10 @@ public class BoardController : MonoBehaviour
         // ターンの開始時
         if(phaseState == PhaseState.TurnStart)
         {
-            /*UIカット
+            
             restTurnText.GetComponent<TextMeshProUGUI>().text = restTurn.ToString();
             yield return FadeInOut(playerTurnText[turnNumber], 0.5f);
-            */
+            
             StartCoroutine(SetPhaseState(PhaseState.Normal));
         }
         else if (phaseState == PhaseState.Normal)
@@ -791,14 +790,24 @@ public class BoardController : MonoBehaviour
 
             // バトル結果の受け取り
             var BattleResult = SpinController.GetBattleResult();
+
             int result = BattleResult.Item1;
             bool currentMoveAwake = BattleResult.Item2;
             bool opponentMoveAwake = BattleResult.Item3;
             bool currentDeath = BattleResult.Item4;
             bool opponentDeath = BattleResult.Item5;
+            MoveParameter.MyEvent currentMoveEffect = BattleResult.Item6;
+            MoveParameter.MyEvent opponentMoveEffect = BattleResult.Item7;
+            
             Debug.Log("boardで" + BattleResult);
-            // if(currentMoveAwake){}
-            // if(opponentMoveAwake){}
+            if(currentMoveAwake)
+            {
+                currentMoveEffect.Invoke(phaseState);
+            }
+            if (opponentMoveAwake)
+            {
+                opponentMoveEffect.Invoke(phaseState);
+            }
             if (currentDeath)
             {
                 yield return Death(currentFigure);
@@ -947,7 +956,7 @@ public class BoardController : MonoBehaviour
             turnEndButton.SetActive(false);
 
             // UIカット
-            // restTurnText.GetComponent<TextMeshProUGUI>().enabled = false;
+            restTurnText.GetComponent<TextMeshProUGUI>().enabled = false;
 
         }
         // SpinSceneからBoardSceneに帰ってきた
@@ -978,7 +987,7 @@ public class BoardController : MonoBehaviour
             // UIの表示
             turnEndButton.SetActive(true);
             // UIカット
-            // restTurnText.GetComponent<TextMeshProUGUI>().enabled = true;
+            restTurnText.GetComponent<TextMeshProUGUI>().enabled = true;
 
             
             // バトル後の処理

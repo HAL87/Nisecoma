@@ -46,7 +46,7 @@ public class DiskSpin : MonoBehaviour
     }
 
     // 引数はGameMasterから渡されるワザのデータ）
-    public IEnumerator Spin(GameObject data)
+    public IEnumerator Spin(GameObject data, BoardController.PhaseState phaseState)
     {
         yield return new WaitForSeconds(0.1f);
 
@@ -103,7 +103,7 @@ public class DiskSpin : MonoBehaviour
                 // goalAngleに該当するワザ
                 Debug.Log("getMoveName = " + moveParameter.GetMoveName());
                 Debug.Log("getMoveColor = " + moveParameter.GetMoveColorName());
-                moveParameter.OnInitDone.Invoke();
+                moveParameter.ExecMoveEffect(phaseState);
                 yield return moveParameter;
             }
             totalRange += moveParameter.GetMoveRange();

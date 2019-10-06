@@ -3,6 +3,7 @@ using Photon.Realtime;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using UnityEngine;
+using Hashtable = ExitGames.Client.Photon.Hashtable;
 
 /// <summary>
 /// 
@@ -18,6 +19,12 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 {
     private const string BOARD_SCENE_NAME = "BoardScene";
 
+    private const string TURNNUMBER = "turnNumber";
+    // 残りターン数
+    private const string RESTTURN = "restTurn";
+
+    private Hashtable roomHash = new Hashtable();
+
     /////////////////////////////////////////////////////////////////////////////////////
     // Awake & Start ////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////
@@ -25,6 +32,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     private void Start()
     {
         DontDestroyOnLoad(gameObject);
+        Screen.SetResolution(540,960, false, 60);
 
         // シーンの読み込みコールバックを登録.
         SceneManager.sceneLoaded += OnLoadedScene;
@@ -43,16 +51,21 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         /* ルームオプションの設定 */
 
         // RoomOptionsのインスタンスを生成
-        RoomOptions roomOptions = new RoomOptions();
+        RoomOptions roomOptions = new RoomOptions
+        {
 
-        // ルームに入室できる最大人数。0を代入すると上限なし。
-        roomOptions.MaxPlayers = 2;
+            // ルームに入室できる最大人数。0を代入すると上限なし。
+            MaxPlayers = 2,
 
-        // ルームへの入室を許可するか否か
-        roomOptions.IsOpen = true;
+            // ルームへの入室を許可するか否か
+            IsOpen = true,
 
-        // ロビーのルーム一覧にこのルームが表示されるか否か
-        roomOptions.IsVisible = true;
+            // ロビーのルーム一覧にこのルームが表示されるか否か
+            IsVisible = true
+        };
+        roomHash.Add(TURNNUMBER, 0);
+        roomHash.Add(RESTTURN, 300);
+        roomOptions.CustomRoomProperties = roomHash;
         PhotonNetwork.JoinOrCreateRoom("room", roomOptions, TypedLobby.Default);
 
     }
@@ -93,6 +106,11 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         SceneManager.LoadScene(BOARD_SCENE_NAME);
     }
 
+
+    public Hashtable GetRoomHash()
+    {
+        return roomHash;
+    }
     private void Update()
     {
 

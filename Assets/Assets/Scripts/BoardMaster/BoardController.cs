@@ -12,7 +12,8 @@ using TMPro;
 using Photon.Pun;
 using Photon.Realtime;
 
-public class BoardController : MonoBehaviour
+
+public class BoardController : MonoBehaviourPunCallbacks
 {
     /****************************************************************/
     /*                          定数宣言                            */
@@ -100,8 +101,11 @@ public class BoardController : MonoBehaviour
 
     // どちらのターンかを表す。{0,1}で定められる
     private int turnNumber = 0;
+    private const string TURNNUMBER = "turnNumber";
     // 残りターン数
     private int restTurn = 300;
+    private const string RESTTURN = "restTurn";
+
     public enum PhaseState
     {
         TurnStart,
@@ -114,7 +118,8 @@ public class BoardController : MonoBehaviour
         AfterBattle,
         TurnEnd,
         GameEnd, 
-        Forfeit
+        Forfeit, 
+        Lock
     };
     // ゲームの状態変数
     private PhaseState phaseState;
@@ -139,17 +144,26 @@ public class BoardController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        //同期をオンにする
         PhotonNetwork.IsMessageQueueRunning = true;
+
+        //プレイヤーIDの設定
         myPlayerId = PhotonNetwork.LocalPlayer.ActorNumber - 1;
         Debug.Log("プレイヤーIDは" + myPlayerId);
+
+
+        //プレイヤーIDが1ならばカメラの位置を動かす
         if (myPlayerId == 1)
         {
+            cameraTransform.position = cameraTransform.position + new Vector3(0, -1, 0);
             cameraTransform.Rotate(0, 0, 180f);
+            
         }
         // ボードのデータ構造作成（ゲームの最初に1回だけ呼ばれる
         CreateBoard();
         EdgeDraw();
 
+        //デッキに登録しているフィギュアをインスタンス化
         InstantiateMyFigure();
 
         // イベントにイベントハンドラーを追加
@@ -167,29 +181,29 @@ public class BoardController : MonoBehaviour
     {
         //Debug.Log(PhotonNetwork.CountOfPlayersInRooms);
         //2人来るまで待機
-        while (PhotonNetwork.PlayerList.Length < 2)
+        while (PhotonNetwork.PlayerList.Length < NUMBER_OF_PLAYERS)
         {
             yield return null;
         }
-        yield return new WaitForSeconds(2);
+        //ここは本当は相手のフィギュアが現れたことを確認したら、に変える
+        yield return new WaitForSeconds(1);
         DivideFigures();
         /* UIカット
         yield return FadeInOut(startText, 1);
         Destroy(startText);
         */
-        GameObject[] objs = GameObject.FindGameObjectsWithTag("Figure");
-        foreach (GameObject obj in objs)
-        {
-            FigureParameter figureParameter = obj.GetComponent<FigureParameter>();
-            Debug.Log(obj);
-            Debug.Log(figureParameter.GetPlayerId());
-            Debug.Log(figureParameter.GetBenchId());
-            Debug.Log(figureParameter.GetPosition());
-        }
 
         //暫定的にプレイヤー0のターンに固定
         turnNumber = 0;
-        StartCoroutine(SetPhaseState(PhaseState.TurnStart));
+
+        if(myPlayerId == 0)
+        {
+            StartCoroutine(SetPhaseState(PhaseState.TurnStart));
+        }
+        else if(myPlayerId == 1)
+        {
+            StartCoroutine(SetPhaseState(PhaseState.Lock));
+        }
 
 
         Debug.Log("プレイヤー" + turnNumber + "のターンです");
@@ -517,8 +531,8 @@ public class BoardController : MonoBehaviour
     public void FigureClicked(int _playerId, int _figureIdOnBoard)
     {
         // fはテスト用
-        GameObject f = figures[_playerId][_figureIdOnBoard];
-        Debug.Log(f + "の位置は" + f.GetComponent<FigureParameter>().GetPosition());
+        //GameObject f = figures[_playerId][_figureIdOnBoard];
+        //Debug.Log(f + "の位置は" + f.GetComponent<FigureParameter>().GetPosition());
 
         switch (phaseState)
         {
@@ -731,9 +745,9 @@ public class BoardController : MonoBehaviour
         // ターンの開始時
         if(phaseState == PhaseState.TurnStart)
         {
-            /*UIカット
+            
             restTurnText.GetComponent<TextMeshProUGUI>().text = restTurn.ToString();
-            yield return FadeInOut(playerTurnText[turnNumber], 0.5f);
+            /*yield return FadeInOut(playerTurnText[turnNumber], 0.5f);
             */
             StartCoroutine(SetPhaseState(PhaseState.Normal));
         }
@@ -897,15 +911,10 @@ public class BoardController : MonoBehaviour
         else if (phaseState == PhaseState.TurnEnd)
         {
             // 相手のターンにして残りのターン数を更新
-            if (turnNumber == 0)
-            {
-                turnNumber = 1;
-            }
-            else if (turnNumber == 1)
-            {
-                turnNumber = 0;
-            }
+
+            turnNumber = (turnNumber + 1) % 2;
             restTurn--;
+            SetCustomProperty();
 
             // ウェイトが付いているフィギュアのウェイトを更新
             // ウェイト0になったらウェイトカウンターの描画を終了する
@@ -923,7 +932,7 @@ public class BoardController : MonoBehaviour
 
             turnEndButton.SetActive(false);
             // Debug.Log("プレイヤー" + turnNumber + "のターンです");
-            StartCoroutine(SetPhaseState(PhaseState.TurnStart));
+
         }
         else if(phaseState == PhaseState.GameEnd)
         {
@@ -940,6 +949,10 @@ public class BoardController : MonoBehaviour
             gameEndText.GetComponent<TextMeshProUGUI>().text = "PLAYER" + (turnNumber + 1) % 2 + " WIN!";
         }
         
+        else if(phaseState == PhaseState.Lock)
+        {
+            restTurnText.GetComponent<TextMeshProUGUI>().text = restTurn.ToString();
+        }
         else
         {
             yield return null;
@@ -1032,7 +1045,7 @@ public class BoardController : MonoBehaviour
             turnEndButton.SetActive(false);
 
             // UIカット
-            // restTurnText.GetComponent<TextMeshProUGUI>().enabled = false;
+            restTurnText.GetComponent<TextMeshProUGUI>().enabled = false;
 
         }
         // SpinSceneからBoardSceneに帰ってきた
@@ -1063,7 +1076,7 @@ public class BoardController : MonoBehaviour
             // UIの表示
             turnEndButton.SetActive(true);
             // UIカット
-            // restTurnText.GetComponent<TextMeshProUGUI>().enabled = true;
+            restTurnText.GetComponent<TextMeshProUGUI>().enabled = true;
 
             
             // バトル後の処理
@@ -1164,5 +1177,47 @@ public class BoardController : MonoBehaviour
     public int GetTheOtherPlayerId(int onePlayerId)
     {
         return (onePlayerId + 1) % 2;
+    }
+
+    public void SetCustomProperty()
+    {
+        var roomHash = new ExitGames.Client.Photon.Hashtable();
+        roomHash.Add(TURNNUMBER, turnNumber);
+        roomHash.Add(RESTTURN, restTurn);
+        // ルームにハッシュを送信する
+
+        Debug.Log("変更送信");
+        PhotonNetwork.CurrentRoom.SetCustomProperties(roomHash);
+
+    }
+    public override void OnRoomPropertiesUpdate(ExitGames.Client.Photon.Hashtable changedRoomHash)
+    {
+        // 変更されたハッシュを受け取る
+        Debug.Log("変更受け取り");
+        {
+            object value = null;
+            if (changedRoomHash.TryGetValue(TURNNUMBER, out value))
+            {
+                turnNumber = (int)value;
+                Debug.Log("今のターンは" + turnNumber);
+            }
+        }
+        {
+            object value = null;
+            if (changedRoomHash.TryGetValue(RESTTURN, out value))
+            {
+                restTurn = (int)value;
+                Debug.Log("残りターンは" + restTurn);
+            }
+        }
+        if(myPlayerId == turnNumber)
+        {
+            StartCoroutine(SetPhaseState(PhaseState.TurnStart));
+        }
+        else
+        {
+            StartCoroutine(SetPhaseState(PhaseState.Lock));
+        }
+
     }
 }

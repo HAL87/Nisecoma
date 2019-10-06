@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Photon.Pun;
 
-public class FigureParameter : MonoBehaviour
+public class FigureParameter : MonoBehaviourPunCallbacks, IPunObservable
 {
     [SerializeField] private int mp;
     [SerializeField] private GameObject data;
@@ -117,6 +118,23 @@ public class FigureParameter : MonoBehaviour
     public GameObject GetWaitCounter()
     {
         return waitCounter;
+    }
+
+
+    void IPunObservable.OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        if (stream.IsWriting)
+        {
+            //データの送信
+            stream.SendNext(GetPosition());
+        }
+        else
+        {
+            position = (int)stream.ReceiveNext();
+            SetPosition(position);
+            //データの受信
+
+        }
     }
 
     // Start is called before the first frame update

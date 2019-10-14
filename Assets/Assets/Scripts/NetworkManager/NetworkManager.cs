@@ -23,6 +23,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     // 残りターン数
     private const string RESTTURN = "restTurn";
 
+    [SerializeField] private GameObject CreateAndJoinButton;
     private Hashtable roomHash = new Hashtable();
 
     /////////////////////////////////////////////////////////////////////////////////////
@@ -88,7 +89,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public override void OnConnectedToMaster()
     {
         Debug.Log("OnConnectedToMaster");
-
+        CreateAndJoinButton.SetActive(true);
     }
 
     // 部屋を作成した時

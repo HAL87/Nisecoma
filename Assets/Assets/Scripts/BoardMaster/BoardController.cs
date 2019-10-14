@@ -55,7 +55,8 @@ public class BoardController : MonoBehaviourPunCallbacks
 
     // 除外ゾーン
 
-
+    private const string TURNNUMBER = "turnNumber";
+    private const string RESTTURN = "restTurn";
     /****************************************************************/
     /*                          メンバ変数宣言                      */
     /****************************************************************/
@@ -78,12 +79,20 @@ public class BoardController : MonoBehaviourPunCallbacks
     // エッジ描画のためのprefab
     [SerializeField] private GameObject drawEdgePrefab;
 
-    // UI
+    // ボードのUI
     [SerializeField] private GameObject startText;
     [SerializeField] private List<GameObject> playerTurnText;
     [SerializeField] private GameObject restTurnText;
     [SerializeField] private GameObject gameEndText;
     [SerializeField] private GameObject turnEndButton;
+    [SerializeField] private GameObject forfeitButton;
+
+    // スピンのオブジェクト
+    [SerializeField] private GameObject arrow;
+    [SerializeField] private List<GameObject> RouletteParentPlayer;
+
+    // スピンのUI
+    [SerializeField] private GameObject spinText;
 
     // そのノードにつく前はどこにいたのかを表す
     private int[] prevNode = new int[NUMBER_OF_WALK_NODES];
@@ -101,10 +110,9 @@ public class BoardController : MonoBehaviourPunCallbacks
 
     // どちらのターンかを表す。{0,1}で定められる
     private int turnNumber = 0;
-    private const string TURNNUMBER = "turnNumber";
+
     // 残りターン数
     private int restTurn = 300;
-    private const string RESTTURN = "restTurn";
 
     public enum PhaseState
     {
@@ -114,7 +122,8 @@ public class BoardController : MonoBehaviourPunCallbacks
         Walking,
         AfterWalk,
         ConfirmFigure,
-        Battle,
+        BattleStart,
+        BattleEnd,
         AfterBattle,
         TurnEnd,
         GameEnd, 
@@ -157,6 +166,12 @@ public class BoardController : MonoBehaviourPunCallbacks
         {
             cameraTransform.position = cameraTransform.position + new Vector3(0, -1, 0);
             cameraTransform.Rotate(0, 0, 180f);
+            
+            for(int i = 0; i < spinText.transform.childCount; i++)
+            {
+                spinText.transform.GetChild(i).transform.Rotate(0, 0, 180f);
+            }
+            
             
         }
         // ボードのデータ構造作成（ゲームの最初に1回だけ呼ばれる
@@ -561,11 +576,7 @@ public class BoardController : MonoBehaviourPunCallbacks
             // 遷移3番: FigureSelect→FigureSelect
             else if (figures[_playerId][_figureIdOnBoard].GetComponent<FigureParameter>().GetPlayerId() == turnNumber)
             {
-                // ノードの色を初期化
-                for (int i = 0; i < NUMBER_OF_FIELD_NODES; i++)
-                {
-                    nodes.transform.GetChild(i).GetComponent<SpriteRenderer>().color = Color.white;
-                }
+                ClearNodesColor();
                 // 光沢を初期化
                 currentFigure.GetComponent<Renderer>().material.SetFloat("_Metallic", 0.0f);
                 currentFigure.GetComponent<Renderer>().material.SetFloat("_Glossiness", 1.0f);
@@ -591,11 +602,7 @@ public class BoardController : MonoBehaviourPunCallbacks
                 // 敵が攻撃範囲内にいなかったとき
                 if (attackOK == false)
                 {
-                    // ノードの色を初期化
-                    for (int i = 0; i < NUMBER_OF_FIELD_NODES; i++)
-                    {
-                        nodes.transform.GetChild(i).GetComponent<SpriteRenderer>().color = Color.white;
-                    }
+                    ClearNodesColor();
                     // 光沢を初期化
                     currentFigure.GetComponent<Renderer>().material.SetFloat("_Metallic", 0.0f);
                     currentFigure.GetComponent<Renderer>().material.SetFloat("_Glossiness", 1.0f);
@@ -611,7 +618,7 @@ public class BoardController : MonoBehaviourPunCallbacks
                 else
                 {
                     opponentFigure = figures[_playerId][_figureIdOnBoard];
-                    StartCoroutine(SetPhaseState(PhaseState.Battle));
+                    StartCoroutine(SetPhaseState(PhaseState.BattleStart));
                 }
             }
             break;
@@ -661,7 +668,7 @@ public class BoardController : MonoBehaviourPunCallbacks
                 else
                 {
                     opponentFigure = figures[_playerId][_figureIdOnBoard];
-                    StartCoroutine(SetPhaseState(PhaseState.Battle));
+                    StartCoroutine(SetPhaseState(PhaseState.BattleStart));
                 }
             }
             break;
@@ -743,9 +750,9 @@ public class BoardController : MonoBehaviourPunCallbacks
         Debug.Log(GetPhaseState());
 
         // ターンの開始時
-        if(phaseState == PhaseState.TurnStart)
+        if (phaseState == PhaseState.TurnStart)
         {
-            
+
             restTurnText.GetComponent<TextMeshProUGUI>().text = restTurn.ToString();
             /*yield return FadeInOut(playerTurnText[turnNumber], 0.5f);
             */
@@ -769,11 +776,7 @@ public class BoardController : MonoBehaviourPunCallbacks
             walkCandidates.Clear();
             attackCandidates.Clear();
 
-            // ノードの色を初期化
-            for (int i = 0; i < NUMBER_OF_FIELD_NODES; i++)
-            {
-                nodes.transform.GetChild(i).GetComponent<SpriteRenderer>().color = Color.white;
-            }
+            ClearNodesColor();
         }
         else if (phaseState == PhaseState.FigureSelected)
         {
@@ -816,11 +819,7 @@ public class BoardController : MonoBehaviourPunCallbacks
         }
         else if (phaseState == PhaseState.AfterWalk)
         {
-            // ノードの色を初期化
-            for (int i = 0; i < NUMBER_OF_FIELD_NODES; i++)
-            {
-                nodes.transform.GetChild(i).GetComponent<SpriteRenderer>().color = Color.white;
-            }
+            ClearNodesColor();
 
             // 包囲処理
             int currentFigureNode = currentFigure.GetComponent<FigureParameter>().GetPosition();
@@ -835,15 +834,7 @@ public class BoardController : MonoBehaviourPunCallbacks
 
             FigureParameter currentFigureParameter = currentFigure.GetComponent<FigureParameter>();
             bool opponentExistInAttackCandidates = false;   // バトル候補がいるかどうか
-            int opponentID;
-            if (currentFigureParameter.GetPlayerId() == 0)
-            {
-                opponentID = 1;
-            }
-            else
-            {
-                opponentID = 0;
-            }
+            int opponentID = GetTheOtherPlayerId(currentFigureParameter.GetPlayerId());
 
             bool[] maskAttackNode = new bool[NUMBER_OF_FIELD_NODES];
             for (int i = 0; i < maskAttackNode.Length; i++)
@@ -862,7 +853,7 @@ public class BoardController : MonoBehaviourPunCallbacks
                     {
                         opponentExistInAttackCandidates = true;
                     }
-                    
+
                 }
             }
             // 今ゴール処理は通常移動後しか考えてない。ワザの効果で移動するときもな
@@ -880,9 +871,42 @@ public class BoardController : MonoBehaviourPunCallbacks
             }
 
         }
-        else if (phaseState == PhaseState.Battle)
+        else if (phaseState == PhaseState.BattleStart)
         {
-            SceneManager.LoadScene("SpinScene");
+            //ボードのオブジェクトを消す
+            ClearNodesColor();
+            ActivateBoardObjects(false);
+
+            //スピンのオブジェクトを出す
+            ActivateSpinObjects(true);
+            if (myPlayerId == 1)
+            {
+                cameraTransform.position = cameraTransform.position + new Vector3(0, 1, 0);
+
+            }
+
+            SpinController spinController = GameObject.Find("SpinMaster").GetComponent<SpinController>();
+            yield return StartCoroutine(spinController.SpinStart());
+
+            StartCoroutine(SetPhaseState(PhaseState.BattleEnd));
+            photonView.RPC("Test", RpcTarget.Others);
+
+        }
+        else if(phaseState == PhaseState.BattleEnd)
+        {
+            //ボードのオブジェクトを出す
+            ActivateBoardObjects(true);
+
+            //スピンのオブジェクトを消す
+            ActivateSpinObjects(false);
+
+            if (myPlayerId == 1)
+            {
+                cameraTransform.position = cameraTransform.position + new Vector3(0, -1, 0);
+
+            }
+            // バトル後の処理
+            StartCoroutine(SetPhaseState(PhaseState.AfterBattle));
         }
         else if (phaseState == PhaseState.AfterBattle)
         {
@@ -918,12 +942,12 @@ public class BoardController : MonoBehaviourPunCallbacks
 
             // ウェイトが付いているフィギュアのウェイトを更新
             // ウェイト0になったらウェイトカウンターの描画を終了する
-            for(int i = 0; i < 2; i++)
+            for (int i = 0; i < 2; i++)
             {
                 List<GameObject> deck = figures[i];
-                foreach(GameObject figure in deck)
+                foreach (GameObject figure in deck)
                 {
-                    if(figure.GetComponent<FigureParameter>().GetWaitCount() >= 1)
+                    if (figure.GetComponent<FigureParameter>().GetWaitCount() >= 1)
                     {
                         figure.GetComponent<FigureParameter>().DecreaseWaitCount();
                     }
@@ -934,22 +958,20 @@ public class BoardController : MonoBehaviourPunCallbacks
             // Debug.Log("プレイヤー" + turnNumber + "のターンです");
 
         }
-        else if(phaseState == PhaseState.GameEnd)
+        else if (phaseState == PhaseState.GameEnd)
         {
             // もう少し真面目にかけ
             // 実際はどっかのタイミングで全部のフィギュアの位置調べて相手のゴールにいればなんちゃらみたいな感じかなあ知らんけど
-                gameEndText.SetActive(true);
-                gameEndText.GetComponent<TextMeshProUGUI>().text = "PLAYER" + currentFigure.GetComponent<FigureParameter>().GetPlayerId() + " WIN!";
+            gameEndText.SetActive(true);
+            gameEndText.GetComponent<TextMeshProUGUI>().text = "PLAYER" + currentFigure.GetComponent<FigureParameter>().GetPlayerId() + " WIN!";
         }
-        else if(phaseState == PhaseState.Forfeit)
+        else if (phaseState == PhaseState.Forfeit)
         {
-//            Debug.Log("CurrentPlayerId = " + currentFigure.GetComponent<FigureParameter>().GetPlayerId());
-//            Debug.Log("OpponentPlayerId = " + opponentFigure.GetComponent<FigureParameter>().GetPlayerId());
             gameEndText.SetActive(true);
             gameEndText.GetComponent<TextMeshProUGUI>().text = "PLAYER" + (turnNumber + 1) % 2 + " WIN!";
         }
-        
-        else if(phaseState == PhaseState.Lock)
+
+        else if (phaseState == PhaseState.Lock)
         {
             restTurnText.GetComponent<TextMeshProUGUI>().text = restTurn.ToString();
         }
@@ -1011,77 +1033,6 @@ public class BoardController : MonoBehaviourPunCallbacks
 
     void SceneLoaded(Scene nextScene, LoadSceneMode mode)
     {
-        if (nextScene.name == "SpinScene")
-        {
-            // ノードの色を初期化
-            for (int i = 0; i < NUMBER_OF_FIELD_NODES; i++)
-            {
-                nodes.transform.GetChild(i).GetComponent<SpriteRenderer>().color = Color.white;
-            }
-            // ノードを非表示
-            for (int i = 0; i < NUMBER_OF_WALK_NODES; i++)
-            {
-                nodes.transform.GetChild(i).GetComponent<SpriteRenderer>().enabled = false;
-            }
-            // エッジを非表示
-            for (int i = 0; i < this.transform.childCount; i++)
-            {
-                transform.GetChild(i).GetComponent<LineRenderer>().enabled = false;
-            }
-
-            // フィギュアを非表示にする
-            for (int i = 0; i < 2; i++)
-            {
-                foreach (GameObject obj in figures[i])
-                {
-                    for (int j = 0; j < obj.transform.childCount; j++)
-                    {
-                        obj.transform.GetChild(j).GetComponent<SpriteRenderer>().enabled = false;
-                    }
-                }
-            }
-
-            // UIの非表示
-            turnEndButton.SetActive(false);
-
-            // UIカット
-            restTurnText.GetComponent<TextMeshProUGUI>().enabled = false;
-
-        }
-        // SpinSceneからBoardSceneに帰ってきた
-        else if (nextScene.name == "BoardScene")
-        {
-            Destroy(GameObject.Find("BeforeStart"));
-            // ノードを再表示
-            for (int i = 0; i < NUMBER_OF_WALK_NODES; i++)
-            {
-                nodes.transform.GetChild(i).GetComponent<SpriteRenderer>().enabled = true;
-            }
-            // エッジを再表示
-            for (int i = 0; i < this.transform.childCount; i++)
-            {
-                transform.GetChild(i).GetComponent<LineRenderer>().enabled = true;
-            }
-            // フィギュアを再表示
-            for (int i = 0; i < 2; i++)
-            {
-                foreach (GameObject obj in figures[i])
-                {
-                    for (int j = 0; j < obj.transform.childCount; j++)
-                    {
-                        obj.transform.GetChild(j).GetComponent<SpriteRenderer>().enabled = true;
-                    }
-                }
-            }
-            // UIの表示
-            turnEndButton.SetActive(true);
-            // UIカット
-            restTurnText.GetComponent<TextMeshProUGUI>().enabled = true;
-
-            
-            // バトル後の処理
-            StartCoroutine(SetPhaseState(PhaseState.AfterBattle));
-        }
     }
 
     IEnumerator FadeInOut(GameObject _text, float _fadetime)
@@ -1103,13 +1054,13 @@ public class BoardController : MonoBehaviourPunCallbacks
     }
 
     // Assets:  BoardScene\DontDestroyObjects\Canvas\TurnEndButton
-    public void TurnEnd()
+    public void OnTurnEnd()
     {
         StartCoroutine(SetPhaseState(PhaseState.TurnEnd));
     }
 
     // Assets:  BoardScene\DontDestroyObjects\Canvas\ForfeitButton
-    public void ForFeit()
+    public void OnForFeit()
     {
         StartCoroutine(SetPhaseState(PhaseState.Forfeit));
     }
@@ -1220,4 +1171,64 @@ public class BoardController : MonoBehaviourPunCallbacks
         }
 
     }
+
+    [PunRPC]
+    private void Test()
+    {
+        Debug.Log("相手は旅立った");
+    }
+
+    private void ActivateBoardObjects(bool _flag)
+    {
+
+        // ノードを非表示
+        for (int i = 0; i < NUMBER_OF_WALK_NODES; i++)
+        {
+            nodes.transform.GetChild(i).GetComponent<SpriteRenderer>().enabled = _flag;
+        }
+        // エッジを非表示
+        for (int i = 0; i < this.transform.childCount; i++)
+        {
+            transform.GetChild(i).GetComponent<LineRenderer>().enabled = _flag;
+        }
+
+        // フィギュアを非表示にする
+        for (int i = 0; i < 2; i++)
+        {
+            foreach (GameObject obj in figures[i])
+            {
+                for (int j = 0; j < obj.transform.childCount; j++)
+                {
+                    obj.transform.GetChild(j).GetComponent<SpriteRenderer>().enabled = _flag;
+                }
+            }
+        }
+
+        // UIの非表示
+        turnEndButton.SetActive(_flag);
+        restTurnText.GetComponent<TextMeshProUGUI>().enabled = _flag;
+        forfeitButton.SetActive(_flag);
+
+
+    }
+
+    private void ActivateSpinObjects(bool _flag)
+    {
+        arrow.SetActive(_flag);
+        for(int i = 0; i < NUMBER_OF_PLAYERS; i++)
+        {
+            RouletteParentPlayer[i].SetActive(_flag);
+        }
+        spinText.SetActive(_flag);
+    }
+
+    //ノードの色を初期化
+    private void ClearNodesColor()
+    {
+        for (int i = 0; i < NUMBER_OF_FIELD_NODES; i++)
+        {
+            nodes.transform.GetChild(i).GetComponent<SpriteRenderer>().color = Color.white;
+        }
+    }
+
 }

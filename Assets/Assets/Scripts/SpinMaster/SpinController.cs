@@ -13,11 +13,21 @@ public class SpinController : MonoBehaviour
 
     [SerializeField] private Text[] moveText = new Text[BoardController.NUMBER_OF_PLAYERS];
     [SerializeField] private Text[] battleResultText = new Text[BoardController.NUMBER_OF_PLAYERS];
- //   [SerializeField] private Text buttleResultText0;
- //   [SerializeField] private Text buttleResultText1;
+    //   [SerializeField] private Text buttleResultText0;
+    //   [SerializeField] private Text buttleResultText1;
 
     // Start is called before the first frame update
-    IEnumerator Start()
+    private void Start()
+    {
+        
+    }
+    // Update is called once per frame
+    void Update()
+    {
+
+    }
+
+    public IEnumerator SpinStart()
     {
         boardController = GameObject.Find("BoardMaster").GetComponent<BoardController>();
 
@@ -76,13 +86,9 @@ public class SpinController : MonoBehaviour
         }
         // yield return new WaitForSeconds(0.5f);
         yield return new WaitUntil(() => Input.GetMouseButtonDown(0));
-        SceneManager.LoadScene("BoardScene");
-        
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
+        // スピンの情報を初期化しておく
+        ClearSpin();
         
     }
 
@@ -240,5 +246,34 @@ public class SpinController : MonoBehaviour
     public static (int, bool, bool, bool, bool) GetBattleResult()
     {
         return BattleResult;
+    }
+
+    // バトルが終わりボード画面に戻る時(これで不都合あれば次のバトル開始前に変える)に
+    // ピースを削除しspinTextを初期化する
+    private void ClearSpin()
+    {
+        //ピースを削除
+        GameObject[] pieces = GameObject.FindGameObjectsWithTag("RouletteImage");
+        foreach (GameObject piece in pieces)
+        {
+            Destroy(piece);
+        }
+        for(int i = 0; i < 2; i++)
+        {
+            // ディスクの回転位置初期化
+            datadisks[i].transform.rotation = Quaternion.Euler(0, 0, 0);
+
+            // 回転のオフセットを初期化
+
+            datadisks[i].GetComponent<DiskSpin>().offsetAngle = 45 + 180 * i;
+
+            // UIの初期化
+            moveText[i].text = "";
+            battleResultText[i].text = "";
+        }
+        //datadisks[0]
+
+
+
     }
 }

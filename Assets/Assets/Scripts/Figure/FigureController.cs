@@ -28,23 +28,17 @@ public class FigureController : MonoBehaviour
         boardController = GameObject.Find("BoardMaster").GetComponent<BoardController>();
         photonview = GetComponent<PhotonView>();
         //transform.position = nodesTransform.GetChild(figureParameter.GetPosition()).position;
+
     }
 
     private void Update()
     {
-        /*
-        if(boardController.GetPhaseState() == BoardController2D.PhaseState.Battle)
-        {
-            
-            this.gameObject.GetComponent<SpriteRenderer>().enabled = false;
-        }*/
-
 
     }
     public void OnUserAction()
     {
-        photonview.RequestOwnership();
-        Debug.Log(gameObject + "の位置は" + figureParameter.GetPosition() + "、オーナーは" + photonview.OwnerActorNr);
+        //photonview.RequestOwnership();
+        //Debug.Log(gameObject + "の位置は" + figureParameter.GetPosition() + "、オーナーは" + photonview.OwnerActorNr);
         boardController.FigureClicked(figureParameter.GetPlayerId(), figureParameter.GetFigureIdOnBoard());
     }
 

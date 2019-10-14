@@ -12,12 +12,13 @@ public class RouletteMaker : MonoBehaviour
     // [SerializeField] private GameObject data;
 
     private MoveParameter moveParameter;
-    private float convertConstant = 360f / 96f;
-    private float totalRange = 0;
+    private const float CONVERT_CONSTANT = 360f / 96f;
+
     // Start is called before the first frame update
 
     public void CreateRulette(GameObject data)
     {
+        float totalRange = 0;
         for (int i = 0; i < data.transform.childCount; i++) {
             moveParameter = data.transform.GetChild(i).GetComponent<MoveParameter>();
             var obj = Instantiate(rouletteImage, imageParentTransform);
@@ -25,7 +26,7 @@ public class RouletteMaker : MonoBehaviour
 
             // ピースの回転
             Vector3 axis = new Vector3(0f, 0f, -1f);
-            float angle = convertConstant * totalRange;
+            float angle = CONVERT_CONSTANT * totalRange;
             Quaternion q = Quaternion.AngleAxis(angle, axis);
             obj.transform.rotation = q * obj.transform.rotation;
 
@@ -60,14 +61,15 @@ public class RouletteMaker : MonoBehaviour
                 texts[1].text = "";
             }
 
-            obj.transform.GetChild(0).transform.rotation = Quaternion.Euler(0, 0, -(moveParameter.GetMoveRange() / 2 + totalRange) * convertConstant);
+            obj.transform.GetChild(0).transform.rotation = Quaternion.Euler(0, 0, -(moveParameter.GetMoveRange() / 2 + totalRange) * CONVERT_CONSTANT);
             totalRange += moveParameter.GetMoveRange();
 
             // Debug.Log(moveParameter.GetMoveName());
         }
 
     }
-  
+
+
     // Update is called once per frame
     void Update()
     {

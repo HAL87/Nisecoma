@@ -208,7 +208,7 @@ GameObject:
   - component: {fileID: 7583194150419947383}
   m_Layer: 5
   m_Name: RouletteImage
-  m_TagString: Untagged
+  m_TagString: RouletteImage
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

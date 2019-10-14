@@ -289,6 +289,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67dd4b6279efcc947b4850a155c4342b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  CreateAndJoinButton: {fileID: 1285901627}
 --- !u!4 &526339579
 Transform:
   m_ObjectHideFlags: 0
@@ -499,7 +500,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1285901628
 RectTransform:
   m_ObjectHideFlags: 0

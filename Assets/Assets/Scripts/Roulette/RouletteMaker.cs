@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Photon.Pun;
+using Photon.Realtime;
 
 public class RouletteMaker : MonoBehaviour
 {
@@ -9,6 +11,7 @@ public class RouletteMaker : MonoBehaviour
     [SerializeField] private Transform imageParentTransform;
     // 白い円の画像
     [SerializeField] private Image rouletteImage;
+    private const string ROULETTE_IMAGE = "RouletteImage";
     // [SerializeField] private GameObject data;
 
     private MoveParameter moveParameter;
@@ -21,6 +24,18 @@ public class RouletteMaker : MonoBehaviour
         float totalRange = 0;
         for (int i = 0; i < data.transform.childCount; i++) {
             moveParameter = data.transform.GetChild(i).GetComponent<MoveParameter>();
+
+            // ネットワークオブジェクトにしてみた
+           // GameObject netObj = PhotonNetwork.Instantiate(ROULETTE_IMAGE, transform.position, Quaternion.identity, 0);
+
+            //親子関係とサイズの変更はPrefabのStartでやる
+           // netObj.transform.parent = imageParentTransform;
+            //netObj.transform.localScale = new Vector3(1, 1, 1);
+            //Debug.Log("ネットワークオブジェクトにしてみた");
+            
+            //Image obj = netObj.GetComponent<Image>();
+
+
             var obj = Instantiate(rouletteImage, imageParentTransform);
             obj.fillAmount = moveParameter.GetMoveRange() / 96f;
 
@@ -68,8 +83,6 @@ public class RouletteMaker : MonoBehaviour
         }
 
     }
-
-
     // Update is called once per frame
     void Update()
     {

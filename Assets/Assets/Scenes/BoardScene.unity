@@ -1472,7 +1472,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   nodes: {fileID: 1093449294}
-  drawEdgePrefab: {fileID: 12, guid: 5a846499035271a4e8cd0b142e5f6542, type: 3}
+  drawEdgePrefab: {fileID: 12, guid: abf17559434fb1d45a53e68655f6efbe, type: 3}
   startText: {fileID: 1139868218}
   playerTurnText:
   - {fileID: 872180357}
@@ -1763,6 +1763,11 @@ PrefabInstance:
       propertyPath: offsetAngle
       value: 45
       objectReference: {fileID: 0}
+    - target: {fileID: 6222382652278163856, guid: a5d439ef6e0784745b7ce5319c6a57ef,
+        type: 3}
+      propertyPath: rouletteImage
+      value: 
+      objectReference: {fileID: 689, guid: 6c03e53a7dd22994ba791deae6b8ce58, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a5d439ef6e0784745b7ce5319c6a57ef, type: 3}
 --- !u!224 &577935796 stripped
@@ -7142,6 +7147,11 @@ PrefabInstance:
       propertyPath: offsetAngle
       value: 225
       objectReference: {fileID: 0}
+    - target: {fileID: 6222382652278163856, guid: a5d439ef6e0784745b7ce5319c6a57ef,
+        type: 3}
+      propertyPath: rouletteImage
+      value: 
+      objectReference: {fileID: 689, guid: 6c03e53a7dd22994ba791deae6b8ce58, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a5d439ef6e0784745b7ce5319c6a57ef, type: 3}
 --- !u!224 &2117651225 stripped

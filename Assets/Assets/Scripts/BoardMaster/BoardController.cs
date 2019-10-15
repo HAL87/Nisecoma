@@ -55,8 +55,22 @@ public class BoardController : MonoBehaviourPunCallbacks
 
     // 除外ゾーン
 
-    private const string TURNNUMBER = "turnNumber";
-    private const string RESTTURN = "restTurn";
+    // カスタムプロパティ用文字列
+    private const string TURN_NUMBER = "turnNumber";
+    private const string REST_TURN = "restTurn";
+
+    private const string CURRENT_FIGURE_ID_ON_BOARD = "currentFigureIdOnBoard";
+    private const string CURRENT_FIGURE_PLAYER_ID = "currentFigurePlayerId";
+
+    private const string OPPONENT_FIGURE_ID_ON_BOARD = "opponentFigureIdOnBoard";
+    private const string OPPONENT_FIGURE_PLAYER_ID = "opponentFigurePlayerId";
+
+    private const string GOAL_ANGLE = "goalAngle";
+
+    // RPC用関数名
+
+    private const string ON_BATTLE_START = "OnBattleStart";
+    private const string ON_BATTLE_END = "OnBattleEnd";
     /****************************************************************/
     /*                          メンバ変数宣言                      */
     /****************************************************************/
@@ -143,6 +157,9 @@ public class BoardController : MonoBehaviourPunCallbacks
 
     //カメラの位置
     [SerializeField] private Transform cameraTransform;
+
+    private Hashtable roomHash = new Hashtable();
+
     /***************************************************************/
     /*                      プロトタイプ関数宣言                   */
     /***************************************************************/
@@ -558,6 +575,7 @@ public class BoardController : MonoBehaviourPunCallbacks
 
             // currentFigure更新
             currentFigure = figures[_playerId][_figureIdOnBoard];
+            SetCurrentFigureCustomProperty();
 
             // 状態変数更新
             // moveCandidates, walkCandidates, prevNodeの更新
@@ -582,6 +600,8 @@ public class BoardController : MonoBehaviourPunCallbacks
                 currentFigure.GetComponent<Renderer>().material.SetFloat("_Glossiness", 1.0f);
                 // currentFigure更新
                 currentFigure = figures[_playerId][_figureIdOnBoard];
+                SetCurrentFigureCustomProperty();
+               
                 // 状態変数更新
                 StartCoroutine(SetPhaseState(PhaseState.FigureSelected));
             }
@@ -609,6 +629,8 @@ public class BoardController : MonoBehaviourPunCallbacks
 
                     // currentFigure更新
                     currentFigure = figures[_playerId][_figureIdOnBoard];
+                    SetCurrentFigureCustomProperty();
+                    
                     // 状態変数更新
                     StartCoroutine(SetPhaseState(PhaseState.FigureSelected));
                 }
@@ -618,6 +640,8 @@ public class BoardController : MonoBehaviourPunCallbacks
                 else
                 {
                     opponentFigure = figures[_playerId][_figureIdOnBoard];
+                    SetOpponentFigureCustomProperty();
+
                     StartCoroutine(SetPhaseState(PhaseState.BattleStart));
                 }
             }
@@ -668,6 +692,8 @@ public class BoardController : MonoBehaviourPunCallbacks
                 else
                 {
                     opponentFigure = figures[_playerId][_figureIdOnBoard];
+                    SetOpponentFigureCustomProperty();
+
                     StartCoroutine(SetPhaseState(PhaseState.BattleStart));
                 }
             }
@@ -769,6 +795,11 @@ public class BoardController : MonoBehaviourPunCallbacks
             }
 
             currentFigure = null;
+            SetCurrentFigureCustomProperty();
+
+            opponentFigure = null;
+            SetOpponentFigureCustomProperty();
+
             for (int i = 0; i < prevNode.Length; i++)
             {
                 prevNode[i] = -1;
@@ -873,38 +904,27 @@ public class BoardController : MonoBehaviourPunCallbacks
         }
         else if (phaseState == PhaseState.BattleStart)
         {
-            //ボードのオブジェクトを消す
+            //ボードのオブジェクトを消し、スピンのオブジェクトを出してカメラ位置調整
             ClearNodesColor();
-            ActivateBoardObjects(false);
 
-            //スピンのオブジェクトを出す
-            ActivateSpinObjects(true);
-            if (myPlayerId == 1)
-            {
-                cameraTransform.position = cameraTransform.position + new Vector3(0, 1, 0);
+            //IEnumerator coroutine = OnBattleStart();
+            photonView.RPC(ON_BATTLE_START, RpcTarget.All);
+            
 
-            }
 
+
+            
             SpinController spinController = GameObject.Find("SpinMaster").GetComponent<SpinController>();
             yield return StartCoroutine(spinController.SpinStart());
-
+            
             StartCoroutine(SetPhaseState(PhaseState.BattleEnd));
             photonView.RPC("Test", RpcTarget.Others);
 
         }
         else if(phaseState == PhaseState.BattleEnd)
         {
-            //ボードのオブジェクトを出す
-            ActivateBoardObjects(true);
-
-            //スピンのオブジェクトを消す
-            ActivateSpinObjects(false);
-
-            if (myPlayerId == 1)
-            {
-                cameraTransform.position = cameraTransform.position + new Vector3(0, -1, 0);
-
-            }
+            //スピンのオブジェクトを消し、ボードのオブジェクトを出してカメラ位置調整
+            photonView.RPC(ON_BATTLE_END, RpcTarget.All);
             // バトル後の処理
             StartCoroutine(SetPhaseState(PhaseState.AfterBattle));
         }
@@ -938,7 +958,7 @@ public class BoardController : MonoBehaviourPunCallbacks
 
             turnNumber = (turnNumber + 1) % 2;
             restTurn--;
-            SetCustomProperty();
+            SetTurnCustomProperty();
 
             // ウェイトが付いているフィギュアのウェイトを更新
             // ウェイト0になったらウェイトカウンターの描画を終了する
@@ -1130,45 +1150,125 @@ public class BoardController : MonoBehaviourPunCallbacks
         return (onePlayerId + 1) % 2;
     }
 
-    public void SetCustomProperty()
+    public void SetTurnCustomProperty()
     {
         var roomHash = new ExitGames.Client.Photon.Hashtable();
-        roomHash.Add(TURNNUMBER, turnNumber);
-        roomHash.Add(RESTTURN, restTurn);
+        roomHash.Add(TURN_NUMBER, turnNumber);
+        roomHash.Add(REST_TURN, restTurn);
+
         // ルームにハッシュを送信する
 
-        Debug.Log("変更送信");
+        Debug.Log("ターン情報変更送信");
         PhotonNetwork.CurrentRoom.SetCustomProperties(roomHash);
 
     }
+
+    public void SetCurrentFigureCustomProperty()
+    {
+        var roomHash = new ExitGames.Client.Photon.Hashtable();
+        if(currentFigure != null)
+        {
+            roomHash.Add(CURRENT_FIGURE_PLAYER_ID, currentFigure.GetComponent<FigureParameter>().GetPlayerId());
+            roomHash.Add(CURRENT_FIGURE_ID_ON_BOARD, currentFigure.GetComponent<FigureParameter>().GetFigureIdOnBoard());
+        }
+        else
+        {
+            roomHash.Add(CURRENT_FIGURE_PLAYER_ID, -1);
+            roomHash.Add(CURRENT_FIGURE_ID_ON_BOARD, -1);
+        }
+
+        Debug.Log("currentFigure情報変更送信");
+        PhotonNetwork.CurrentRoom.SetCustomProperties(roomHash);
+
+    }
+
+    public void SetOpponentFigureCustomProperty()
+    {
+        var roomHash = new ExitGames.Client.Photon.Hashtable();
+        if(opponentFigure != null)
+        {
+            roomHash.Add(OPPONENT_FIGURE_PLAYER_ID, opponentFigure.GetComponent<FigureParameter>().GetPlayerId());
+            roomHash.Add(OPPONENT_FIGURE_ID_ON_BOARD, opponentFigure.GetComponent<FigureParameter>().GetFigureIdOnBoard());
+        }
+        else
+        {
+            roomHash.Add(OPPONENT_FIGURE_PLAYER_ID, -1);
+            roomHash.Add(OPPONENT_FIGURE_ID_ON_BOARD, -1);
+        }
+
+        Debug.Log("opponentFigure情報変更送信");
+        PhotonNetwork.CurrentRoom.SetCustomProperties(roomHash);
+
+    }
+
     public override void OnRoomPropertiesUpdate(ExitGames.Client.Photon.Hashtable changedRoomHash)
     {
         // 変更されたハッシュを受け取る
         Debug.Log("変更受け取り");
         {
             object value = null;
-            if (changedRoomHash.TryGetValue(TURNNUMBER, out value))
+            if (changedRoomHash.TryGetValue(TURN_NUMBER, out value))
             {
                 turnNumber = (int)value;
                 Debug.Log("今のターンは" + turnNumber);
+
             }
         }
         {
             object value = null;
-            if (changedRoomHash.TryGetValue(RESTTURN, out value))
+            if (changedRoomHash.TryGetValue(REST_TURN, out value))
             {
                 restTurn = (int)value;
                 Debug.Log("残りターンは" + restTurn);
+                if (myPlayerId == turnNumber)
+                {
+                    StartCoroutine(SetPhaseState(PhaseState.TurnStart));
+                }
+                else
+                {
+                    StartCoroutine(SetPhaseState(PhaseState.Lock));
+                }
             }
         }
-        if(myPlayerId == turnNumber)
+
+
         {
-            StartCoroutine(SetPhaseState(PhaseState.TurnStart));
+            object value0 = null;
+            object value1 = null;
+            if(changedRoomHash.TryGetValue(CURRENT_FIGURE_PLAYER_ID, out value0) &&
+               changedRoomHash.TryGetValue(CURRENT_FIGURE_ID_ON_BOARD, out value1))
+            {
+                if((int)value0 == -1 && (int)value1 == -1)
+                {
+                    currentFigure = null;
+                }
+                else
+                {
+                    currentFigure = figures[(int)value0][(int)value1];
+                }
+                Debug.Log("currentFigureは" + currentFigure);
+            }
+
         }
-        else
         {
-            StartCoroutine(SetPhaseState(PhaseState.Lock));
+            object value0 = null;
+            object value1 = null;
+            if (changedRoomHash.TryGetValue(OPPONENT_FIGURE_PLAYER_ID, out value0) &&
+               changedRoomHash.TryGetValue(OPPONENT_FIGURE_ID_ON_BOARD, out value1))
+            {
+                if ((int)value0 == -1 && (int)value1 == -1)
+                {
+                    opponentFigure = null;
+                }
+                else
+                {
+                    opponentFigure = figures[(int)value0][(int)value1];
+                }
+                Debug.Log("opponentFigureは" + opponentFigure);
+            }
+
         }
+
 
     }
 
@@ -1177,6 +1277,7 @@ public class BoardController : MonoBehaviourPunCallbacks
     {
         Debug.Log("相手は旅立った");
     }
+
 
     private void ActivateBoardObjects(bool _flag)
     {
@@ -1220,6 +1321,39 @@ public class BoardController : MonoBehaviourPunCallbacks
             RouletteParentPlayer[i].SetActive(_flag);
         }
         spinText.SetActive(_flag);
+    }
+
+    [PunRPC]
+    private void OnBattleStart()
+    {
+        ActivateBoardObjects(false);
+        ActivateSpinObjects(true);
+        if (myPlayerId == 1)
+        {
+            cameraTransform.position = cameraTransform.position + new Vector3(0, 1, 0);
+
+        }
+
+        Debug.Log("バトル開始");
+        /*
+        SpinController spinController = GameObject.Find("SpinMaster").GetComponent<SpinController>();
+        yield return StartCoroutine(spinController.SpinStart());
+        */
+
+
+
+    }
+
+    [PunRPC]
+    private void OnBattleEnd()
+    {
+        ActivateBoardObjects(true);
+        ActivateSpinObjects(false);
+        if (myPlayerId == 1)
+        {
+            cameraTransform.position = cameraTransform.position + new Vector3(0, -1, 0);
+
+        }
     }
 
     //ノードの色を初期化

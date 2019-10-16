@@ -23,12 +23,15 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     private const string TURN_NUMBER = "turnNumber";
     private const string REST_TURN = "restTurn";
 
-    private const string CURRENT_FIGURE_ID_ON_BOARD = "currentFigureIdOnBoard";
     private const string CURRENT_FIGURE_PLAYER_ID = "currentFigurePlayerId";
-    private const string OPPONENT_FIGURE_ID_ON_BOARD = "opponentFigureIdOnBoard";
-    private const string OPPONENT_FIGURE_PLAYER_ID = "opponentFigurePlayerId";
+    private const string CURRENT_FIGURE_ID_ON_BOARD = "currentFigureIdOnBoard";
 
-    private const string GOAL_ANGLE = "goalAngle";
+    private const string OPPONENT_FIGURE_PLAYER_ID = "opponentFigurePlayerId";
+    private const string OPPONENT_FIGURE_ID_ON_BOARD = "opponentFigureIdOnBoard";
+
+
+    private const string GOAL_ANGLE_0 = "goalAngle0";
+    private const string GOAL_ANGLE_1 = "goalAngle1";
 
     [SerializeField] private GameObject CreateAndJoinButton;
     private Hashtable roomHash = new Hashtable();
@@ -75,13 +78,14 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         roomHash.Add(TURN_NUMBER, 0);
         roomHash.Add(REST_TURN, 300);
 
-        roomHash.Add(CURRENT_FIGURE_ID_ON_BOARD, -1);
         roomHash.Add(CURRENT_FIGURE_PLAYER_ID, -1);
+        roomHash.Add(CURRENT_FIGURE_ID_ON_BOARD, -1);
 
-        roomHash.Add(OPPONENT_FIGURE_ID_ON_BOARD, -1);
         roomHash.Add(OPPONENT_FIGURE_PLAYER_ID, -1);
-
-        roomHash.Add(GOAL_ANGLE, 0);
+        roomHash.Add(OPPONENT_FIGURE_ID_ON_BOARD, -1);
+        
+        roomHash.Add(GOAL_ANGLE_0, -1);
+        roomHash.Add(GOAL_ANGLE_1, -1);
 
         roomOptions.CustomRoomProperties = roomHash;
         

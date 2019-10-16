@@ -1501,6 +1501,10 @@ MonoBehaviour:
   - Subame_online
   - Subame_online
   cameraTransform: {fileID: 1252503312}
+  spinMaster: {fileID: 144242486}
+  RouletteParents:
+  - {fileID: 577935797}
+  - {fileID: 2117651226}
 --- !u!4 &499480579
 Transform:
   m_ObjectHideFlags: 0
@@ -1768,6 +1772,11 @@ PrefabInstance:
       propertyPath: rouletteImage
       value: 
       objectReference: {fileID: 689, guid: 6c03e53a7dd22994ba791deae6b8ce58, type: 3}
+    - target: {fileID: 571003003902865079, guid: a5d439ef6e0784745b7ce5319c6a57ef,
+        type: 3}
+      propertyPath: playerId
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a5d439ef6e0784745b7ce5319c6a57ef, type: 3}
 --- !u!224 &577935796 stripped
@@ -7152,6 +7161,11 @@ PrefabInstance:
       propertyPath: rouletteImage
       value: 
       objectReference: {fileID: 689, guid: 6c03e53a7dd22994ba791deae6b8ce58, type: 3}
+    - target: {fileID: 571003003902865079, guid: a5d439ef6e0784745b7ce5319c6a57ef,
+        type: 3}
+      propertyPath: playerId
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a5d439ef6e0784745b7ce5319c6a57ef, type: 3}
 --- !u!224 &2117651225 stripped

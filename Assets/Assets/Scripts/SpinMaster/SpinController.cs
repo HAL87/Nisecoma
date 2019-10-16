@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using Photon.Pun;
+using Photon.Realtime;
 
 public class SpinController : MonoBehaviour
 {
@@ -89,7 +91,7 @@ public class SpinController : MonoBehaviour
 
         // スピンの情報を初期化しておく
         ClearSpin();
-        
+        boardController.OnBattleEnd();
     }
 
     // バトルの勝敗判定を行う

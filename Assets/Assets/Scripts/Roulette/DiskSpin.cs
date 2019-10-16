@@ -5,11 +5,12 @@ using UnityEngine.UI;
 
 public class DiskSpin : MonoBehaviour
 {
-    // SpinシーンのPlayerにセット。地震やら根源はまた後日......
+
+    private const string GOAL_ANGLE = "goalAngle";
 
     // ここらへんの値は必要とあれば変更（大体大丈夫そう）
     // 目的の角度(360×N + x (0 < x <= 360))
-    private float goalAngle;
+    private float goalAngle = -1;
     private int N = 10;
     // 総回転時間
     private float totalTime = 1.5f;
@@ -40,11 +41,14 @@ public class DiskSpin : MonoBehaviour
     // ワザの情報スクリプト取得
     private MoveParameter moveParameter;
 
+    private RouletteParentParameter rouletteParentParameter;
+    bool receiveFlag = false;
     // Start is called before the first frame update
     void Start()
     {
+        rouletteParentParameter = GetComponent<RouletteParentParameter>();
     }
-
+    
     // 引数はGameMasterから渡されるワザのデータ）
     public IEnumerator Spin(GameObject data)
     {
@@ -53,7 +57,30 @@ public class DiskSpin : MonoBehaviour
         loopCount = 0;
 
         // 初期位置から目標点までの回転角度
-        goalAngle = 360 * N + Random.Range(0, 360);
+        // バトルを仕掛けた側がgoalAngleを生成し相手プレイヤーに送る
+        BoardController boardController = GameObject.Find("BoardMaster").GetComponent<BoardController>();
+        int myPlayerId = boardController.GetMyPlayerId();
+        int turnNumber = boardController.GetTurnNumber();
+        if(myPlayerId == turnNumber)
+        {
+            goalAngle = 360 * N + Random.Range(0, 360);
+            boardController.SetGoalAngleCustomProperty(rouletteParentParameter.GetPlayerId(), goalAngle);
+        }
+
+        // 仕掛けた側から送られてgoalAngleを受け取って回る
+        // 2つ回すから適切な順番考えないとね
+        else
+        {
+            while(receiveFlag == false)
+            {
+                //Debug.Log("抜けれない");
+                yield return null;
+            }
+            Debug.Log("抜けれた");
+            receiveFlag = false;
+            Debug.Log("受けてのgoalAngleは" + goalAngle);
+        }
+
 
         // スローになるまでの角速度立式
         omega = 2 * goalAngle / (totalTime + normalTime);
@@ -114,6 +141,14 @@ public class DiskSpin : MonoBehaviour
         // ここでmoveParameterから両者の技を参照して色判定を行う
         // この実装だとfor文でcurrent側のmoveParameterが捨てられているので書き方を変える
         // 勝敗結果と技の効果はSpinControllerに返した上、さらにboardControllerに渡したほうがいいよね～
-
+        goalAngle = -1;
+    }
+    public void SetGoalAngle(float _goalAngle)
+    {
+        goalAngle = _goalAngle;
+    }
+    public void SetReceiveFlag(bool _flag)
+    {
+        receiveFlag = _flag;
     }
 }

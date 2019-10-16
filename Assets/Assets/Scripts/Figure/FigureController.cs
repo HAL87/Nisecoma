@@ -40,7 +40,7 @@ public class FigureController : MonoBehaviour
         //photonview.RequestOwnership();
         //Debug.Log(gameObject + "の位置は" + figureParameter.GetPosition() + "、オーナーは" + photonview.OwnerActorNr);
         boardController.FigureClicked(figureParameter.GetPlayerId(), figureParameter.GetFigureIdOnBoard());
-        Debug.Log(figureParameter.GetFigureIdOnBoard());
+
     }
 
     // routeに沿って1歩ずつ動く

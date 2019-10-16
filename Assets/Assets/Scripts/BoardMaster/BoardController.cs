@@ -55,22 +55,25 @@ public class BoardController : MonoBehaviourPunCallbacks
 
     // 除外ゾーン
 
-    // カスタムプロパティ用文字列
+    // カスタムプロパティ用変数名
     private const string TURN_NUMBER = "turnNumber";
     private const string REST_TURN = "restTurn";
 
-    private const string CURRENT_FIGURE_ID_ON_BOARD = "currentFigureIdOnBoard";
     private const string CURRENT_FIGURE_PLAYER_ID = "currentFigurePlayerId";
+    private const string CURRENT_FIGURE_ID_ON_BOARD = "currentFigureIdOnBoard";
 
-    private const string OPPONENT_FIGURE_ID_ON_BOARD = "opponentFigureIdOnBoard";
     private const string OPPONENT_FIGURE_PLAYER_ID = "opponentFigurePlayerId";
+    private const string OPPONENT_FIGURE_ID_ON_BOARD = "opponentFigureIdOnBoard";
 
-    private const string GOAL_ANGLE = "goalAngle";
+
+    private const string GOAL_ANGLE_0 = "goalAngle0";
+    private const string GOAL_ANGLE_1 = "goalAngle1";
 
     // RPC用関数名
 
     private const string ON_BATTLE_START = "OnBattleStart";
     private const string ON_BATTLE_END = "OnBattleEnd";
+    private const string DEATH_RPC = "DeathRPC";
     /****************************************************************/
     /*                          メンバ変数宣言                      */
     /****************************************************************/
@@ -158,8 +161,10 @@ public class BoardController : MonoBehaviourPunCallbacks
     //カメラの位置
     [SerializeField] private Transform cameraTransform;
 
-    private Hashtable roomHash = new Hashtable();
-
+    [SerializeField] GameObject spinMaster;
+    //private float goalAngle;
+    private int senderIdFromRouletteParent;
+    [SerializeField] private List<GameObject> RouletteParents = new List<GameObject>();
     /***************************************************************/
     /*                      プロトタイプ関数宣言                   */
     /***************************************************************/
@@ -913,18 +918,18 @@ public class BoardController : MonoBehaviourPunCallbacks
 
 
 
-            
+            /*
             SpinController spinController = GameObject.Find("SpinMaster").GetComponent<SpinController>();
             yield return StartCoroutine(spinController.SpinStart());
             
             StartCoroutine(SetPhaseState(PhaseState.BattleEnd));
             photonView.RPC("Test", RpcTarget.Others);
-
+            */
         }
         else if(phaseState == PhaseState.BattleEnd)
         {
             //スピンのオブジェクトを消し、ボードのオブジェクトを出してカメラ位置調整
-            photonView.RPC(ON_BATTLE_END, RpcTarget.All);
+            //photonView.RPC(ON_BATTLE_END, RpcTarget.All);
             // バトル後の処理
             StartCoroutine(SetPhaseState(PhaseState.AfterBattle));
         }
@@ -948,7 +953,7 @@ public class BoardController : MonoBehaviourPunCallbacks
             }
             if (opponentDeath)
             {
-                yield return Death(opponentFigure);
+                photonView.RPC("DeathRPC", RpcTarget.Others);
             }
             StartCoroutine(SetPhaseState(PhaseState.TurnEnd));
         }
@@ -1051,6 +1056,11 @@ public class BoardController : MonoBehaviourPunCallbacks
         yield return _figure.GetComponent<FigureController>().FigureOneStepWalk(pcNodeId[playerID][0]);
     }
 
+    [PunRPC]
+    private IEnumerator DeathRPC(GameObject _figure)
+    {
+        yield return StartCoroutine(Death(_figure));
+    }
     void SceneLoaded(Scene nextScene, LoadSceneMode mode)
     {
     }
@@ -1150,9 +1160,21 @@ public class BoardController : MonoBehaviourPunCallbacks
         return (onePlayerId + 1) % 2;
     }
 
+    public int GetMyPlayerId()
+    {
+        return myPlayerId;
+    }
+
+    public int GetTurnNumber()
+    {
+        return turnNumber;
+    }
+
     public void SetTurnCustomProperty()
     {
         var roomHash = new ExitGames.Client.Photon.Hashtable();
+
+        // どちらのターンか、と残りターン数を共有
         roomHash.Add(TURN_NUMBER, turnNumber);
         roomHash.Add(REST_TURN, restTurn);
 
@@ -1166,6 +1188,7 @@ public class BoardController : MonoBehaviourPunCallbacks
     public void SetCurrentFigureCustomProperty()
     {
         var roomHash = new ExitGames.Client.Photon.Hashtable();
+        // currentFigureをPlayerIdとFigureIdOnBoardを介して共有
         if(currentFigure != null)
         {
             roomHash.Add(CURRENT_FIGURE_PLAYER_ID, currentFigure.GetComponent<FigureParameter>().GetPlayerId());
@@ -1185,7 +1208,8 @@ public class BoardController : MonoBehaviourPunCallbacks
     public void SetOpponentFigureCustomProperty()
     {
         var roomHash = new ExitGames.Client.Photon.Hashtable();
-        if(opponentFigure != null)
+        // opponentFigureをPlayerIdとFigureIdOnBoardを介して共有
+        if (opponentFigure != null)
         {
             roomHash.Add(OPPONENT_FIGURE_PLAYER_ID, opponentFigure.GetComponent<FigureParameter>().GetPlayerId());
             roomHash.Add(OPPONENT_FIGURE_ID_ON_BOARD, opponentFigure.GetComponent<FigureParameter>().GetFigureIdOnBoard());
@@ -1201,10 +1225,27 @@ public class BoardController : MonoBehaviourPunCallbacks
 
     }
 
+    // ここでいうsenderIdとは2枚のディスクのうちどちらか、という意味
+    public void SetGoalAngleCustomProperty(int _senderId, float _goalAngle)
+    {
+        var roomHash = new ExitGames.Client.Photon.Hashtable();
+        // 回転の終点を共有
+        if(_senderId == 0)
+        {
+            roomHash.Add(GOAL_ANGLE_0, _goalAngle);
+        }
+        else
+        {
+            roomHash.Add(GOAL_ANGLE_1, _goalAngle);
+        }
+
+        senderIdFromRouletteParent = _senderId;
+        PhotonNetwork.CurrentRoom.SetCustomProperties(roomHash);
+    }
     public override void OnRoomPropertiesUpdate(ExitGames.Client.Photon.Hashtable changedRoomHash)
     {
         // 変更されたハッシュを受け取る
-        Debug.Log("変更受け取り");
+        // どちらのターンか
         {
             object value = null;
             if (changedRoomHash.TryGetValue(TURN_NUMBER, out value))
@@ -1214,6 +1255,7 @@ public class BoardController : MonoBehaviourPunCallbacks
 
             }
         }
+        // 残りターン数
         {
             object value = null;
             if (changedRoomHash.TryGetValue(REST_TURN, out value))
@@ -1231,7 +1273,7 @@ public class BoardController : MonoBehaviourPunCallbacks
             }
         }
 
-
+        // currentFigure
         {
             object value0 = null;
             object value1 = null;
@@ -1250,6 +1292,7 @@ public class BoardController : MonoBehaviourPunCallbacks
             }
 
         }
+        // opponentFigure
         {
             object value0 = null;
             object value1 = null;
@@ -1268,32 +1311,49 @@ public class BoardController : MonoBehaviourPunCallbacks
             }
 
         }
+        //goalAngle
+        // ここらへん相互参照してるからあまりよくなさそう
+        {
+            object value = null;
+            if (changedRoomHash.TryGetValue(GOAL_ANGLE_0, out value))
+            {
+                RouletteParents[0].GetComponent<DiskSpin>().SetGoalAngle((float)value);
+                RouletteParents[0].GetComponent<DiskSpin>().SetReceiveFlag(true);
+                //goalAngle = (float)value;
+                Debug.Log("送りてのgoalAngleは" + (float)value);
+            }
 
+        }
+        {
+            object value = null;
+            if (changedRoomHash.TryGetValue(GOAL_ANGLE_1, out value))
+            {
+                RouletteParents[1].GetComponent<DiskSpin>().SetGoalAngle((float)value);
+                RouletteParents[1].GetComponent<DiskSpin>().SetReceiveFlag(true);
+                //goalAngle = (float)value;
+                Debug.Log("送りてのgoalAngleは" + (float)value);
+            }
 
-    }
+        }
 
-    [PunRPC]
-    private void Test()
-    {
-        Debug.Log("相手は旅立った");
     }
 
 
     private void ActivateBoardObjects(bool _flag)
     {
 
-        // ノードを非表示
+        // ノードを表示/非表示にする
         for (int i = 0; i < NUMBER_OF_WALK_NODES; i++)
         {
             nodes.transform.GetChild(i).GetComponent<SpriteRenderer>().enabled = _flag;
         }
-        // エッジを非表示
+        // エッジを表示/非表示にする
         for (int i = 0; i < this.transform.childCount; i++)
         {
             transform.GetChild(i).GetComponent<LineRenderer>().enabled = _flag;
         }
 
-        // フィギュアを非表示にする
+        // フィギュアを表示/非表示にする
         for (int i = 0; i < 2; i++)
         {
             foreach (GameObject obj in figures[i])
@@ -1305,7 +1365,7 @@ public class BoardController : MonoBehaviourPunCallbacks
             }
         }
 
-        // UIの非表示
+        // UIを表示/非表示にする
         turnEndButton.SetActive(_flag);
         restTurnText.GetComponent<TextMeshProUGUI>().enabled = _flag;
         forfeitButton.SetActive(_flag);
@@ -1315,19 +1375,37 @@ public class BoardController : MonoBehaviourPunCallbacks
 
     private void ActivateSpinObjects(bool _flag)
     {
+        // スピンの赤い矢
         arrow.SetActive(_flag);
+
+        // データディスクの親要素
         for(int i = 0; i < NUMBER_OF_PLAYERS; i++)
         {
             RouletteParentPlayer[i].SetActive(_flag);
         }
+
+        // バトル結果の文字
         spinText.SetActive(_flag);
+    }
+
+    //ノードの色を初期化
+    private void ClearNodesColor()
+    {
+        for (int i = 0; i < NUMBER_OF_FIELD_NODES; i++)
+        {
+            nodes.transform.GetChild(i).GetComponent<SpriteRenderer>().color = Color.white;
+        }
     }
 
     [PunRPC]
     private void OnBattleStart()
     {
+        //ボードのオブジェクトを消す
         ActivateBoardObjects(false);
+        //スピンのオブジェクトを出す
         ActivateSpinObjects(true);
+
+        //プレイヤー1のみカメラ位置調整
         if (myPlayerId == 1)
         {
             cameraTransform.position = cameraTransform.position + new Vector3(0, 1, 0);
@@ -1335,6 +1413,8 @@ public class BoardController : MonoBehaviourPunCallbacks
         }
 
         Debug.Log("バトル開始");
+
+        SpinStartRPC();
         /*
         SpinController spinController = GameObject.Find("SpinMaster").GetComponent<SpinController>();
         yield return StartCoroutine(spinController.SpinStart());
@@ -1345,24 +1425,35 @@ public class BoardController : MonoBehaviourPunCallbacks
     }
 
     [PunRPC]
-    private void OnBattleEnd()
+    public void OnBattleEnd()
     {
+        // ボードのオブジェクトを出す
         ActivateBoardObjects(true);
+        turnEndButton.SetActive(false);
+        // スピンのオブジェクトを消す
         ActivateSpinObjects(false);
+
+        // プレイヤー1のみカメラの位置調整
         if (myPlayerId == 1)
         {
             cameraTransform.position = cameraTransform.position + new Vector3(0, -1, 0);
 
         }
+        // バトルを仕掛けられたプレイヤーはここでバトル結果待機
+
+        // バトルを仕掛けたプレイヤーはここからバトル後処理へ
+        // バトルを仕掛けたプレイヤーがクリックしてターンエンドする→turnNumberが変わる
+       // →バトルを仕掛けられたプレイヤーが呼ばれるってなってしまってる
+        if(myPlayerId == turnNumber)
+        {
+            StartCoroutine(SetPhaseState(PhaseState.BattleEnd));
+        }
+
     }
 
-    //ノードの色を初期化
-    private void ClearNodesColor()
+    private void SpinStartRPC()
     {
-        for (int i = 0; i < NUMBER_OF_FIELD_NODES; i++)
-        {
-            nodes.transform.GetChild(i).GetComponent<SpriteRenderer>().color = Color.white;
-        }
+        StartCoroutine(spinMaster.GetComponent<SpinController>().SpinStart());
     }
 
 }

@@ -15,8 +15,8 @@ public class SpinController : MonoBehaviour
 
     [SerializeField] private Text[] moveText = new Text[BoardController.NUMBER_OF_PLAYERS];
     [SerializeField] private Text[] battleResultText = new Text[BoardController.NUMBER_OF_PLAYERS];
-    //   [SerializeField] private Text buttleResultText0;
-    //   [SerializeField] private Text buttleResultText1;
+
+    bool receiveFlag = false;
 
     // Start is called before the first frame update
     private void Start()
@@ -87,11 +87,28 @@ public class SpinController : MonoBehaviour
             battleResultText[boardController.GetOpponentFigure().GetComponent<FigureParameter>().GetPlayerId()].text = "Draw";
         }
         // yield return new WaitForSeconds(0.5f);
-        yield return new WaitUntil(() => Input.GetMouseButtonDown(0));
+        int myPlayerId = boardController.GetMyPlayerId();
+        int whichTurn = boardController.GetWhichTurn();
 
-        // スピンの情報を初期化しておく
-        ClearSpin();
-        boardController.OnBattleEnd();
+        if(myPlayerId == whichTurn)
+        {
+            yield return new WaitUntil(() => Input.GetMouseButtonDown(0));
+            // スピンの情報を初期化する
+            ClearSpin();
+            boardController.OnBattleEnd();
+            // BattleEndでバトルされる側に「バトル終わったよ」と送信
+            StartCoroutine(boardController.SetPhaseState(BoardController.PhaseState.BattleEnd));
+        }
+        else
+        {
+            while(receiveFlag == false)
+            {
+                yield return null;
+            }
+            receiveFlag = false;
+            ClearSpin();
+            boardController.OnBattleEnd();
+        }
     }
 
     // バトルの勝敗判定を行う
@@ -273,9 +290,10 @@ public class SpinController : MonoBehaviour
             moveText[i].text = "";
             battleResultText[i].text = "";
         }
-        //datadisks[0]
+    }
 
-
-
+    public void SetReceiveFlag(bool _flag)
+    {
+        receiveFlag = _flag;
     }
 }

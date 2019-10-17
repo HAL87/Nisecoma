@@ -39,5 +39,6 @@ MonoBehaviour:
   - OnBattleStart
   - SpinStartRPC
   - DeathRPC
+  - SendFlagToSpinController
   DisableAutoOpenWizard: 1
   ShowSettings: 1

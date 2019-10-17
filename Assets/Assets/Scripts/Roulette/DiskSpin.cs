@@ -54,33 +54,32 @@ public class DiskSpin : MonoBehaviour
     {
         yield return new WaitForSeconds(0.1f);
 
-        loopCount = 0;
+
 
         // 初期位置から目標点までの回転角度
-        // バトルを仕掛けた側がgoalAngleを生成し相手プレイヤーに送る
+
         BoardController boardController = GameObject.Find("BoardMaster").GetComponent<BoardController>();
         int myPlayerId = boardController.GetMyPlayerId();
-        int turnNumber = boardController.GetTurnNumber();
-        if(myPlayerId == turnNumber)
+        int whichTurn = boardController.GetWhichTurn();
+
+        // バトルを仕掛けた側がgoalAngleを生成し相手プレイヤーに送る
+        if (myPlayerId == whichTurn)
         {
             goalAngle = 360 * N + Random.Range(0, 360);
             boardController.SetGoalAngleCustomProperty(rouletteParentParameter.GetPlayerId(), goalAngle);
         }
 
         // 仕掛けた側から送られてgoalAngleを受け取って回る
-        // 2つ回すから適切な順番考えないとね
         else
         {
             while(receiveFlag == false)
             {
-                //Debug.Log("抜けれない");
                 yield return null;
             }
-            Debug.Log("抜けれた");
             receiveFlag = false;
-            Debug.Log("受けてのgoalAngleは" + goalAngle);
         }
 
+        loopCount = 0;
 
         // スローになるまでの角速度立式
         omega = 2 * goalAngle / (totalTime + normalTime);

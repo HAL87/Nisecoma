@@ -20,7 +20,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     private const string BOARD_SCENE_NAME = "BoardScene";
 
     // カスタムプロパティ用文字列
-    private const string TURN_NUMBER = "turnNumber";
+    private const string WHICH_TURN = "whichTurn";
     private const string REST_TURN = "restTurn";
 
     private const string CURRENT_FIGURE_PLAYER_ID = "currentFigurePlayerId";
@@ -33,6 +33,8 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     private const string GOAL_ANGLE_0 = "goalAngle0";
     private const string GOAL_ANGLE_1 = "goalAngle1";
 
+    private const string IS_WAITING = "isWaiting";
+    // 
     [SerializeField] private GameObject CreateAndJoinButton;
     private Hashtable roomHash = new Hashtable();
 
@@ -57,6 +59,8 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     // Connect //////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////
 
+    // CreateAndJoinButtonが押されたときの処理
+    // Assets: LobbyScene\Canvas\CreateAndJoinButton
     public void CreateAndJoinRoom()
     {
         /* ルームオプションの設定 */
@@ -75,7 +79,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
             IsVisible = true
         };
         
-        roomHash.Add(TURN_NUMBER, 0);
+        roomHash.Add(WHICH_TURN, 0);
         roomHash.Add(REST_TURN, 300);
 
         roomHash.Add(CURRENT_FIGURE_PLAYER_ID, -1);
@@ -87,6 +91,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         roomHash.Add(GOAL_ANGLE_0, -1);
         roomHash.Add(GOAL_ANGLE_1, -1);
 
+        roomHash.Add(IS_WAITING, true);
         roomOptions.CustomRoomProperties = roomHash;
         
         PhotonNetwork.JoinOrCreateRoom("room", roomOptions, TypedLobby.Default);

@@ -693,7 +693,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &151369029 stripped
 Transform:
@@ -1486,6 +1486,10 @@ MonoBehaviour:
   - {fileID: 577935797}
   - {fileID: 2117651226}
   spinText: {fileID: 2145669059}
+  spinMaster: {fileID: 144242486}
+  RouletteParents:
+  - {fileID: 577935797}
+  - {fileID: 2117651226}
   deckList0:
   - Keromatsu_online
   - Keromatsu_online
@@ -1501,10 +1505,6 @@ MonoBehaviour:
   - Subame_online
   - Subame_online
   cameraTransform: {fileID: 1252503312}
-  spinMaster: {fileID: 144242486}
-  RouletteParents:
-  - {fileID: 577935797}
-  - {fileID: 2117651226}
 --- !u!4 &499480579
 Transform:
   m_ObjectHideFlags: 0
@@ -2122,7 +2122,7 @@ RectTransform:
   - {fileID: 2117651225}
   - {fileID: 2145669060}
   m_Father: {fileID: 0}
-  m_RootOrder: 8
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -3005,7 +3005,7 @@ RectTransform:
   - {fileID: 1400372548}
   - {fileID: 53262706}
   m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -3923,7 +3923,7 @@ Transform:
   - {fileID: 2047928774}
   - {fileID: 1903793278}
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1121332137 stripped
 MonoBehaviour:
@@ -5274,7 +5274,7 @@ Transform:
   m_LocalScale: {x: 0.3, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -45}
 --- !u!1001 &1501406427
 PrefabInstance:
@@ -5988,60 +5988,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c546b5a2ced76964c96a874801183f3b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1 &1714383949
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1714383951}
-  - component: {fileID: 1714383950}
-  m_Layer: 0
-  m_Name: UiMaster
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!114 &1714383950
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1714383949}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 32143b83bcb3b434c9d41869bbc31b05, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  startText: {fileID: 1139868218}
-  playerTurnText:
-  - {fileID: 872180357}
-  - {fileID: 1161188459}
-  restTurnText: {fileID: 984562981}
-  gameEndText: {fileID: 440763419}
-  turnEndButton: {fileID: 1400372547}
-  forfeitButton: {fileID: 53262705}
-  arrow: {fileID: 0}
-  RouletteParentPlayer: []
-  spinText: {fileID: 0}
---- !u!4 &1714383951
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1714383949}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1753774291 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8566249305425127057, guid: 46638ef8ea12c2d4c8d8e24f8a47c5d6,

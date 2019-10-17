@@ -27,7 +27,6 @@ public class FigureController : MonoBehaviour
         figureParameter = GetComponent<FigureParameter>();
         boardController = GameObject.Find("BoardMaster").GetComponent<BoardController>();
         photonview = GetComponent<PhotonView>();
-        //transform.position = nodesTransform.GetChild(figureParameter.GetPosition()).position;
 
     }
 
@@ -37,8 +36,6 @@ public class FigureController : MonoBehaviour
     }
     public void OnUserAction()
     {
-        //photonview.RequestOwnership();
-        //Debug.Log(gameObject + "の位置は" + figureParameter.GetPosition() + "、オーナーは" + photonview.OwnerActorNr);
         boardController.FigureClicked(figureParameter.GetPlayerId(), figureParameter.GetFigureIdOnBoard());
 
     }

@@ -3,21 +3,33 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using Photon.Pun;
+using Photon.Realtime;
 
 public class SpinController : MonoBehaviour
 {
     private BoardController boardController;
     [SerializeField] private List<GameObject> datadisks;
-    //変更点
-    public static (int result, bool currentMoveAwake, bool opponentMoveAwake, bool currentDeath, bool oppnentDeath, MoveParameter.MyEvent currentMoveEffect, MoveParameter.MyEvent opponentMoveEffect) BattleResult;
+    // 変更点
+    public static (int result, bool currentMoveAwake, bool opponentMoveAwake, bool currentDeath, bool oppnentDeath) BattleResult;
 
     [SerializeField] private Text[] moveText = new Text[BoardController.NUMBER_OF_PLAYERS];
     [SerializeField] private Text[] battleResultText = new Text[BoardController.NUMBER_OF_PLAYERS];
- //   [SerializeField] private Text buttleResultText0;
- //   [SerializeField] private Text buttleResultText1;
+
+    bool receiveFlag = false;
 
     // Start is called before the first frame update
-    IEnumerator Start()
+    private void Start()
+    {
+
+    }
+    // Update is called once per frame
+    void Update()
+    {
+
+    }
+
+    public IEnumerator SpinStart()
     {
         boardController = GameObject.Find("BoardMaster").GetComponent<BoardController>();
 
@@ -37,8 +49,8 @@ public class SpinController : MonoBehaviour
         diskSpin[currentPlayerID] = datadisks[currentPlayerID].GetComponent<DiskSpin>();
         diskSpin[opponentPlayerID] = datadisks[opponentPlayerID].GetComponent<DiskSpin>();
 
-        var ie0 = diskSpin[currentPlayerID].Spin(boardController.GetCurrentFigure().GetComponent<FigureParameter>().GetData(), boardController.GetPhaseState());
-        var ie1 = diskSpin[opponentPlayerID].Spin(boardController.GetOpponentFigure().GetComponent<FigureParameter>().GetData(), boardController.GetPhaseState());
+        var ie0 = diskSpin[currentPlayerID].Spin(boardController.GetCurrentFigure().GetComponent<FigureParameter>().GetData());
+        var ie1 = diskSpin[opponentPlayerID].Spin(boardController.GetOpponentFigure().GetComponent<FigureParameter>().GetData());
         var coroutine0 = StartCoroutine(ie0);
         var coroutine1 = StartCoroutine(ie1);
         yield return coroutine0;
@@ -49,8 +61,8 @@ public class SpinController : MonoBehaviour
         BattleResult = Judge(mp0, mp1);
 
 
-        //moveText0.GetComponent<Text>();
-        //moveText1.GetComponent<Text>();
+        // moveText0.GetComponent<Text>();
+        // moveText1.GetComponent<Text>();
 
         moveText[boardController.GetCurrentFigure().GetComponent<FigureParameter>().GetPlayerId()].text = mp0.GetMoveName();
         moveText[boardController.GetOpponentFigure().GetComponent<FigureParameter>().GetPlayerId()].text = mp1.GetMoveName();
@@ -62,7 +74,7 @@ public class SpinController : MonoBehaviour
             battleResultText[boardController.GetCurrentFigure().GetComponent<FigureParameter>().GetPlayerId()].text = "Win!!";
             battleResultText[boardController.GetOpponentFigure().GetComponent<FigureParameter>().GetPlayerId()].text = "Lose...";
         }
-        else if(1 == BattleResult.result)
+        else if (1 == BattleResult.result)
         {
             Debug.Log(mp1.GetMoveName() + "の勝ち！");
             battleResultText[boardController.GetCurrentFigure().GetComponent<FigureParameter>().GetPlayerId()].text = "Lose...";
@@ -74,16 +86,29 @@ public class SpinController : MonoBehaviour
             battleResultText[boardController.GetCurrentFigure().GetComponent<FigureParameter>().GetPlayerId()].text = "Draw";
             battleResultText[boardController.GetOpponentFigure().GetComponent<FigureParameter>().GetPlayerId()].text = "Draw";
         }
-        //yield return new WaitForSeconds(0.5f);
-        yield return new WaitUntil(() => Input.GetMouseButtonDown(0));
-        SceneManager.LoadScene("BoardScene");
-        
-    }
+        // yield return new WaitForSeconds(0.5f);
+        int myPlayerId = boardController.GetMyPlayerId();
+        int whichTurn = boardController.GetWhichTurn();
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+        if (myPlayerId == whichTurn)
+        {
+            yield return new WaitUntil(() => Input.GetMouseButtonDown(0));
+            // スピンの情報を初期化する
+            ClearSpin();
+            boardController.OnBattleEnd();
+            // BattleEndでバトルされる側に「バトル終わったよ」と送信
+            StartCoroutine(boardController.SetPhaseState(BoardController.PhaseState.BattleEnd));
+        }
+        else
+        {
+            while (receiveFlag == false)
+            {
+                yield return null;
+            }
+            receiveFlag = false;
+            ClearSpin();
+            boardController.OnBattleEnd();
+        }
     }
 
     // バトルの勝敗判定を行う
@@ -92,37 +117,37 @@ public class SpinController : MonoBehaviour
     // Player0が勝った場合return 0
     // Player1が負けた場合return 1
     // 引き分けの場合return 2
-    public (int result, bool currentMoveAwake, bool opponentMoveAwake, bool currentDeath, bool oppnentDeath, MoveParameter.MyEvent currentMoveEffect, MoveParameter.MyEvent opponentMoveEffect) Judge(MoveParameter Player0, MoveParameter Player1)
+    public (int result, bool currentMoveAwake, bool opponentMoveAwake, bool currentDeath, bool oppnentDeath) Judge(MoveParameter Player0, MoveParameter Player1)
     {
         // 白 vs ○○
-        if(MoveParameter.MoveOfColorName.White == Player0.GetMoveColorName())
+        if (MoveParameter.MoveOfColorName.White == Player0.GetMoveColorName())
         {
             // 勝ち
             if (MoveParameter.MoveOfColorName.Red == Player1.GetMoveColorName())
             {
-                return (0, true, false, false, true, Player0.GetMoveEffect(), Player1.GetMoveEffect());
+                return (0, true, false, false, true);
             }
             // 負け
             else if (MoveParameter.MoveOfColorName.Purple == Player1.GetMoveColorName()
                     || MoveParameter.MoveOfColorName.Blue == Player1.GetMoveColorName())
             {
-                return (1, false, true, false, false, Player0.GetMoveEffect(), Player1.GetMoveEffect());
+                return (1, false, true, false, false);
             }
             // 引き分け
             else if (MoveParameter.MoveOfColorName.White == Player1.GetMoveColorName()
                 || MoveParameter.MoveOfColorName.Gold == Player1.GetMoveColorName())
             {
-                if(Player0.GetMovePower() > Player1.GetMovePower())
+                if (Player0.GetMovePower() > Player1.GetMovePower())
                 {
-                    return (0, true, true, false, true, Player0.GetMoveEffect(), Player1.GetMoveEffect());
+                    return (0, true, true, false, true);
                 }
-                else if(Player0.GetMovePower() < Player1.GetMovePower())
+                else if (Player0.GetMovePower() < Player1.GetMovePower())
                 {
-                    return (1, true, true, true, false, Player0.GetMoveEffect(), Player1.GetMoveEffect());
+                    return (1, true, true, true, false);
                 }
                 else
                 {
-                    return (2, true, true, false, false, Player0.GetMoveEffect(), Player1.GetMoveEffect());
+                    return (2, true, true, false, false);
                 }
             }
         }
@@ -133,12 +158,12 @@ public class SpinController : MonoBehaviour
             if (MoveParameter.MoveOfColorName.Purple == Player1.GetMoveColorName()
                     || MoveParameter.MoveOfColorName.Red == Player1.GetMoveColorName())
             {
-                return (0, true, false, false, true, Player0.GetMoveEffect(), Player1.GetMoveEffect());
+                return (0, true, false, false, true);
             }
             // 負け
             else if (MoveParameter.MoveOfColorName.Blue == Player1.GetMoveColorName())
             {
-                return (1, false, true, false, false, Player0.GetMoveEffect(), Player1.GetMoveEffect());
+                return (1, false, true, false, false);
             }
             // 引き分け
             else if (MoveParameter.MoveOfColorName.White == Player1.GetMoveColorName()
@@ -146,15 +171,15 @@ public class SpinController : MonoBehaviour
             {
                 if (Player0.GetMovePower() > Player1.GetMovePower())
                 {
-                    return (0, true, true, false, true, Player0.GetMoveEffect(), Player1.GetMoveEffect());
+                    return (0, true, true, false, true);
                 }
                 else if (Player0.GetMovePower() < Player1.GetMovePower())
                 {
-                    return (1, true, true, true, false, Player0.GetMoveEffect(), Player1.GetMoveEffect());
+                    return (1, true, true, true, false);
                 }
                 else
                 {
-                    return (2, true, true, false, false, Player0.GetMoveEffect(), Player1.GetMoveEffect());
+                    return (2, true, true, false, false);
                 }
             }
         }
@@ -165,32 +190,32 @@ public class SpinController : MonoBehaviour
             if (MoveParameter.MoveOfColorName.White == Player1.GetMoveColorName()
                 || MoveParameter.MoveOfColorName.Red == Player1.GetMoveColorName())
             {
-                return (0, true, false, false, false, Player0.GetMoveEffect(), Player1.GetMoveEffect());
+                return (0, true, false, false, false);
             }
             // 負け(気絶)
             else if (MoveParameter.MoveOfColorName.Gold == Player1.GetMoveColorName())
             {
-                return (1, false, true, true, false, Player0.GetMoveEffect(), Player1.GetMoveEffect());
+                return (1, false, true, true, false);
             }
             // 負け
             else if (MoveParameter.MoveOfColorName.Blue == Player1.GetMoveColorName())
             {
-                return (1, false, true, false, false, Player0.GetMoveEffect(), Player1.GetMoveEffect());
+                return (1, false, true, false, false);
             }
             // 引き分け
             else if (MoveParameter.MoveOfColorName.Purple == Player1.GetMoveColorName())
             {
                 if (Player0.GetMoveNumberOfStar() > Player1.GetMoveNumberOfStar())
                 {
-                    return (0, true, false, false, false, Player0.GetMoveEffect(), Player1.GetMoveEffect());
+                    return (0, true, false, false, false);
                 }
                 else if (Player0.GetMoveNumberOfStar() < Player1.GetMoveNumberOfStar())
                 {
-                    return (1, false, true, false, false, Player0.GetMoveEffect(), Player1.GetMoveEffect());
+                    return (1, false, true, false, false);
                 }
                 else
                 {
-                    return (2, false, false, false, false, Player0.GetMoveEffect(), Player1.GetMoveEffect());
+                    return (2, false, false, false, false);
                 }
             }
         }
@@ -203,12 +228,12 @@ public class SpinController : MonoBehaviour
                 || MoveParameter.MoveOfColorName.Purple == Player1.GetMoveColorName()
                 || MoveParameter.MoveOfColorName.Red == Player1.GetMoveColorName())
             {
-                return (0, true, false, false, false, Player0.GetMoveEffect(), Player1.GetMoveEffect());
+                return (0, true, false, false, false);
             }
             // 引き分け
             else if (MoveParameter.MoveOfColorName.Blue == Player1.GetMoveColorName())
             {
-                return (2, false, false, false, false, Player0.GetMoveEffect(), Player1.GetMoveEffect());
+                return (2, false, false, false, false);
             }
         }
         // ミス vs ○○
@@ -218,27 +243,57 @@ public class SpinController : MonoBehaviour
             if (MoveParameter.MoveOfColorName.White == Player1.GetMoveColorName()
                 || MoveParameter.MoveOfColorName.Gold == Player1.GetMoveColorName())
             {
-                return (1, false, true, true, false, Player0.GetMoveEffect(), Player1.GetMoveEffect());
+                return (1, false, true, true, false);
             }
             // 負け
             else if (MoveParameter.MoveOfColorName.Purple == Player1.GetMoveColorName()
                 || MoveParameter.MoveOfColorName.Blue == Player1.GetMoveColorName())
             {
-                return (1, false, true, false, false, Player0.GetMoveEffect(), Player1.GetMoveEffect());
+                return (1, false, true, false, false);
             }
             // 引き分け
-            else if ( MoveParameter.MoveOfColorName.Red == Player1.GetMoveColorName())
+            else if (MoveParameter.MoveOfColorName.Red == Player1.GetMoveColorName())
             {
-                return (2, false, false, false, false, Player0.GetMoveEffect(), Player1.GetMoveEffect());
+                return (2, false, false, false, false);
             }
         }
 
         // default(いらない)
-        return (2, false, false, false, false, Player0.GetMoveEffect(), Player1.GetMoveEffect());
+        return (2, false, false, false, false);
     }
 
-    public static (int, bool, bool, bool, bool, MoveParameter.MyEvent, MoveParameter.MyEvent) GetBattleResult()
+    public static (int, bool, bool, bool, bool) GetBattleResult()
     {
         return BattleResult;
+    }
+
+    // バトルが終わりボード画面に戻る時(これで不都合あれば次のバトル開始前に変える)に
+    // ピースを削除しspinTextを初期化する
+    private void ClearSpin()
+    {
+        //ピースを削除
+        GameObject[] pieces = GameObject.FindGameObjectsWithTag("RouletteImage");
+        foreach (GameObject piece in pieces)
+        {
+            Destroy(piece);
+        }
+        for (int i = 0; i < 2; i++)
+        {
+            // ディスクの回転位置初期化
+            datadisks[i].transform.rotation = Quaternion.Euler(0, 0, 0);
+
+            // 回転のオフセットを初期化
+
+            datadisks[i].GetComponent<DiskSpin>().offsetAngle = 45 + 180 * i;
+
+            // UIの初期化
+            moveText[i].text = "";
+            battleResultText[i].text = "";
+        }
+    }
+
+    public void SetReceiveFlag(bool _flag)
+    {
+        receiveFlag = _flag;
     }
 }

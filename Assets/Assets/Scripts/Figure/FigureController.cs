@@ -1,22 +1,23 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
+using Photon.Realtime;
+
+
 
 
 public class FigureController : MonoBehaviour
 {
     private Transform nodesTransform;
 
-    // private Stack<int> route = new Stack<int>();
-    // private int nextNode;
-    // private Vector3 nextPosition;
     private float walkSpeed = 5f;
     private float fastSpeed = 10f;
-   // private GameObject walkFigure;
 
     // スクリプト変数宣言
     private FigureParameter figureParameter;
     private BoardController boardController;
+    private PhotonView photonview;
     // Use this for initialization
     void Start()
     {
@@ -25,23 +26,18 @@ public class FigureController : MonoBehaviour
         // 先にBoardMasterのStartで各フィギュアにベンチ番号を割り振っている
         figureParameter = GetComponent<FigureParameter>();
         boardController = GameObject.Find("BoardMaster").GetComponent<BoardController>();
-        transform.position = nodesTransform.GetChild(figureParameter.GetPosition()).position;
+        photonview = GetComponent<PhotonView>();
+
     }
 
     private void Update()
     {
-        /*
-        if(boardController.GetPhaseState() == BoardController2D.PhaseState.Battle)
-        {
-            
-            this.gameObject.GetComponent<SpriteRenderer>().enabled = false;
-        }*/
-        
 
     }
     public void OnUserAction()
     {
         boardController.FigureClicked(figureParameter.GetPlayerId(), figureParameter.GetFigureIdOnBoard());
+
     }
 
     // routeに沿って1歩ずつ動く
@@ -62,9 +58,12 @@ public class FigureController : MonoBehaviour
             }
             // 1マス移動する度にPositionを更新
             // GetComponent<FigureParameter>().SetPosition(nextNode);
+
+            yield return new WaitForSeconds(0.2f);
         }
         // 目的地に着いたときだけPositionを更新
         GetComponent<FigureParameter>().SetPosition(nextNode);
+
     }
     // 目的地まで一気に動くタイプ
     public IEnumerator FigureOneStepWalk(int _targetNode)
@@ -76,8 +75,9 @@ public class FigureController : MonoBehaviour
 
             yield return null;
         }
+        yield return new WaitForSeconds(0.2f);
         GetComponent<FigureParameter>().SetPosition(_targetNode);
-    }  
+    }
 }
 
 

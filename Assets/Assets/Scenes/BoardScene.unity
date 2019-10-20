@@ -1472,7 +1472,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   nodes: {fileID: 1093449294}
-  drawEdgePrefab: {fileID: 12, guid: abf17559434fb1d45a53e68655f6efbe, type: 3}
+  drawEdgePrefab: {fileID: 10, guid: abf17559434fb1d45a53e68655f6efbe, type: 3}
   startText: {fileID: 1139868218}
   playerTurnText:
   - {fileID: 872180357}

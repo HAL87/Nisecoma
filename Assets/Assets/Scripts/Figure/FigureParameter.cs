@@ -21,6 +21,7 @@ public class FigureParameter : MonoBehaviourPunCallbacks, IPunObservable
     // mp
     public int GetMp()
     {
+        
         return mp;
     }
 

@@ -1762,16 +1762,16 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
-    - target: {fileID: 5394365435378255210, guid: a5d439ef6e0784745b7ce5319c6a57ef,
-        type: 3}
-      propertyPath: offsetAngle
-      value: 45
-      objectReference: {fileID: 0}
     - target: {fileID: 6222382652278163856, guid: a5d439ef6e0784745b7ce5319c6a57ef,
         type: 3}
       propertyPath: rouletteImage
       value: 
       objectReference: {fileID: 689, guid: 6c03e53a7dd22994ba791deae6b8ce58, type: 3}
+    - target: {fileID: 5394365435378255210, guid: a5d439ef6e0784745b7ce5319c6a57ef,
+        type: 3}
+      propertyPath: offsetAngle
+      value: 45
+      objectReference: {fileID: 0}
     - target: {fileID: 571003003902865079, guid: a5d439ef6e0784745b7ce5319c6a57ef,
         type: 3}
       propertyPath: playerId
@@ -2560,7 +2560,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 900}
+  m_AnchoredPosition: {x: 0, y: 800}
   m_SizeDelta: {x: 800, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &872180359
@@ -4149,7 +4149,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 900}
+  m_AnchoredPosition: {x: 0, y: 800}
   m_SizeDelta: {x: 800, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1161188461
@@ -4181,8 +4181,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 66047
-  m_fontColor: {r: 1, g: 0.004449993, b: 0.004449993, a: 0}
+    rgba: 16750848
+  m_fontColor: {r: 0, g: 0.6025846, b: 1, a: 0}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -4193,7 +4193,7 @@ MonoBehaviour:
   m_fontColorGradientPreset: {fileID: 0}
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
-  m_overrideHtmlColors: 0
+  m_overrideHtmlColors: 1
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
@@ -7097,16 +7097,16 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
-    - target: {fileID: 5394365435378255210, guid: a5d439ef6e0784745b7ce5319c6a57ef,
-        type: 3}
-      propertyPath: offsetAngle
-      value: 225
-      objectReference: {fileID: 0}
     - target: {fileID: 6222382652278163856, guid: a5d439ef6e0784745b7ce5319c6a57ef,
         type: 3}
       propertyPath: rouletteImage
       value: 
       objectReference: {fileID: 689, guid: 6c03e53a7dd22994ba791deae6b8ce58, type: 3}
+    - target: {fileID: 5394365435378255210, guid: a5d439ef6e0784745b7ce5319c6a57ef,
+        type: 3}
+      propertyPath: offsetAngle
+      value: 225
+      objectReference: {fileID: 0}
     - target: {fileID: 571003003902865079, guid: a5d439ef6e0784745b7ce5319c6a57ef,
         type: 3}
       propertyPath: playerId

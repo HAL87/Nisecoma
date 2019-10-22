@@ -1405,10 +1405,10 @@ public class BoardController : MonoBehaviourPunCallbacks
             }
             
             // UIの非表示
-            turnEndButton.SetActive(false);
+            //turnEndButton.SetActive(false);
 
             // UIカット
-            restTurnText.GetComponent<TextMeshProUGUI>().enabled = false;
+            //restTurnText.GetComponent<TextMeshProUGUI>().enabled = false;
             
         }
         // opponentFigure
@@ -1449,9 +1449,13 @@ public class BoardController : MonoBehaviourPunCallbacks
                 RouletteParents[1].GetComponent<DiskSpin>().SetReceiveFlag(true);
             }
             // UIの表示
+<<<<<<< HEAD
             // turnEndButton.SetActive(true);
+=======
+            //turnEndButton.SetActive(true);
+>>>>>>> c7f1fec6544555e00b6133ca82000344a77788dc
             // UIカット
-            restTurnText.GetComponent<TextMeshProUGUI>().enabled = true;
+            //restTurnText.GetComponent<TextMeshProUGUI>().enabled = true;
 
         }
 

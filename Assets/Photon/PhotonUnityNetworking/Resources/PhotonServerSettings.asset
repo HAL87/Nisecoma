@@ -40,5 +40,6 @@ MonoBehaviour:
   - SpinStartRPC
   - DeathRPC
   - SendFlagToSpinController
+  - FigureOneStepWalkRPC
   DisableAutoOpenWizard: 1
   ShowSettings: 1

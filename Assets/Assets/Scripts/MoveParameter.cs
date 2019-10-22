@@ -15,6 +15,7 @@ public class MoveParameter : MonoBehaviour
         Gold,
         Red
     };
+
     [SerializeField] private MoveOfColorName moveOfColorName;
     // ワザの名前
     [SerializeField] private string moveName;
@@ -28,9 +29,12 @@ public class MoveParameter : MonoBehaviour
     [SerializeField] private int moveNumberOfStar;
     // 技効果
     // 動的引数付きシリアル関数は抽象クラスなので、独自クラスを作って継承させないといけない
-    [System.Serializable] public class MyEvent : UnityEvent<BoardController.PhaseState> { }
+    // 引数は未使用 今後引数が必要になったときのために残してるだけ
+    [System.Serializable] public class MyEvent : UnityEvent<int> { }
     // 技効果関数
     [SerializeField] MyEvent MoveEffect;
+
+    [SerializeField] public int moveId;
 
     // Start is called before the first frame update
     void Start()
@@ -84,11 +88,11 @@ public class MoveParameter : MonoBehaviour
         return moveNumberOfStar;
     }
     
-    public void ExecMoveEffect(BoardController.PhaseState phaseState)
+    public void ExecMoveEffect(int ret)
     {
         if(MoveEffect != null)
         {
-            MoveEffect.Invoke(phaseState);
+            MoveEffect.Invoke(0);
         }
     }
 
@@ -102,4 +106,10 @@ public class MoveParameter : MonoBehaviour
 
         return null;
     }
+
+    public int GetMoveId()
+    {
+        return moveId;
+    }
+
 }

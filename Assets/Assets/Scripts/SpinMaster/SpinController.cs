@@ -11,7 +11,7 @@ public class SpinController : MonoBehaviour
     private BoardController boardController;
     [SerializeField] private List<GameObject> datadisks;
     // 変更点
-    public static (int result, bool currentMoveAwake, bool opponentMoveAwake, bool currentDeath, bool oppnentDeath) BattleResult;
+    public static (int result, bool currentMoveAwake, bool opponentMoveAwake, bool currentDeath, bool oppnentDeath, int currentMoveId, int opponentMoveId) BattleResult;
 
     [SerializeField] private Text[] moveText = new Text[BoardController.NUMBER_OF_PLAYERS];
     [SerializeField] private Text[] battleResultText = new Text[BoardController.NUMBER_OF_PLAYERS];
@@ -117,7 +117,7 @@ public class SpinController : MonoBehaviour
     // Player0が勝った場合return 0
     // Player1が負けた場合return 1
     // 引き分けの場合return 2
-    public (int result, bool currentMoveAwake, bool opponentMoveAwake, bool currentDeath, bool oppnentDeath) Judge(MoveParameter Player0, MoveParameter Player1)
+    public (int result, bool currentMoveAwake, bool opponentMoveAwake, bool currentDeath, bool oppnentDeath, int currentMoveId, int opponentMoveId) Judge(MoveParameter Player0, MoveParameter Player1)
     {
         // 白 vs ○○
         if (MoveParameter.MoveOfColorName.White == Player0.GetMoveColorName())
@@ -125,13 +125,13 @@ public class SpinController : MonoBehaviour
             // 勝ち
             if (MoveParameter.MoveOfColorName.Red == Player1.GetMoveColorName())
             {
-                return (0, true, false, false, true);
+                return (0, true, false, false, true, Player0.GetMoveId(), Player1.GetMoveId());
             }
             // 負け
             else if (MoveParameter.MoveOfColorName.Purple == Player1.GetMoveColorName()
                     || MoveParameter.MoveOfColorName.Blue == Player1.GetMoveColorName())
             {
-                return (1, false, true, false, false);
+                return (1, false, true, false, false, Player0.GetMoveId(), Player1.GetMoveId());
             }
             // 引き分け
             else if (MoveParameter.MoveOfColorName.White == Player1.GetMoveColorName()
@@ -139,15 +139,15 @@ public class SpinController : MonoBehaviour
             {
                 if (Player0.GetMovePower() > Player1.GetMovePower())
                 {
-                    return (0, true, true, false, true);
+                    return (0, true, true, false, true, Player0.GetMoveId(), Player1.GetMoveId());
                 }
                 else if (Player0.GetMovePower() < Player1.GetMovePower())
                 {
-                    return (1, true, true, true, false);
+                    return (1, true, true, true, false, Player0.GetMoveId(), Player1.GetMoveId());
                 }
                 else
                 {
-                    return (2, true, true, false, false);
+                    return (2, true, true, false, false, Player0.GetMoveId(), Player1.GetMoveId());
                 }
             }
         }
@@ -158,12 +158,12 @@ public class SpinController : MonoBehaviour
             if (MoveParameter.MoveOfColorName.Purple == Player1.GetMoveColorName()
                     || MoveParameter.MoveOfColorName.Red == Player1.GetMoveColorName())
             {
-                return (0, true, false, false, true);
+                return (0, true, false, false, true, Player0.GetMoveId(), Player1.GetMoveId());
             }
             // 負け
             else if (MoveParameter.MoveOfColorName.Blue == Player1.GetMoveColorName())
             {
-                return (1, false, true, false, false);
+                return (1, false, true, false, false, Player0.GetMoveId(), Player1.GetMoveId());
             }
             // 引き分け
             else if (MoveParameter.MoveOfColorName.White == Player1.GetMoveColorName()
@@ -171,15 +171,15 @@ public class SpinController : MonoBehaviour
             {
                 if (Player0.GetMovePower() > Player1.GetMovePower())
                 {
-                    return (0, true, true, false, true);
+                    return (0, true, true, false, true, Player0.GetMoveId(), Player1.GetMoveId());
                 }
                 else if (Player0.GetMovePower() < Player1.GetMovePower())
                 {
-                    return (1, true, true, true, false);
+                    return (1, true, true, true, false, Player0.GetMoveId(), Player1.GetMoveId());
                 }
                 else
                 {
-                    return (2, true, true, false, false);
+                    return (2, true, true, false, false, Player0.GetMoveId(), Player1.GetMoveId());
                 }
             }
         }
@@ -190,32 +190,32 @@ public class SpinController : MonoBehaviour
             if (MoveParameter.MoveOfColorName.White == Player1.GetMoveColorName()
                 || MoveParameter.MoveOfColorName.Red == Player1.GetMoveColorName())
             {
-                return (0, true, false, false, false);
+                return (0, true, false, false, false, Player0.GetMoveId(), Player1.GetMoveId());
             }
             // 負け(気絶)
             else if (MoveParameter.MoveOfColorName.Gold == Player1.GetMoveColorName())
             {
-                return (1, false, true, true, false);
+                return (1, false, true, true, false, Player0.GetMoveId(), Player1.GetMoveId());
             }
             // 負け
             else if (MoveParameter.MoveOfColorName.Blue == Player1.GetMoveColorName())
             {
-                return (1, false, true, false, false);
+                return (1, false, true, false, false, Player0.GetMoveId(), Player1.GetMoveId());
             }
             // 引き分け
             else if (MoveParameter.MoveOfColorName.Purple == Player1.GetMoveColorName())
             {
                 if (Player0.GetMoveNumberOfStar() > Player1.GetMoveNumberOfStar())
                 {
-                    return (0, true, false, false, false);
+                    return (0, true, false, false, false, Player0.GetMoveId(), Player1.GetMoveId());
                 }
                 else if (Player0.GetMoveNumberOfStar() < Player1.GetMoveNumberOfStar())
                 {
-                    return (1, false, true, false, false);
+                    return (1, false, true, false, false, Player0.GetMoveId(), Player1.GetMoveId());
                 }
                 else
                 {
-                    return (2, false, false, false, false);
+                    return (2, false, false, false, false, Player0.GetMoveId(), Player1.GetMoveId());
                 }
             }
         }
@@ -228,12 +228,12 @@ public class SpinController : MonoBehaviour
                 || MoveParameter.MoveOfColorName.Purple == Player1.GetMoveColorName()
                 || MoveParameter.MoveOfColorName.Red == Player1.GetMoveColorName())
             {
-                return (0, true, false, false, false);
+                return (0, true, false, false, false, Player0.GetMoveId(), Player1.GetMoveId());
             }
             // 引き分け
             else if (MoveParameter.MoveOfColorName.Blue == Player1.GetMoveColorName())
             {
-                return (2, false, false, false, false);
+                return (2, false, false, false, false, Player0.GetMoveId(), Player1.GetMoveId());
             }
         }
         // ミス vs ○○
@@ -243,26 +243,26 @@ public class SpinController : MonoBehaviour
             if (MoveParameter.MoveOfColorName.White == Player1.GetMoveColorName()
                 || MoveParameter.MoveOfColorName.Gold == Player1.GetMoveColorName())
             {
-                return (1, false, true, true, false);
+                return (1, false, true, true, false, Player0.GetMoveId(), Player1.GetMoveId());
             }
             // 負け
             else if (MoveParameter.MoveOfColorName.Purple == Player1.GetMoveColorName()
                 || MoveParameter.MoveOfColorName.Blue == Player1.GetMoveColorName())
             {
-                return (1, false, true, false, false);
+                return (1, false, true, false, false, Player0.GetMoveId(), Player1.GetMoveId());
             }
             // 引き分け
             else if (MoveParameter.MoveOfColorName.Red == Player1.GetMoveColorName())
             {
-                return (2, false, false, false, false);
+                return (2, false, false, false, false, Player0.GetMoveId(), Player1.GetMoveId());
             }
         }
 
         // default(いらない)
-        return (2, false, false, false, false);
+        return (2, false, false, false, false, 0, 0);
     }
 
-    public static (int, bool, bool, bool, bool) GetBattleResult()
+    public static (int, bool, bool, bool, bool, int currentMoveId, int opponentMoveId) GetBattleResult()
     {
         return BattleResult;
     }

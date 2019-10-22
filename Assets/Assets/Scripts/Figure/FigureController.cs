@@ -78,6 +78,12 @@ public class FigureController : MonoBehaviour
         yield return new WaitForSeconds(0.2f);
         GetComponent<FigureParameter>().SetPosition(_targetNode);
     }
+
+    [PunRPC] public void FigureOneStepWalkRPC(int _targetNode)
+    {
+        StartCoroutine(FigureOneStepWalk(_targetNode));
+        boardController.SetWaitFlagCustomProperty(true);
+    }
 }
 
 

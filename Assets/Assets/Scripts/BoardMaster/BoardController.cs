@@ -78,6 +78,7 @@ public class BoardController : MonoBehaviourPunCallbacks
     private const string ON_BATTLE_END = "OnBattleEnd";
     private const string DEATH_RPC = "DeathRPC";
     private const string SEND_FLAG_TO_SPIN_CONTROLLER = "SendFlagToSpinController";
+    public readonly string FIGURE_ONE_STEP_WALK = "FigureOneStepWalk";
 
     /****************************************************************/
     /*                          メンバ変数宣言                      */
@@ -183,6 +184,7 @@ public class BoardController : MonoBehaviourPunCallbacks
     };
     private PhaseState phaseState;
 
+    MoveList moveList;
 
 
     /***************************************************************/
@@ -195,6 +197,7 @@ public class BoardController : MonoBehaviourPunCallbacks
     // Start is called before the first frame update
     void Start()
     {
+        moveList = GetComponent<MoveList>();
         // ゲーム開始前の初期化処理
         InitializeGame();
 
@@ -1081,17 +1084,17 @@ public class BoardController : MonoBehaviourPunCallbacks
             bool opponentMoveAwake = BattleResult.Item3;
             bool currentDeath = BattleResult.Item4;
             bool opponentDeath = BattleResult.Item5;
-            // MoveParameter.MyEvent currentMoveEffect = BattleResult.Item6;
-            // MoveParameter.MyEvent opponentMoveEffect = BattleResult.Item7;
+            int currentMoveId = BattleResult.Item6;
+            int opponentMoveId = BattleResult.Item7;
             
             Debug.Log("boardで" + BattleResult);
             if(currentMoveAwake)
             {
-                // currentMoveEffect.Invoke(phaseState);
+                yield return moveList.CallMoveEffect(currentMoveId, currentFigure.GetComponent<FigureParameter>().GetPlayerId());
             }
             if (opponentMoveAwake)
             {
-                // opponentMoveEffect.Invoke(phaseState);
+                yield return moveList.CallMoveEffect(opponentMoveId, opponentFigure.GetComponent<FigureParameter>().GetPlayerId());
             }
             if (currentDeath)
             {
@@ -1446,7 +1449,7 @@ public class BoardController : MonoBehaviourPunCallbacks
                 RouletteParents[1].GetComponent<DiskSpin>().SetReceiveFlag(true);
             }
             // UIの表示
-            turnEndButton.SetActive(true);
+            // turnEndButton.SetActive(true);
             // UIカット
             restTurnText.GetComponent<TextMeshProUGUI>().enabled = true;
 
@@ -1587,6 +1590,12 @@ public class BoardController : MonoBehaviourPunCallbacks
     public int GetWhichTurn()
     {
         return whichTurn;
+    }
+
+    // Edgesを取得
+    public List<int>[] GetEdges()
+    {
+        return edges;
     }
 
     /****************************************************************/

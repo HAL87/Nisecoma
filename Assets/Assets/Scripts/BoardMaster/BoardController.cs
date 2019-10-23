@@ -78,7 +78,7 @@ public class BoardController : MonoBehaviourPunCallbacks
     private const string ON_BATTLE_END = "OnBattleEnd";
     private const string DEATH_RPC = "DeathRPC";
     private const string SEND_FLAG_TO_SPIN_CONTROLLER = "SendFlagToSpinController";
-    public readonly string FIGURE_ONE_STEP_WALK = "FigureOneStepWalk";
+    public readonly string FIGURE_ONE_STEP_WALK_RPC = "FigureOneStepWalkRPC";
 
     /****************************************************************/
     /*                          メンバ変数宣言                      */
@@ -1279,10 +1279,18 @@ public class BoardController : MonoBehaviourPunCallbacks
     public void SetWaitFlagCustomProperty(bool _flag)
     {
         var roomHash = new ExitGames.Client.Photon.Hashtable();
-        isWaiting = _flag;
+        isWaiting = false;
         roomHash.Add(IS_WAITING, isWaiting);
         Debug.Log("動いて、いいよ......");
         PhotonNetwork.CurrentRoom.SetCustomProperties(roomHash);
+    }
+    public void SetWaitFlag(bool _flag)
+    {
+        isWaiting = _flag;
+    }
+    public bool GetWaitFlagCustomProperty()
+    {
+        return isWaiting;
     }
     // currentFigure情報の送信
     public void SetCurrentFigureCustomProperty()
@@ -1573,6 +1581,12 @@ public class BoardController : MonoBehaviourPunCallbacks
         }
 
         return null;
+    }
+
+    // figuresからFigureを取得
+    public GameObject GetFigureFromFigures(int _playerId, int _figureIdOnBoard)
+    {
+        return figures[_playerId][_figureIdOnBoard];
     }
 
     // 引数に与えたフィギュアの持ち主の相手のPlayerIdを取得

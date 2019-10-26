@@ -1775,16 +1775,16 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
-    - target: {fileID: 5394365435378255210, guid: a5d439ef6e0784745b7ce5319c6a57ef,
-        type: 3}
-      propertyPath: offsetAngle
-      value: 45
-      objectReference: {fileID: 0}
     - target: {fileID: 6222382652278163856, guid: a5d439ef6e0784745b7ce5319c6a57ef,
         type: 3}
       propertyPath: rouletteImage
       value: 
       objectReference: {fileID: 689, guid: 6c03e53a7dd22994ba791deae6b8ce58, type: 3}
+    - target: {fileID: 5394365435378255210, guid: a5d439ef6e0784745b7ce5319c6a57ef,
+        type: 3}
+      propertyPath: offsetAngle
+      value: 45
+      objectReference: {fileID: 0}
     - target: {fileID: 571003003902865079, guid: a5d439ef6e0784745b7ce5319c6a57ef,
         type: 3}
       propertyPath: playerId
@@ -4206,7 +4206,7 @@ MonoBehaviour:
   m_fontColorGradientPreset: {fileID: 0}
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
-  m_overrideHtmlColors: 0
+  m_overrideHtmlColors: 1
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
@@ -7110,16 +7110,16 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
-    - target: {fileID: 5394365435378255210, guid: a5d439ef6e0784745b7ce5319c6a57ef,
-        type: 3}
-      propertyPath: offsetAngle
-      value: 225
-      objectReference: {fileID: 0}
     - target: {fileID: 6222382652278163856, guid: a5d439ef6e0784745b7ce5319c6a57ef,
         type: 3}
       propertyPath: rouletteImage
       value: 
       objectReference: {fileID: 689, guid: 6c03e53a7dd22994ba791deae6b8ce58, type: 3}
+    - target: {fileID: 5394365435378255210, guid: a5d439ef6e0784745b7ce5319c6a57ef,
+        type: 3}
+      propertyPath: offsetAngle
+      value: 225
+      objectReference: {fileID: 0}
     - target: {fileID: 571003003902865079, guid: a5d439ef6e0784745b7ce5319c6a57ef,
         type: 3}
       propertyPath: playerId

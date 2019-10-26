@@ -14,10 +14,19 @@ public class LauncherScript : MonoBehaviourPunCallbacks
 
     #region Private変数
     //Private変数の定義はココで
-    // string _gameVersion = "Chapter12";   //ゲームのバージョン。仕様が異なるバージョンとなったときはバージョンを変更しないとエラーが発生する。
+    private PlayerNameInputFieldScript playerNameInputFieldScript;
     #endregion
+    [SerializeField] private GameObject inputField;
 
+    private void Start()
+    {
+        Screen.SetResolution(540, 960, false, 60);
+        DontDestroyOnLoad(this);
+        playerNameInputFieldScript = inputField.GetComponent<PlayerNameInputFieldScript>();
+    }
     #region Public Methods
+
+
     //ログインボタンを押したときに実行される
     public void Connect()
     {
@@ -25,9 +34,15 @@ public class LauncherScript : MonoBehaviourPunCallbacks
         {                         //Photonに接続できていなければ
             PhotonNetwork.ConnectUsingSettings();   //Photonに接続する
             Debug.Log("Photonに接続しました。");
-            Debug.Log(PhotonNetwork.NickName);
+            playerNameInputFieldScript.SetPlayerName();
             SceneManager.LoadScene("LobbyScene2");    //Lobbyシーンに遷移
         }
     }
     #endregion
+
+    public override void OnConnectedToMaster()
+    {
+        PhotonNetwork.JoinLobby();
+        Debug.Log("ロビーに入りました");
+    }
 }

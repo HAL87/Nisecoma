@@ -16,13 +16,14 @@ public class RoomElementScript : MonoBehaviour
     private string roomname;
 
     //GetRoomListからRoom情報をRoomElementにセットしていくための関数
-    public void SetRoomInfo(string _RoomName, int _PlayerNumber, int _MaxPlayer, string _RoomCreator)
+    public void SetRoomInfo(string _roomName, int _playerNumber, int _maxPlayer, string _roomCreator)
     {
+        Debug.Log("ルーム情報がセットされたよ");
         //入室ボタン用roomname取得
-        roomname = _RoomName;
-        RoomName.text = "部屋名：" + _RoomName;
-        PlayerNumber.text = "人　数：" + _PlayerNumber + "/" + _MaxPlayer;
-        RoomCreator.text = "作成者：" + _RoomCreator;
+        roomname = _roomName;
+        RoomName.text = "部屋名：" + _roomName;
+        PlayerNumber.text = "人　数：" + _playerNumber + "/" + _maxPlayer;
+        RoomCreator.text = "作成者：" + _roomCreator;
     }
 
     //入室ボタン処理

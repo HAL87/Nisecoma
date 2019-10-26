@@ -8,21 +8,37 @@ using Photon.Realtime;
 public class LobbyUiScript : MonoBehaviour
 {
 
+
+
+    // カスタムプロパティ用文字列
+    private const string ROOM_CREATOR = "RoomCreator";
+    private const string WHICH_TURN = "whichTurn";
+    private const string REST_TURN = "restTurn";
+
+    private const string CURRENT_FIGURE_PLAYER_ID = "currentFigurePlayerId";
+    private const string CURRENT_FIGURE_ID_ON_BOARD = "currentFigureIdOnBoard";
+
+    private const string OPPONENT_FIGURE_PLAYER_ID = "opponentFigurePlayerId";
+    private const string OPPONENT_FIGURE_ID_ON_BOARD = "opponentFigureIdOnBoard";
+
+
+    private const string GOAL_ANGLE_0 = "goalAngle0";
+    private const string GOAL_ANGLE_1 = "goalAngle1";
+
+    private const string IS_WAITING = "isWaiting";
+
     //部屋作成ウインドウ表示用ボタン
     public Button OpenRoomPanelButton;
 
     //部屋作成ウインドウ
     public GameObject CreateRoomPanel;  //部屋作成ウインドウ
     public Text RoomNameText;           //作成する部屋名
-    // public Slider PlayerNumberSlider;   //最大入室可能人数用Slider
-    // public Text PlayerNumberText;       //最大入室可能人数表示用Text
     public Button CreateRoomButton;     //部屋作成ボタン
    
     // Update is called once per frame
     void Update()
     {
-        //部屋人数Sliderの値をTextに代入
-        // PlayerNumberText.text = PlayerNumberSlider.value.ToString();
+
     }
 
     //部屋作成ウインドウ表示用ボタンを押したときの処理
@@ -44,6 +60,7 @@ public class LobbyUiScript : MonoBehaviour
     //部屋作成ボタンを押したときの処理
     public void OnClick_CreateRoomButton()
     {
+        Debug.Log("部屋を作ります");
         //作成する部屋の設定
         RoomOptions roomOptions = new RoomOptions();
         roomOptions.IsVisible = true;   //ロビーで見える部屋にする
@@ -52,11 +69,20 @@ public class LobbyUiScript : MonoBehaviour
         //ルームカスタムプロパティで部屋作成者を表示させるため、作成者の名前を格納
         roomOptions.CustomRoomProperties = new ExitGames.Client.Photon.Hashtable()
         {
-            { "RoomCreator",PhotonNetwork.NickName }
+            { ROOM_CREATOR, PhotonNetwork.NickName },
+            { WHICH_TURN, 0 },
+            { REST_TURN, 300 },
+            { CURRENT_FIGURE_PLAYER_ID, -1 },
+            { CURRENT_FIGURE_ID_ON_BOARD, -1 },
+            { OPPONENT_FIGURE_PLAYER_ID, -1 },
+            { OPPONENT_FIGURE_ID_ON_BOARD, -1 },
+            { GOAL_ANGLE_0, -1 },
+            { GOAL_ANGLE_1, -1 },
+            { IS_WAITING, true }
         };
         //ロビーにカスタムプロパティの情報を表示させる
         roomOptions.CustomRoomPropertiesForLobby = new string[] {
-            "RoomCreator",
+            ROOM_CREATOR,
         };
 
         //部屋作成

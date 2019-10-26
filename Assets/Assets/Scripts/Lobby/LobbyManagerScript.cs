@@ -8,6 +8,9 @@ using Photon.Realtime;
 
 public class LobbyManagerScript : MonoBehaviourPunCallbacks
 {
+
+    private const string BOARD_SCENE_NAME = "BoardScene";
+
     #region Public Variables
     //部屋一覧表示用オブジェクト
     public GameObject RoomParent;//ScrolViewのcontentオブジェクト
@@ -48,7 +51,8 @@ public class LobbyManagerScript : MonoBehaviourPunCallbacks
     //GetRoomListは一定時間ごとに更新され、その更新のタイミングで実行する処理
     public override void OnRoomListUpdate(List<RoomInfo> roomInfo)
     {
-        
+        Debug.Log("更新");
+        DestroyChildObject(RoomParent.transform);
         //ルームが無ければreturn
         if (roomInfo == null || roomInfo.Count == 0) return;
 
@@ -61,11 +65,10 @@ public class LobbyManagerScript : MonoBehaviourPunCallbacks
             GameObject RoomElement = GameObject.Instantiate(RoomElementPrefab);
 
             //RoomElementをcontentの子オブジェクトとしてセット    
-            RoomElement.transform.SetParent(RoomParent.transform);
+            RoomElement.transform.SetParent(RoomParent.transform, false);
             //RoomElementにルーム情報をセット
             RoomElement.GetComponent<RoomElementScript>().SetRoomInfo(roomInfo[i].Name, roomInfo[i].PlayerCount, roomInfo[i].MaxPlayers, roomInfo[i].CustomProperties["RoomCreator"].ToString());
         }
-        Debug.Log("ルーム見つかった");
     }
 
     //ルーム作成失敗した場合
@@ -92,7 +95,8 @@ public class LobbyManagerScript : MonoBehaviourPunCallbacks
     public override void OnCreatedRoom()
     {
         //battleシーンへ遷移
-        PhotonNetwork.LoadLevel("NewScene");
+        PhotonNetwork.IsMessageQueueRunning = false;
+        PhotonNetwork.LoadLevel(BOARD_SCENE_NAME);
     }
     #endregion
 }

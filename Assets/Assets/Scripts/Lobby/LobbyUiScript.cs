@@ -70,7 +70,8 @@ public class LobbyUiScript : MonoBehaviour
         roomOptions.CustomRoomProperties = new ExitGames.Client.Photon.Hashtable()
         {
             { ROOM_CREATOR, PhotonNetwork.NickName },
-            { WHICH_TURN, 0 },
+            //この段階で先行後攻を決めておく（改修の可能性あり）
+            { WHICH_TURN, Random.Range(0, 2)},
             { REST_TURN, 300 },
             { CURRENT_FIGURE_PLAYER_ID, -1 },
             { CURRENT_FIGURE_ID_ON_BOARD, -1 },

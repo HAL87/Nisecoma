@@ -41,5 +41,10 @@ MonoBehaviour:
   - DeathRPC
   - SendFlagToSpinController
   - FigureOneStepWalkRPC
+  - FadeInOut
+  - GameEndRPC
+  - ForfeitRPC
+  - SetWaitCount
+  - SetWaitCounterRPC
   DisableAutoOpenWizard: 1
   ShowSettings: 1

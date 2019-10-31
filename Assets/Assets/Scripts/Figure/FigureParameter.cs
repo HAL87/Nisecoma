@@ -85,6 +85,7 @@ public class FigureParameter : MonoBehaviourPunCallbacks, IPunObservable
     }
     // ウェイトカウントをセットする
     // ウェイト1以上の場合はカウンターを表示する
+    [PunRPC]
     public void SetWaitCount(int _waitCount)
     {
         waitCount = _waitCount;
@@ -134,7 +135,6 @@ public class FigureParameter : MonoBehaviourPunCallbacks, IPunObservable
             position = (int)stream.ReceiveNext();
             SetPosition(position);
             //データの受信
-
         }
     }
 

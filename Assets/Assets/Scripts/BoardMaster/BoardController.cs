@@ -15,7 +15,7 @@ using Photon.Realtime;
 
 public class BoardController : MonoBehaviourPunCallbacks
 {
-    
+
     /****************************************************************/
     /*                          定数宣言                            */
     /****************************************************************/
@@ -79,6 +79,9 @@ public class BoardController : MonoBehaviourPunCallbacks
     private const string DEATH_RPC = "DeathRPC";
     private const string SEND_FLAG_TO_SPIN_CONTROLLER = "SendFlagToSpinController";
     public readonly string FIGURE_ONE_STEP_WALK = "FigureOneStepWalk";
+    private const string GAME_END_RPC = "GameEndRPC";
+    private const string FORFEIT_RPC = "ForfeitRPC";
+    private const string SET_WAIT_COUNTER_RPC = "SetWaitCounterRPC";
 
     /****************************************************************/
     /*                          メンバ変数宣言                      */
@@ -94,7 +97,7 @@ public class BoardController : MonoBehaviourPunCallbacks
 
     // ボード用のUI
     [SerializeField] private GameObject startText;
-    [SerializeField] private List<GameObject> playerTurnText;
+    [SerializeField] private GameObject playerTurnText;
     [SerializeField] private GameObject restTurnText;
     [SerializeField] private GameObject gameEndText;
     [SerializeField] private GameObject turnEndButton;
@@ -126,13 +129,13 @@ public class BoardController : MonoBehaviourPunCallbacks
 
     // あるノードから別のノードへのエッジをListで表現
     // edgesは配列であり、各成分がint型のList
-    private List<int>[] edges   = new List<int>[NUMBER_OF_WALK_NODES];
+    private List<int>[] edges = new List<int>[NUMBER_OF_WALK_NODES];
 
     //特別なノードの意味づけ
     private int[][] entryNodeId = new int[NUMBER_OF_PLAYERS][];
-    private int[] goalNodeId    = new int[NUMBER_OF_PLAYERS];
+    private int[] goalNodeId = new int[NUMBER_OF_PLAYERS];
     private int[][] benchNodeId = new int[NUMBER_OF_PLAYERS][];
-    private int[][] pcNodeId    = new int[NUMBER_OF_PLAYERS][];
+    private int[][] pcNodeId = new int[NUMBER_OF_PLAYERS][];
 
     // 第一要素がプレイヤー番号(0 or 1)、第二要素がfigureIDOnBoard
     // ゲーム開始時に敵味方それぞれのフィギュアを認識してfigureIDOnBoardを振る
@@ -178,8 +181,8 @@ public class BoardController : MonoBehaviourPunCallbacks
         BattleEnd,
         AfterBattle,
         TurnEnd,
-        GameEnd, 
-        Forfeit, 
+        GameEnd,
+        Forfeit,
         Lock
     };
     private PhaseState phaseState;
@@ -207,7 +210,7 @@ public class BoardController : MonoBehaviourPunCallbacks
 
         // デッキに登録しているフィギュアをインスタンス化
         InstantiateMyFigure();
-        
+
         // 2人揃ったらゲーム開始
         StartCoroutine(GameStart());
     }
@@ -263,15 +266,16 @@ public class BoardController : MonoBehaviourPunCallbacks
         // 自分と相手のフィギュア情報をキャッシュし、規定場所に配置する
         DivideFigures();
 
-        // 暫定的にプレイヤー0のターンに固定
-        whichTurn = 0;
+        // どちらのターンかランダムに決められる
+        whichTurn = (int)PhotonNetwork.CurrentRoom.CustomProperties[WHICH_TURN];
+        //whichTurn = (int);
 
-        if(myPlayerId == whichTurn)
+        if (myPlayerId == whichTurn)
         {
             // 自分のターンならTurnStart状態へ
             StartCoroutine(SetPhaseState(PhaseState.TurnStart));
         }
-        else 
+        else
         {
             // 相手のターンなら何も動かせないようにする
             StartCoroutine(SetPhaseState(PhaseState.Lock));
@@ -420,6 +424,9 @@ public class BoardController : MonoBehaviourPunCallbacks
             {
                 obj = PhotonNetwork.Instantiate(deckList0[i], transform.position, Quaternion.identity, 0);
                 obj.transform.Find("FigureBack2").GetComponent<SpriteRenderer>().color = Color.blue;
+                foreach (Transform child in obj.transform) {
+                    child.gameObject.SetActive(false);
+                }
             }
 
         }
@@ -430,7 +437,12 @@ public class BoardController : MonoBehaviourPunCallbacks
             {
                 obj = PhotonNetwork.Instantiate(deckList1[i], transform.position, Quaternion.identity, 0);
                 obj.transform.Find("FigureBack2").GetComponent<SpriteRenderer>().color = Color.blue;
+                foreach (Transform child in obj.transform)
+                {
+                    child.gameObject.SetActive(false);
+                }
             }
+
         }
 
     }
@@ -448,7 +460,6 @@ public class BoardController : MonoBehaviourPunCallbacks
         {
             FigureParameter figureParameter = obj.GetComponent<FigureParameter>();
             obj.GetComponent<FigureParameter>().SetPlayerId(obj.GetComponent<PhotonView>().OwnerActorNr - 1);
-
             if (figureParameter.GetPlayerId() == 0)
             {
                 // キャッシュ用のId(figureIdOnBoard)を配番する
@@ -491,6 +502,15 @@ public class BoardController : MonoBehaviourPunCallbacks
             }
 
         }
+        foreach (GameObject obj in objs)
+        {
+            foreach (Transform child in obj.transform)
+            {
+                child.gameObject.SetActive(true);
+            }
+            obj.GetComponent<FigureParameter>().GetWaitCounter().SetActive(false);
+        }
+
     }
 
     /****************************************************************/
@@ -614,154 +634,153 @@ public class BoardController : MonoBehaviourPunCallbacks
 
         switch (phaseState)
         {
-        // ノーマル状態の時
-        case PhaseState.Normal:
-            // 遷移1番: Normal → FigureSelect
-            // 遷移条件: 任意のフィギュアをクリック
+            // ノーマル状態の時
+            case PhaseState.Normal:
+                // 遷移1番: Normal → FigureSelect
+                // 遷移条件: 任意のフィギュアをクリック
 
-            // currentFigure更新
-            currentFigure = figures[_playerId][_figureIdOnBoard];
-            SetCurrentFigureCustomProperty();
-
-            // 状態変数更新
-            // moveCandidates, walkCandidates, prevNodeの更新
-            StartCoroutine(SetPhaseState(PhaseState.FigureSelected));
-            break;
-
-        // フィギュア選択状態
-        case PhaseState.FigureSelected:
-            // 遷移2番: FigureSelect → Normal
-            // 遷移条件: クリックしたフィギュアがcurrentFigureと同じ
-            if (figures[_playerId][_figureIdOnBoard] == currentFigure)
-            {
-                StartCoroutine(SetPhaseState(PhaseState.Normal));
-            }
-
-            // 遷移3番: FigureSelect→FigureSelect
-            else if (figures[_playerId][_figureIdOnBoard].GetComponent<FigureParameter>().GetPlayerId() == whichTurn)
-            {
-                ClearNodesColor();
-                // 光沢を初期化
-                currentFigure.GetComponent<Renderer>().material.SetFloat("_Metallic", 0.0f);
-                currentFigure.GetComponent<Renderer>().material.SetFloat("_Glossiness", 1.0f);
                 // currentFigure更新
                 currentFigure = figures[_playerId][_figureIdOnBoard];
                 SetCurrentFigureCustomProperty();
-               
-                // 状態変数更新
-                StartCoroutine(SetPhaseState(PhaseState.FigureSelected));
-            }
 
-            // 相手のコマをタッチしたとき
-            else if (figures[_playerId][_figureIdOnBoard].GetComponent<FigureParameter>().GetPlayerId() != whichTurn)
-            {
-                bool attackOK = false;
-                foreach (int i in attackCandidates)
+                // 状態変数更新
+                // moveCandidates, walkCandidates, prevNodeの更新
+                StartCoroutine(SetPhaseState(PhaseState.FigureSelected));
+                break;
+
+            // フィギュア選択状態
+            case PhaseState.FigureSelected:
+                // 遷移2番: FigureSelect → Normal
+                // 遷移条件: クリックしたフィギュアがcurrentFigureと同じ
+                if (figures[_playerId][_figureIdOnBoard] == currentFigure)
                 {
-                    if (i == figures[_playerId][_figureIdOnBoard].GetComponent<FigureParameter>().GetPosition())
-                    {
-                        attackOK = true;
-                    }
+                    StartCoroutine(SetPhaseState(PhaseState.Normal));
                 }
 
                 // 遷移3番: FigureSelect→FigureSelect
-                // 敵が攻撃範囲内にいなかったとき
-                if (attackOK == false)
+                else if (figures[_playerId][_figureIdOnBoard].GetComponent<FigureParameter>().GetPlayerId() == whichTurn)
                 {
                     ClearNodesColor();
                     // 光沢を初期化
-                    currentFigure.GetComponent<Renderer>().material.SetFloat("_Metallic", 0.0f);
-                    currentFigure.GetComponent<Renderer>().material.SetFloat("_Glossiness", 1.0f);
+                    currentFigure.transform.Find("FigureBack1").GetComponent<SpriteRenderer>().color = Color.white;
 
                     // currentFigure更新
                     currentFigure = figures[_playerId][_figureIdOnBoard];
                     SetCurrentFigureCustomProperty();
-                    
+
                     // 状態変数更新
                     StartCoroutine(SetPhaseState(PhaseState.FigureSelected));
                 }
 
-                // 遷移5番: FigureSelect→Battle
-                // 敵が攻撃範囲にいたとき
-                else
+                // 相手のコマをタッチしたとき
+                else if (figures[_playerId][_figureIdOnBoard].GetComponent<FigureParameter>().GetPlayerId() != whichTurn)
                 {
-                    opponentFigure = figures[_playerId][_figureIdOnBoard];
-                    SetOpponentFigureCustomProperty();
-
-                    StartCoroutine(SetPhaseState(PhaseState.BattleStart));
-                }
-            }
-            break;
-        
-        // フィギュア移動中状態
-        case PhaseState.Walking:
-            // 何も行わない
-            break;
-
-        // フィギュア移動後状態
-        case PhaseState.AfterWalk:
-            // 遷移10番: AfterWalk→AfterWalk
-            if (figures[_playerId][_figureIdOnBoard] == currentFigure)
-            {
-                // 情報表示だけ
-            }
-
-            // 自分のフィギュアをタッチしたとき
-            // 遷移7番: AfterWalk→ConfirmFigure
-            else if (figures[_playerId][_figureIdOnBoard].GetComponent<FigureParameter>().GetPlayerId() == whichTurn)
-            {
-                StartCoroutine(SetPhaseState(PhaseState.ConfirmFigure));
-            }
-
-            // 相手フィギュアをタッチしたとき
-            else if (figures[_playerId][_figureIdOnBoard].GetComponent<FigureParameter>().GetPlayerId() != whichTurn)
-            {
-                bool attackOK = false;
-                foreach (int i in attackCandidates)
-                {
-                    if (i == figures[_playerId][_figureIdOnBoard].GetComponent<FigureParameter>().GetPosition())
+                    bool attackOK = false;
+                    foreach (int i in attackCandidates)
                     {
-                        attackOK = true;
+                        if (i == figures[_playerId][_figureIdOnBoard].GetComponent<FigureParameter>().GetPosition())
+                        {
+                            attackOK = true;
+                        }
+                    }
+
+                    // 遷移3番: FigureSelect→FigureSelect
+                    // 敵が攻撃範囲内にいなかったとき
+                    if (attackOK == false)
+                    {
+                        ClearNodesColor();
+                        // 光沢を初期化
+                        currentFigure.transform.Find("FigureBack1").GetComponent<SpriteRenderer>().color = Color.white;
+
+                        // currentFigure更新
+                        currentFigure = figures[_playerId][_figureIdOnBoard];
+                        SetCurrentFigureCustomProperty();
+
+                        // 状態変数更新
+                        StartCoroutine(SetPhaseState(PhaseState.FigureSelected));
+                    }
+
+                    // 遷移5番: FigureSelect→Battle
+                    // 敵が攻撃範囲にいたとき
+                    else
+                    {
+                        opponentFigure = figures[_playerId][_figureIdOnBoard];
+                        SetOpponentFigureCustomProperty();
+
+                        StartCoroutine(SetPhaseState(PhaseState.BattleStart));
                     }
                 }
+                break;
 
-                // 遷移7番: AfterWalk→ConfirmFigure
-                // 敵が攻撃範囲にいなかったとき
-                if (attackOK == false)
+            // フィギュア移動中状態
+            case PhaseState.Walking:
+                // 何も行わない
+                break;
+
+            // フィギュア移動後状態
+            case PhaseState.AfterWalk:
+                // 遷移10番: AfterWalk→AfterWalk
+                if (figures[_playerId][_figureIdOnBoard] == currentFigure)
                 {
-                    // 状態変数更新
+                    // 情報表示だけ
+                }
+
+                // 自分のフィギュアをタッチしたとき
+                // 遷移7番: AfterWalk→ConfirmFigure
+                else if (figures[_playerId][_figureIdOnBoard].GetComponent<FigureParameter>().GetPlayerId() == whichTurn)
+                {
                     StartCoroutine(SetPhaseState(PhaseState.ConfirmFigure));
                 }
 
-                // 遷移11番: FigureSelect→Batle
-                // 敵が攻撃範囲にいたとき
-                else
+                // 相手フィギュアをタッチしたとき
+                else if (figures[_playerId][_figureIdOnBoard].GetComponent<FigureParameter>().GetPlayerId() != whichTurn)
                 {
-                    opponentFigure = figures[_playerId][_figureIdOnBoard];
-                    SetOpponentFigureCustomProperty();
+                    bool attackOK = false;
+                    foreach (int i in attackCandidates)
+                    {
+                        if (i == figures[_playerId][_figureIdOnBoard].GetComponent<FigureParameter>().GetPosition())
+                        {
+                            attackOK = true;
+                        }
+                    }
 
-                    StartCoroutine(SetPhaseState(PhaseState.BattleStart));
+                    // 遷移7番: AfterWalk→ConfirmFigure
+                    // 敵が攻撃範囲にいなかったとき
+                    if (attackOK == false)
+                    {
+                        // 状態変数更新
+                        StartCoroutine(SetPhaseState(PhaseState.ConfirmFigure));
+                    }
+
+                    // 遷移11番: FigureSelect→Batle
+                    // 敵が攻撃範囲にいたとき
+                    else
+                    {
+                        opponentFigure = figures[_playerId][_figureIdOnBoard];
+                        SetOpponentFigureCustomProperty();
+
+                        StartCoroutine(SetPhaseState(PhaseState.BattleStart));
+                    }
                 }
-            }
-            break;
+                break;
 
-        // フィギュア確認状態
-        case PhaseState.ConfirmFigure:
-            // 遷移8番: ConfirmFigure →ConfirmFigure
-            if (figures[_playerId][_figureIdOnBoard] != currentFigure)
-            {
-                // 情報表示だけ
-            }
+            // フィギュア確認状態
+            case PhaseState.ConfirmFigure:
+                // 遷移8番: ConfirmFigure →ConfirmFigure
+                if (figures[_playerId][_figureIdOnBoard] != currentFigure)
+                {
+                    // 情報表示だけ
+                }
 
-            // 遷移9番: ConfirmFigure→AfterWalk
-            else if (figures[_playerId][_figureIdOnBoard] == currentFigure)
-            {
-                StartCoroutine(SetPhaseState(PhaseState.AfterWalk));
-            }
-            break;
+                // 遷移9番: ConfirmFigure→AfterWalk
+                else if (figures[_playerId][_figureIdOnBoard] == currentFigure)
+                {
+                    StartCoroutine(SetPhaseState(PhaseState.AfterWalk));
+                }
+                break;
 
-        default:
-            break;
+            default:
+                break;
         }
     }
 
@@ -824,35 +843,36 @@ public class BoardController : MonoBehaviourPunCallbacks
         Debug.Log("ルルーシュビブリタニアが命じる");
         GameObject backBenchFigure = null;
         GameObject moveAnotherPCFigure = null;
-        int playerID = _figure.GetComponent<FigureParameter>().GetPlayerId();
+        int playerId = _figure.GetComponent<FigureParameter>().GetPlayerId();
 
-        for (int i = 0; i < figures[playerID].Count; i++)
+        for (int i = 0; i < figures[playerId].Count; i++)
         {
-            if (figures[playerID][i].GetComponent<FigureParameter>().GetPosition() == pcNodeId[playerID][1])
+            if (figures[playerId][i].GetComponent<FigureParameter>().GetPosition() == pcNodeId[playerId][1])
             {
-
-                backBenchFigure = figures[playerID][i];
+                backBenchFigure = figures[playerId][i];
             }
-            else if (figures[playerID][i].GetComponent<FigureParameter>().GetPosition() == pcNodeId[playerID][0])
+            else if (figures[playerId][i].GetComponent<FigureParameter>().GetPosition() == pcNodeId[playerId][0])
             {
-                moveAnotherPCFigure = figures[playerID][i];
+                moveAnotherPCFigure = figures[playerId][i];
             }
         }
 
         // PC1からベンチへ移動
         if (backBenchFigure != null)
         {
+            int backBenchFigurePlayerId = backBenchFigure.GetComponent<FigureParameter>().GetPlayerId();
+            int backBenchFigureIdOnBoard = backBenchFigure.GetComponent<FigureParameter>().GetFigureIdOnBoard();
             // ウェイト2を付与
-            backBenchFigure.GetComponent<FigureParameter>().SetWaitCount(2);
+            photonView.RPC(SET_WAIT_COUNTER_RPC, RpcTarget.All, backBenchFigurePlayerId, backBenchFigureIdOnBoard, 2);
             yield return backBenchFigure.GetComponent<FigureController>().FigureOneStepWalk(backBenchFigure.GetComponent<FigureParameter>().GetBenchId());
         }
         // PC0からPC1へ移動
         if (moveAnotherPCFigure != null)
         {
-            yield return moveAnotherPCFigure.GetComponent<FigureController>().FigureOneStepWalk(pcNodeId[playerID][1]);
+            yield return moveAnotherPCFigure.GetComponent<FigureController>().FigureOneStepWalk(pcNodeId[playerId][1]);
         }
         // フィールドからPC0へ移動
-        yield return _figure.GetComponent<FigureController>().FigureOneStepWalk(pcNodeId[playerID][0]);
+        yield return _figure.GetComponent<FigureController>().FigureOneStepWalk(pcNodeId[playerId][0]);
         Debug.Log("やっと死んだ");
         SetWaitFlagCustomProperty(false);
     }
@@ -928,12 +948,12 @@ public class BoardController : MonoBehaviourPunCallbacks
         // ターンの開始時
         if (phaseState == PhaseState.TurnStart)
         {
-          
-            restTurnText.GetComponent<TextMeshProUGUI>().text = restTurn.ToString();
-            yield return FadeInOut(playerTurnText[whichTurn], 0.5f);
-           
 
             restTurnText.GetComponent<TextMeshProUGUI>().text = restTurn.ToString();
+            playerTurnText.GetComponent<TextMeshProUGUI>().color = Color.cyan * new Color(1, 1, 1, 0);
+            playerTurnText.GetComponent<TextMeshProUGUI>().text = "PLAYER TURN";
+            yield return FadeInOut(playerTurnText, 0.5f);
+
             /*yield return FadeInOut(playerTurnText[turnNumber], 0.5f);
             */
             StartCoroutine(SetPhaseState(PhaseState.Normal));
@@ -944,8 +964,7 @@ public class BoardController : MonoBehaviourPunCallbacks
             // 光沢を消す
             if (currentFigure != null)
             {
-                currentFigure.GetComponent<Renderer>().material.SetFloat("_Metallic", 0.0f);
-                currentFigure.GetComponent<Renderer>().material.SetFloat("_Glossiness", 1.0f);
+                currentFigure.transform.Find("FigureBack1").GetComponent<SpriteRenderer>().color = Color.white;
             }
 
             currentFigure = null;
@@ -966,9 +985,7 @@ public class BoardController : MonoBehaviourPunCallbacks
         else if (phaseState == PhaseState.FigureSelected)
         {
             // 選択したフィギュアを目立たせる
-            currentFigure.GetComponent<Renderer>().material.SetFloat("_Metallic", 1.0f);
-            currentFigure.GetComponent<Renderer>().material.SetFloat("_Glossiness", 0.0f);
-
+            currentFigure.transform.Find("FigureBack1").GetComponent<SpriteRenderer>().color = Color.green;
 
             FigureParameter currentFigureParameter = currentFigure.GetComponent<FigureParameter>();
             // 他のフィギュアを障害物として認識
@@ -1064,7 +1081,7 @@ public class BoardController : MonoBehaviourPunCallbacks
             //IEnumerator coroutine = OnBattleStart();
             photonView.RPC(ON_BATTLE_START, RpcTarget.All);
         }
-        else if(phaseState == PhaseState.BattleEnd)
+        else if (phaseState == PhaseState.BattleEnd)
         {
             // バトルが終わったことをバトル仕掛けられた側に通知
             photonView.RPC(SEND_FLAG_TO_SPIN_CONTROLLER, RpcTarget.Others);
@@ -1086,9 +1103,9 @@ public class BoardController : MonoBehaviourPunCallbacks
             bool opponentDeath = BattleResult.Item5;
             int currentMoveId = BattleResult.Item6;
             int opponentMoveId = BattleResult.Item7;
-            
+
             Debug.Log("boardで" + BattleResult);
-            if(currentMoveAwake)
+            if (currentMoveAwake)
             {
                 yield return moveList.CallMoveEffect(currentMoveId, currentFigure.GetComponent<FigureParameter>().GetPlayerId());
             }
@@ -1112,7 +1129,7 @@ public class BoardController : MonoBehaviourPunCallbacks
                 photonView.RPC(DEATH_RPC, RpcTarget.Others, opponentFigurePlayerId, opponentFigureIdOnBoard);
 
                 isWaiting = true;
-                while(isWaiting == true)
+                while (isWaiting == true)
                 {
                     yield return null;
                 }
@@ -1129,6 +1146,10 @@ public class BoardController : MonoBehaviourPunCallbacks
             restTurn--;
             SetTurnCustomProperty();
 
+            currentFigure.transform.Find("FigureBack1").GetComponent<SpriteRenderer>().color = Color.white;
+
+            // カスタムプロパティ更新のとこに移動
+            /*
             // ウェイトが付いているフィギュアのウェイトを更新
             // ウェイト0になったらウェイトカウンターの描画を終了する
             for (int i = 0; i < 2; i++)
@@ -1142,7 +1163,7 @@ public class BoardController : MonoBehaviourPunCallbacks
                     }
                 }
             }
-
+            */
             turnEndButton.SetActive(false);
             // Debug.Log("プレイヤー" + turnNumber + "のターンです");
 
@@ -1150,19 +1171,20 @@ public class BoardController : MonoBehaviourPunCallbacks
         else if (phaseState == PhaseState.GameEnd)
         {
             // もう少し真面目にかけ
-            // 実際はどっかのタイミングで全部のフィギュアの位置調べて相手のゴールにいればなんちゃらみたいな感じかなあ知らんけど
-            gameEndText.SetActive(true);
-            gameEndText.GetComponent<TextMeshProUGUI>().text = "PLAYER" + currentFigure.GetComponent<FigureParameter>().GetPlayerId() + " WIN!";
+            // 実際はどっかのタイミングで全部のフィギュアの位置調べて相手のゴールにいればなんちゃらみたいな感じかな
+            photonView.RPC(GAME_END_RPC, RpcTarget.All);
         }
         else if (phaseState == PhaseState.Forfeit)
         {
-            gameEndText.SetActive(true);
-            gameEndText.GetComponent<TextMeshProUGUI>().text = "PLAYER" + (whichTurn + 1) % 2 + " WIN!";
+            photonView.RPC(FORFEIT_RPC, RpcTarget.All);
         }
 
         else if (phaseState == PhaseState.Lock)
         {
             restTurnText.GetComponent<TextMeshProUGUI>().text = restTurn.ToString();
+            playerTurnText.GetComponent<TextMeshProUGUI>().color = Color.red * new Color(1, 1, 1, 0);
+            playerTurnText.GetComponent<TextMeshProUGUI>().text = "OPPONENT TURN";
+            yield return FadeInOut(playerTurnText, 0.5f);
         }
         else
         {
@@ -1275,7 +1297,7 @@ public class BoardController : MonoBehaviourPunCallbacks
         Debug.Log("ターン情報変更送信");
         PhotonNetwork.CurrentRoom.SetCustomProperties(roomHash);
     }
-    
+
     public void SetWaitFlagCustomProperty(bool _flag)
     {
         var roomHash = new ExitGames.Client.Photon.Hashtable();
@@ -1289,7 +1311,7 @@ public class BoardController : MonoBehaviourPunCallbacks
     {
         var roomHash = new ExitGames.Client.Photon.Hashtable();
         // currentFigureをPlayerIdとFigureIdOnBoardを介して共有
-        if(currentFigure != null)
+        if (currentFigure != null)
         {
             roomHash.Add(CURRENT_FIGURE_PLAYER_ID, currentFigure.GetComponent<FigureParameter>().GetPlayerId());
             roomHash.Add(CURRENT_FIGURE_ID_ON_BOARD, currentFigure.GetComponent<FigureParameter>().GetFigureIdOnBoard());
@@ -1334,7 +1356,7 @@ public class BoardController : MonoBehaviourPunCallbacks
     {
         var roomHash = new ExitGames.Client.Photon.Hashtable();
         // 回転の終点を共有
-        if(_senderId == 0)
+        if (_senderId == 0)
         {
             roomHash.Add(GOAL_ANGLE_0, _goalAngle);
         }
@@ -1368,6 +1390,21 @@ public class BoardController : MonoBehaviourPunCallbacks
             if (changedRoomHash.TryGetValue(REST_TURN, out value))
             {
                 restTurn = (int)value;
+
+                // ウェイトが付いているフィギュアのウェイトを更新
+                // ウェイト0になったらウェイトカウンターの描画を終了する
+                for (int i = 0; i < 2; i++)
+                {
+                    List<GameObject> deck = figures[i];
+                    foreach (GameObject figure in deck)
+                    {
+                        if (figure.GetComponent<FigureParameter>().GetWaitCount() >= 1)
+                        {
+                            figure.GetComponent<FigureParameter>().DecreaseWaitCount();
+                        }
+                    }
+                }
+
                 if (myPlayerId == whichTurn)
                 {
                     StartCoroutine(SetPhaseState(PhaseState.TurnStart));
@@ -1381,7 +1418,7 @@ public class BoardController : MonoBehaviourPunCallbacks
 
         {
             object value = null;
-            if(changedRoomHash.TryGetValue(IS_WAITING, out value))
+            if (changedRoomHash.TryGetValue(IS_WAITING, out value))
             {
                 isWaiting = (bool)value;
             }
@@ -1390,10 +1427,10 @@ public class BoardController : MonoBehaviourPunCallbacks
         {
             object value0 = null;
             object value1 = null;
-            if(changedRoomHash.TryGetValue(CURRENT_FIGURE_PLAYER_ID, out value0) &&
+            if (changedRoomHash.TryGetValue(CURRENT_FIGURE_PLAYER_ID, out value0) &&
                changedRoomHash.TryGetValue(CURRENT_FIGURE_ID_ON_BOARD, out value1))
             {
-                if((int)value0 == -1 && (int)value1 == -1)
+                if ((int)value0 == -1 && (int)value1 == -1)
                 {
                     currentFigure = null;
                 }
@@ -1403,13 +1440,13 @@ public class BoardController : MonoBehaviourPunCallbacks
                 }
                 Debug.Log("currentFigureは" + currentFigure);
             }
-            
+
             // UIの非表示
             //turnEndButton.SetActive(false);
 
             // UIカット
             //restTurnText.GetComponent<TextMeshProUGUI>().enabled = false;
-            
+
         }
         // opponentFigure
         {
@@ -1463,6 +1500,7 @@ public class BoardController : MonoBehaviourPunCallbacks
     /****************************************************************/
 
     // UIのフェードイン/フェードアウト
+    [PunRPC]
     IEnumerator FadeInOut(GameObject _text, float _fadetime)
     {
         float a = 0f;
@@ -1523,7 +1561,7 @@ public class BoardController : MonoBehaviourPunCallbacks
         arrow.SetActive(_flag);
 
         // データディスクの親要素
-        for(int i = 0; i < NUMBER_OF_PLAYERS; i++)
+        for (int i = 0; i < NUMBER_OF_PLAYERS; i++)
         {
             RouletteParentPlayer[i].SetActive(_flag);
         }
@@ -1538,6 +1576,37 @@ public class BoardController : MonoBehaviourPunCallbacks
         for (int i = 0; i < NUMBER_OF_FIELD_NODES; i++)
         {
             nodes.transform.GetChild(i).GetComponent<SpriteRenderer>().color = Color.white;
+        }
+    }
+
+    [PunRPC]
+    private void GameEndRPC()
+    {
+        gameEndText.SetActive(true);
+        if (myPlayerId == whichTurn)
+        {
+            gameEndText.GetComponent<TextMeshProUGUI>().color = Color.yellow;
+            gameEndText.GetComponent<TextMeshProUGUI>().text = "YOU WIN!";
+        }
+        else
+        {
+            gameEndText.GetComponent<TextMeshProUGUI>().color = Color.blue;
+            gameEndText.GetComponent<TextMeshProUGUI>().text = "YOU LOSE!";
+        }
+    }
+    [PunRPC]
+    private void ForfeitRPC()
+    {
+        gameEndText.SetActive(true);
+        if (myPlayerId == whichTurn)
+        {
+            gameEndText.GetComponent<TextMeshProUGUI>().color = Color.blue;
+            gameEndText.GetComponent<TextMeshProUGUI>().text = "YOU LOSE!";
+        }
+        else
+        {
+            gameEndText.GetComponent<TextMeshProUGUI>().color = Color.yellow;
+            gameEndText.GetComponent<TextMeshProUGUI>().text = "YOU WIN!";
         }
     }
 
@@ -1607,6 +1676,11 @@ public class BoardController : MonoBehaviourPunCallbacks
     [PunRPC] private void SendFlagToSpinController()
     {
         spinMaster.GetComponent<SpinController>().SetReceiveFlag(true);
+    }
+
+    [PunRPC] private void SetWaitCounterRPC(int _playerId, int _figureIdOnBoard, int _waitCount)
+    {
+        figures[_playerId][_figureIdOnBoard].GetComponent<FigureParameter>().SetWaitCount(_waitCount);
     }
 
     [PunRPC] private void Test()

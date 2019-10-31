@@ -44,7 +44,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     private void Start()
     {
         DontDestroyOnLoad(gameObject);
-        Screen.SetResolution(540,960, false, 60);
+        //Screen.SetResolution(540,960, false, 60);
 
         // シーンの読み込みコールバックを登録.
         SceneManager.sceneLoaded += OnLoadedScene;

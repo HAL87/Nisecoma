@@ -36,7 +36,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     private const string IS_WAITING = "isWaiting";
     // 
     [SerializeField] private GameObject CreateAndJoinButton;
-    private Hashtable roomHash = new Hashtable();
 
     /////////////////////////////////////////////////////////////////////////////////////
     // Awake & Start ////////////////////////////////////////////////////////////////////
@@ -61,10 +60,11 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     // CreateAndJoinButtonが押されたときの処理
     // Assets: LobbyScene\Canvas\CreateAndJoinButton
+    
     public void CreateAndJoinRoom()
     {
         /* ルームオプションの設定 */
-
+        
         // RoomOptionsのインスタンスを生成
         RoomOptions roomOptions = new RoomOptions
         {
@@ -78,7 +78,8 @@ public class NetworkManager : MonoBehaviourPunCallbacks
             // ロビーのルーム一覧にこのルームが表示されるか否か
             IsVisible = true
         };
-        
+
+        Hashtable roomHash = new Hashtable();
         roomHash.Add(WHICH_TURN, 0);
         roomHash.Add(REST_TURN, 300);
 
@@ -97,16 +98,56 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         PhotonNetwork.JoinOrCreateRoom("room", roomOptions, TypedLobby.Default);
 
     }
-
-    public void OnLoadedScene(Scene _scene, LoadSceneMode _mode)
+    /*
+    public void CreateRoom(string roomName, string password)
     {
-        if(_scene.name == BOARD_SCENE_NAME)
-        {
-            //登録していたデッキ内のフィギュアを生成、プレイヤーIDを渡す
-            //配置はBoardControllerに任せる
-        }
-    }
+        string roomNameStr = roomName;
+        if (!string.IsNullOrEmpty(password)) roomNameStr += "_" + password;
 
+        // ルームオプションの設定               
+        RoomOptions roomOptions = new RoomOptions
+        {
+            // ルームに入室できる最大人数。
+            MaxPlayers = 2,
+
+            // ルームへの入室を許可するか否か
+            IsOpen = true,
+
+            // ロビーのルーム一覧にこのルームが表示されるか否か
+            IsVisible = true
+        };
+
+        // カスタムプロパティの設定
+        Hashtable roomHash = new Hashtable();
+
+        roomHash.Add(WHICH_TURN, 0);
+        roomHash.Add(REST_TURN, 300);
+
+        roomHash.Add(CURRENT_FIGURE_PLAYER_ID, -1);
+        roomHash.Add(CURRENT_FIGURE_ID_ON_BOARD, -1);
+
+        roomHash.Add(OPPONENT_FIGURE_PLAYER_ID, -1);
+        roomHash.Add(OPPONENT_FIGURE_ID_ON_BOARD, -1);
+
+        roomHash.Add(GOAL_ANGLE_0, -1);
+        roomHash.Add(GOAL_ANGLE_1, -1);
+
+        roomHash.Add(IS_WAITING, true);
+        roomOptions.CustomRoomProperties = roomHash;
+
+        // ルームを作成
+        PhotonNetwork.CreateRoom(roomNameStr,roomOptions, null);
+                    
+    }
+    */
+            public void OnLoadedScene(Scene _scene, LoadSceneMode _mode)
+            {
+                if(_scene.name == BOARD_SCENE_NAME)
+                {
+                    //登録していたデッキ内のフィギュアを生成、プレイヤーIDを渡す
+                    //配置はBoardControllerに任せる
+                }
+            }
     /////////////////////////////////////////////////////////////////////////////////////
     // Pun Callbacks ////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////
@@ -134,14 +175,21 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         SceneManager.LoadScene(BOARD_SCENE_NAME);
     }
 
-
-    public Hashtable GetRoomHash()
+    public void OnPhotonCreateRoomFailed()
     {
-        return roomHash;
+        Debug.Log("OnPhotonCreateRoomFailed got called. This can happen if the room exists (even if not visible). Try another room name.");
     }
-    private void Update()
-    {
 
+    public void OnPhotonRandomJoinFailed()
+    {
+        Debug.Log("OnPhotonRandomJoinFailed got called. Happens if no room is available (or all full or invisible or closed). JoinrRandom filter-options can limit available rooms.");
     }
+
+    // ルームリストに更新があった時
+    public override void OnRoomListUpdate(List<RoomInfo> roomList)
+    {
+        Debug.Log("OnRoomListUpdate");
+    }
+
 }
 

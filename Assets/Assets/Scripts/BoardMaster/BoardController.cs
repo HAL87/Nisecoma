@@ -72,13 +72,23 @@ public class BoardController : MonoBehaviourPunCallbacks
 
     private const string IS_WAITING = "isWaiting";
 
+    private const string AFFECT_MOVE_AWAKE = "affectMoveAwake";
+    private const string BE_AFFECTED_MOVE_AWAKE = "beAffectedMoveAwake";
+    private const string AFFECT_DEATH = "affectDeath";
+    private const string BE_AFFECTED_DEATH = "beAffectedDeath";
+    private const string AFFECT_MOVE_ID = "affectMoveId";
+    private const string BE_AFFECTED_MOVE_ID = "beAffectedMoveId";
+
+    private const string PHASE_STATE = "phaseState";
+
     // RPC用関数名
 
-    private const string ON_BATTLE_START = "OnBattleStart";
+    private const string ON_BATTLE_START = "OnBattleStart"; 
     private const string ON_BATTLE_END = "OnBattleEnd";
     private const string DEATH_RPC = "DeathRPC";
     private const string SEND_FLAG_TO_SPIN_CONTROLLER = "SendFlagToSpinController";
     public readonly string FIGURE_ONE_STEP_WALK_RPC = "FigureOneStepWalkRPC";
+    public readonly string SET_PHASE_STATE_SIMPLE_RPC = "SetPhaseStateSimpleRPC";
 
     /****************************************************************/
     /*                          メンバ変数宣言                      */
@@ -180,12 +190,16 @@ public class BoardController : MonoBehaviourPunCallbacks
         TurnEnd,
         GameEnd, 
         Forfeit, 
-        Lock
+        Lock, 
+        MoveEffectInput, 
+        MoveEffectFigureSelected
     };
     private PhaseState phaseState;
 
     MoveList moveList;
 
+    // MoveEffectInput状態などで参照する技と技を出したフィギュア情報
+    private (int, int) InterestedMoveEffect;
 
     /***************************************************************/
     /*                      プロトタイプ関数宣言                   */
@@ -759,7 +773,11 @@ public class BoardController : MonoBehaviourPunCallbacks
                 StartCoroutine(SetPhaseState(PhaseState.AfterWalk));
             }
             break;
+            case PhaseState.MoveEffectInput:
 
+                break;
+            case PhaseState.MoveEffectFigureSelected:
+                break;
         default:
             break;
         }
@@ -770,50 +788,71 @@ public class BoardController : MonoBehaviourPunCallbacks
     // FigureSelect状態でcandidates内のノードがクリックされたら、選択中のフィギュアに経路情報を渡す
     public IEnumerator NodeClicked(int _nodeId)
     {
+        Debug.Log("phaseState = " + phaseState);
         // 状態チェック
-        if (phaseState != PhaseState.FigureSelected)
+        switch (phaseState)
         {
-            yield break;
-        }
-
-        // 選択フィギュアの所有権チェック
-        if (currentFigure.GetComponent<FigureParameter>().GetPlayerId() != whichTurn)
-        {
-
-            Debug.Log("Current Player ID = " + currentFigure.GetComponent<FigureParameter>().GetPlayerId() + ", turnNumber = " + whichTurn);
-
-            yield break;
-        }
-
-        // ウェイトチェック
-        if (currentFigure.GetComponent<FigureParameter>().GetWaitCount() >= 1)
-        {
-            yield break;
-        }
-
-        // MP移動先候補とクリックされたノードIDが一致したらWalking状態に遷移して移動を行い、
-        // その後AfterWalk状態に遷移する
-        for (int i = 0; i < walkCandidates.Count; i++)
-        {
-            if (_nodeId == walkCandidates[i])
+        case PhaseState.FigureSelected:
+            // 選択フィギュアの所有権チェック
+            if (currentFigure.GetComponent<FigureParameter>().GetPlayerId() != whichTurn)
             {
-                StartCoroutine(SetPhaseState(PhaseState.Walking));
-                // ここの引数のprevNodeはFigureSelectedが呼ばれたときに格納されているよ
 
-                Stack<int> route = DecideRoute(_nodeId, prevNode);
-                if (currentFigure.GetComponent<FigureParameter>().GetPosition() >= NUMBER_OF_FIELD_NODES)
-                {
-                    route.Pop();
-                    yield return StartCoroutine(currentFigure.GetComponent<FigureController>().FigureOneStepWalk(route.Peek()));
-                }
+                Debug.Log("Current Player ID = " + currentFigure.GetComponent<FigureParameter>().GetPlayerId() + ", turnNumber = " + whichTurn);
 
-                if (route.Count >= 2)
-                {
-                    yield return StartCoroutine(currentFigure.GetComponent<FigureController>().Figurewalk(route));
-                }
-                StartCoroutine(SetPhaseState(PhaseState.AfterWalk));
+                yield break;
             }
+
+            // ウェイトチェック
+            if (currentFigure.GetComponent<FigureParameter>().GetWaitCount() >= 1)
+            {
+                yield break;
+            }
+
+            // MP移動先候補とクリックされたノードIDが一致したらWalking状態に遷移して移動を行い、
+            // その後AfterWalk状態に遷移する
+            for (int i = 0; i < walkCandidates.Count; i++)
+            {
+                if (_nodeId == walkCandidates[i])
+                {
+                    StartCoroutine(SetPhaseState(PhaseState.Walking));
+                    // ここの引数のprevNodeはFigureSelectedが呼ばれたときに格納されているよ
+
+                    Stack<int> route = DecideRoute(_nodeId, prevNode);
+                    if (currentFigure.GetComponent<FigureParameter>().GetPosition() >= NUMBER_OF_FIELD_NODES)
+                    {
+                        route.Pop();
+                        yield return StartCoroutine(currentFigure.GetComponent<FigureController>().FigureOneStepWalk(route.Peek()));
+                    }
+
+                    if (route.Count >= 2)
+                    {
+                        yield return StartCoroutine(currentFigure.GetComponent<FigureController>().Figurewalk(route));
+                    }
+                    StartCoroutine(SetPhaseState(PhaseState.AfterWalk));
+                }
+            }
+            break;
+
+        case PhaseState.MoveEffectInput:
+            var roomHash = new ExitGames.Client.Photon.Hashtable();
+            object currentMoveId;
+            //object nodeId = _nodeId;
+            roomHash.TryGetValue(AFFECT_MOVE_ID, out currentMoveId);
+            //Debug.Log("currentMoveID = " + (int)currentMoveId);
+            Debug.Log("nodeId = " + _nodeId);
+            Debug.Log("playerId = " + currentFigure.GetComponent<FigureParameter>().GetPlayerId());
+            yield return moveList.CallMoveEffect(1, currentFigure.GetComponent<FigureParameter>().GetPlayerId(), _nodeId);
+            //StartCoroutine(SetPhaseState(PhaseState.TurnEnd));
+            break;
+
+        case PhaseState.MoveEffectFigureSelected:
+            break;
+
+        default:
+            break;
         }
+
+        
 
         yield break;
     }
@@ -1090,11 +1129,11 @@ public class BoardController : MonoBehaviourPunCallbacks
             Debug.Log("boardで" + BattleResult);
             if(currentMoveAwake)
             {
-                yield return moveList.CallMoveEffect(currentMoveId, currentFigure.GetComponent<FigureParameter>().GetPlayerId());
+                yield return moveList.CallMoveEffect(currentMoveId, currentFigure.GetComponent<FigureParameter>().GetPlayerId(), null);
             }
             if (opponentMoveAwake)
             {
-                yield return moveList.CallMoveEffect(opponentMoveId, opponentFigure.GetComponent<FigureParameter>().GetPlayerId());
+                yield return moveList.CallMoveEffect(opponentMoveId, opponentFigure.GetComponent<FigureParameter>().GetPlayerId(), null);
             }
             if (currentDeath)
             {
@@ -1118,8 +1157,22 @@ public class BoardController : MonoBehaviourPunCallbacks
                 }
                 SetWaitFlagCustomProperty(true);
             }
-            Debug.Log("死んだ処理終わった");
-            StartCoroutine(SetPhaseState(PhaseState.TurnEnd));
+
+            // MoveEffectInput or MoveEffectFigureSelected 以外ならターンエンド
+            if (phaseState == PhaseState.AfterBattle)
+            {
+                Debug.Log("死んだ処理終わった");
+                StartCoroutine(SetPhaseState(PhaseState.TurnEnd));
+            }
+                
+        }
+        else if(phaseState == PhaseState.MoveEffectInput)
+        {
+            // 今の所処理なし
+        }
+        else if(phaseState == PhaseState.MoveEffectFigureSelected)
+        {
+            // 今の所処理なし
         }
         else if (phaseState == PhaseState.TurnEnd)
         {
@@ -1169,6 +1222,18 @@ public class BoardController : MonoBehaviourPunCallbacks
             yield return null;
         }
         // yield return null;
+    }
+
+    public void SetPhaseStateSimple(PhaseState _phaseState)
+    {
+        Debug.Log("phaseState = " + _phaseState);
+        phaseState = _phaseState;
+    }
+
+    [PunRPC]
+    public void SetPhaseStateSimpleRPC(int _phaseState)
+    {
+        SetPhaseStateSimple((PhaseState)_phaseState);
     }
 
     // ゲームの状態変数のゲッター
@@ -1356,6 +1421,39 @@ public class BoardController : MonoBehaviourPunCallbacks
         PhotonNetwork.CurrentRoom.SetCustomProperties(roomHash);
     }
 
+    // 各側で技効果を呼んだり呼ばなかったりするための共有
+    public void SetBattleResultCustomProperty(bool currentMoveAwake, bool opponentMoveAwake, bool currentDeath, bool oppnentDeath, int currentMoveId, int opponentMoveId)
+    {
+        var roomHash = new ExitGames.Client.Photon.Hashtable();
+
+        roomHash.Add(BE_AFFECTED_DEATH, currentDeath);
+        roomHash.Add(AFFECT_MOVE_AWAKE, opponentMoveAwake);
+        roomHash.Add(AFFECT_DEATH, oppnentDeath);
+        roomHash.Add(AFFECT_MOVE_ID, opponentMoveId);
+        PhotonNetwork.CurrentRoom.SetCustomProperties(roomHash);
+    }
+
+    // phaseStateを変更する
+    public void SetPhaseStateCustomProperty(int _phaseState)
+    {
+        var roomHash = new ExitGames.Client.Photon.Hashtable();
+
+        roomHash.Add(PHASE_STATE, _phaseState);
+        PhotonNetwork.CurrentRoom.SetCustomProperties(roomHash);
+    }
+
+    // InterestedMofeEffectを共有
+    public void SetInterestedMoveEffectCustomProperty(int _playerId, int _moveId)
+    {
+        InterestedMoveEffect.Item1 = _playerId;
+        InterestedMoveEffect.Item2 = _moveId;
+
+        var roomHash = new ExitGames.Client.Photon.Hashtable();
+
+        roomHash.Add(PHASE_STATE, _playerId);
+        PhotonNetwork.CurrentRoom.SetCustomProperties(roomHash);
+    }
+
 
     // カスタムプロパティに変更があった場合呼ばれるコールバック関数
     public override void OnRoomPropertiesUpdate(ExitGames.Client.Photon.Hashtable changedRoomHash)
@@ -1464,6 +1562,56 @@ public class BoardController : MonoBehaviourPunCallbacks
 
         }
 
+        // phaseState
+        {
+            object value = null;
+            if (changedRoomHash.TryGetValue(PHASE_STATE, out value))
+            {
+                Debug.Log("unchi");
+                SetPhaseStateSimple((PhaseState)value);
+            }
+        }
+
+        // BattleState
+        // 処理未記述
+        {
+            object affectMoveAwake = null;
+            object beAffectedMoveAwake = null;
+            object affectDeath = null;
+            object beAffectedDeath = null;
+            object affectMoveId = null;
+            object beAffectedMoveId = null;
+
+            if (changedRoomHash.TryGetValue(AFFECT_MOVE_AWAKE, out affectMoveAwake))
+            {
+                
+            }
+
+            if (changedRoomHash.TryGetValue(BE_AFFECTED_MOVE_AWAKE, out beAffectedMoveAwake))
+            {
+                
+            }
+
+            if (changedRoomHash.TryGetValue(AFFECT_DEATH, out affectDeath))
+            {
+                
+            }
+
+            if (changedRoomHash.TryGetValue(BE_AFFECTED_DEATH, out beAffectedDeath))
+            {
+                
+            }
+
+            if (changedRoomHash.TryGetValue(AFFECT_MOVE_ID, out affectMoveId))
+            {
+                
+            }
+
+            if (changedRoomHash.TryGetValue(BE_AFFECTED_MOVE_ID, out beAffectedMoveId))
+            {
+                
+            }
+        }
     }
 
     /****************************************************************/
@@ -1611,6 +1759,11 @@ public class BoardController : MonoBehaviourPunCallbacks
     public List<int>[] GetEdges()
     {
         return edges;
+    }
+
+    public GameObject GetNodes()
+    {
+        return nodes;
     }
 
     /****************************************************************/

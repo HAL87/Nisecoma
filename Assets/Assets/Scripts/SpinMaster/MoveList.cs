@@ -10,7 +10,7 @@ public class MoveList : MonoBehaviourPunCallbacks
     BoardController boardController;
 
     // playerId: 技を出しているフィギュアの所持プレイヤーのID
-    public delegate IEnumerator coroutineFincType(int playerId);
+    public delegate IEnumerator coroutineFincType(int playerId, object arg);
 
     public struct MoveEffect
     {
@@ -41,10 +41,10 @@ public class MoveList : MonoBehaviourPunCallbacks
     }
 
     // moveIdの関数を呼び出す
-    public IEnumerator CallMoveEffect(int moveId, int playerId)
+    public IEnumerator CallMoveEffect(int moveId, int playerId, object arg)
     {
         //moveEffects[moveId]();
-        yield return StartCoroutine(moveEffects[moveId](playerId));
+        yield return StartCoroutine(moveEffects[moveId](playerId, arg));
     }
     [PunRPC]
     public void FigureOneStepWalkRPC(int _targetNode, int _playerId, int _figureIdOnBoard)
@@ -88,7 +88,7 @@ public class MoveList : MonoBehaviourPunCallbacks
 
     // moveId = 0
     // 追加効果なし
-    public IEnumerator NonEffect(int playerId)
+    public IEnumerator NonEffect(int playerId, object arg)
     {
         Debug.Log("追加効果なし");
         yield break;
@@ -96,62 +96,125 @@ public class MoveList : MonoBehaviourPunCallbacks
 
     // moveId = 1
     // とぶ
-    public IEnumerator FlyAway(int playerId)
+    public IEnumerator FlyAway(int playerId, object _nodeId)
     {
         GameObject currentFigure = boardController.GetCurrentFigure();  // 手番側(動くフィギュアが手番側なのかどうかで移動の関数が異なる)
+        GameObject opponrntFigure = boardController.GetOpponentFigure();
         GameObject affectFigure;                                        // 飛ぶを出した側(実際に動くフィギュア)
         GameObject beAffectedFigure;                                    // 飛ぶを出された側(飛ぶ先の候補地探索に必要)
+        List<int> landingCandidates;
+        BoardController.PhaseState phaseState = boardController.GetPhaseState();
 
-        // AfterBattle状態以外では何も行わない
-        if (boardController.GetPhaseState() != BoardController.PhaseState.AfterBattle)
-        {
-            Debug.Log("飛びません");
-            yield break;
-        }
+        
 
-        Debug.Log("飛びます");
-        // 技を出したのが手番側に対してどちらなのかによってそれぞれ初期化
-        if (playerId == currentFigure.GetComponent<FigureParameter>().GetPlayerId())
+        switch (phaseState)
         {
-            affectFigure = boardController.GetCurrentFigure();
-            beAffectedFigure = boardController.GetOpponentFigure();
-        }
-        else
-        {
-            affectFigure = boardController.GetOpponentFigure();
-            beAffectedFigure = boardController.GetCurrentFigure();
-        }
-
-        // 着陸候補地
-        List<int> landingCandidates = boardController.GetEdges()[beAffectedFigure.GetComponent<FigureParameter>().GetPosition()];
-        foreach(int landing in landingCandidates)
-        {
-            // landing == 着陸可能地
-            if (boardController.GetFigureOnBoard(landing) == null)
+        case BoardController.PhaseState.AfterBattle:
+            // current(バトルを仕掛けた側)ならcurrent側をMoveEffectInputにする
+            // opponentならopponent側をMoveEffectInput、currentはwhileループで待ち合わせする
+            if (playerId == currentFigure.GetComponent<FigureParameter>().GetPlayerId())
             {
-                // 手番側の移動
-                if(playerId == currentFigure.GetComponent<FigureParameter>().GetPlayerId())
+                beAffectedFigure = boardController.GetOpponentFigure();
+                // 着陸候補地
+                landingCandidates = boardController.GetEdges()[beAffectedFigure.GetComponent<FigureParameter>().GetPosition()];
+                bool isAbleToFlyAway = false;
+                foreach(int node in landingCandidates)
+                {
+                    if(boardController.GetFigureOnBoard(node) == null)
+                    {
+                        // 色付け
+                        isAbleToFlyAway = true;
+                        //boardController.GetNodes().transform.GetChild(node).GetComponent<SpriteRenderer>().color = Color.magenta;
+                    }
+                }
+                // 1個もなかったらyield break;
+                if(isAbleToFlyAway == false)
+                {
+                    yield break;
+                }
+                boardController.SetPhaseStateSimple(BoardController.PhaseState.MoveEffectInput);
+            }
+            else
+            {
+                beAffectedFigure = boardController.GetCurrentFigure();
+                // 着陸候補地
+                landingCandidates = boardController.GetEdges()[beAffectedFigure.GetComponent<FigureParameter>().GetPosition()];
+                bool isAbleToFlyAway = false;
+                foreach(int node in landingCandidates)
+                {
+                    if(boardController.GetFigureOnBoard(node) == null)
+                    {
+                        // 色付け(相手の端末)
+                        isAbleToFlyAway = true;
+                    }
+                }
+                // 1個もなかったらyield break;
+                if(isAbleToFlyAway == false)
+                {
+                    yield break;
+                }
+                boardController.SetPhaseStateSimple(BoardController.PhaseState.Lock);
+                photonView.RPC(boardController.SET_PHASE_STATE_SIMPLE_RPC, RpcTarget.Others, (int)BoardController.PhaseState.MoveEffectInput);
+                boardController.SetWaitFlag(true);
+                while (boardController.GetWaitFlagCustomProperty() == true)
+                {
+                    yield return null;
+                }
+                boardController.SetWaitFlag(true);
+                StartCoroutine(boardController.SetPhaseState(BoardController.PhaseState.TurnEnd));
+            }
+            break;
+
+        case BoardController.PhaseState.MoveEffectInput:
+            Debug.Log("飛びます");
+            // 技出したらphaseStateとflagを戻す
+            // 技を出したのが手番側に対してどちらなのかによってそれぞれ初期化
+            // 技を出した側の識別にmyPlayerIdを用いているが、先行後攻がランダムになりplayerIdとwhichTurnが一致しなくなったら通用しない
+            if (boardController.GetMyPlayerId() == boardController.GetWhichTurn())
+            {
+                affectFigure = boardController.GetCurrentFigure();
+                beAffectedFigure = boardController.GetOpponentFigure();
+            }
+            else
+            {
+                affectFigure = boardController.GetOpponentFigure();
+                beAffectedFigure = boardController.GetCurrentFigure();
+            }
+
+            // 着陸候補地
+            landingCandidates = boardController.GetEdges()[beAffectedFigure.GetComponent<FigureParameter>().GetPosition()];
+            foreach(int landing in landingCandidates)
+            {
+                // landing == 着陸可能地
+                if (landing == (int)_nodeId)
                 {
                     yield return affectFigure.GetComponent<FigureController>().FigureOneStepWalk(landing);
-                }
-                // 非手番側の移動
-                else
-                {
-                    int figureIdOnBoard = affectFigure.GetComponent<FigureParameter>().GetFigureIdOnBoard();
+                    boardController.SetWaitFlagCustomProperty(false);
 
-                    photonView.RPC(boardController.FIGURE_ONE_STEP_WALK_RPC, RpcTarget.Others, landing, playerId, figureIdOnBoard);
-
-                    boardController.SetWaitFlag(true);
-                    while (boardController.GetWaitFlagCustomProperty() == true)
+                    if (boardController.GetWhichTurn() != boardController.GetMyPlayerId())
                     {
-                        yield return null;
+                        boardController.SetPhaseStateSimpleRPC((int)BoardController.PhaseState.Lock);
                     }
-                    boardController.SetWaitFlag(true);
-                    Debug.Log("飛んだ");
+                    else
+                    {
+                        StartCoroutine(boardController.SetPhaseState(BoardController.PhaseState.TurnEnd));
+                    }
+                    break;
                 }
-                break;
             }
+            break;
+
+        case BoardController.PhaseState.MoveEffectFigureSelected:
+            // とぶでは何も行わない
+            break;
+
+        // 該当状態以外では何も行わない
+        default:
+            Debug.Log("飛びません");
+            break;
         }
+
+        
 
         yield break;
     }

@@ -102,6 +102,8 @@ public class BoardController : MonoBehaviourPunCallbacks
     [SerializeField] private GameObject gameEndText;
     [SerializeField] private GameObject turnEndButton;
     [SerializeField] private GameObject forfeitButton;
+    [SerializeField] private GameObject playerNameText;
+    [SerializeField] private GameObject opponentNameText;
 
     // スピン用のオブジェクト
     [SerializeField] private GameObject arrow;
@@ -259,6 +261,10 @@ public class BoardController : MonoBehaviourPunCallbacks
         {
             yield return null;
         }
+        playerNameText.GetComponent<Text>().text = PhotonNetwork.LocalPlayer.NickName;
+        playerNameText.SetActive(true);
+        opponentNameText.GetComponent<Text>().text = PhotonNetwork.PlayerListOthers[0].NickName;
+        opponentNameText.SetActive(true);
 
         // ここは本当は相手のフィギュアが現れたことを確認したら、に変える
         yield return new WaitForSeconds(1);
@@ -922,9 +928,9 @@ public class BoardController : MonoBehaviourPunCallbacks
         bool isSurrounded = IsSurrounded(figure);
         if (isSurrounded)
         {
-            int opponentFigurePlayerId = opponentFigure.GetComponent<FigureParameter>().GetPlayerId();
-            int opponentFigureIdOnBoard = opponentFigure.GetComponent<FigureParameter>().GetFigureIdOnBoard();
-            photonView.RPC(DEATH_RPC, RpcTarget.Others, opponentFigurePlayerId, opponentFigureIdOnBoard);
+            int surroundedFigurePlayerId = figure.GetComponent<FigureParameter>().GetPlayerId();
+            int surroundedFigureIdOnBoard = figure.GetComponent<FigureParameter>().GetFigureIdOnBoard();
+            photonView.RPC(DEATH_RPC, RpcTarget.Others, surroundedFigurePlayerId, surroundedFigureIdOnBoard);
 
             isWaiting = true;
             while (isWaiting == true)

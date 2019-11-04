@@ -20,6 +20,7 @@ public class LauncherScript : MonoBehaviourPunCallbacks
 
     private void Start()
     {
+        Debug.Log("Lancher起動");
         Screen.SetResolution(540, 960, false, 60);
         DontDestroyOnLoad(this);
         playerNameInputFieldScript = inputField.GetComponent<PlayerNameInputFieldScript>();
@@ -35,7 +36,7 @@ public class LauncherScript : MonoBehaviourPunCallbacks
             PhotonNetwork.ConnectUsingSettings();   //Photonに接続する
             Debug.Log("Photonに接続しました。");
             playerNameInputFieldScript.SetPlayerName();
-            SceneManager.LoadScene("LobbyScene2");    //Lobbyシーンに遷移
+            SceneManager.LoadScene("LobbyScene");    //Lobbyシーンに遷移
         }
     }
     #endregion

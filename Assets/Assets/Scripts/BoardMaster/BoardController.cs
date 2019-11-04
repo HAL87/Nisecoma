@@ -104,6 +104,12 @@ public class BoardController : MonoBehaviourPunCallbacks
     [SerializeField] private GameObject forfeitButton;
     [SerializeField] private GameObject playerNameText;
     [SerializeField] private GameObject opponentNameText;
+    [SerializeField] private GameObject informationText;
+
+    // システムUI
+    [SerializeField] private GameObject backToLobbyButton;
+    // [SerializeField] private GameObject exitGameButton;
+
 
     // スピン用のオブジェクト
     [SerializeField] private GameObject arrow;
@@ -256,11 +262,17 @@ public class BoardController : MonoBehaviourPunCallbacks
     // ゲーム開始
     IEnumerator GameStart()
     {
+        
         // 2人来るまで待機
         while (PhotonNetwork.PlayerList.Length < NUMBER_OF_PLAYERS)
         {
             yield return null;
         }
+
+        // 部屋を隠す
+        PhotonNetwork.CurrentRoom.IsOpen = false;
+        PhotonNetwork.CurrentRoom.IsVisible = false;
+
         playerNameText.GetComponent<Text>().text = PhotonNetwork.LocalPlayer.NickName;
         playerNameText.SetActive(true);
         opponentNameText.GetComponent<Text>().text = PhotonNetwork.PlayerListOthers[0].NickName;
@@ -710,6 +722,10 @@ public class BoardController : MonoBehaviourPunCallbacks
                     // 敵が攻撃範囲にいたとき
                     else
                     {
+                        if (currentFigure.GetComponent<FigureParameter>().GetPosition() >= 28)
+                        {
+                            return;
+                        }
                         opponentFigure = figures[_playerId][_figureIdOnBoard];
                         SetOpponentFigureCustomProperty();
 
@@ -762,6 +778,10 @@ public class BoardController : MonoBehaviourPunCallbacks
                     // 敵が攻撃範囲にいたとき
                     else
                     {
+                        if (currentFigure.GetComponent<FigureParameter>().GetPosition() >= 28)
+                        {
+                            return;
+                        }
                         opponentFigure = figures[_playerId][_figureIdOnBoard];
                         SetOpponentFigureCustomProperty();
 
@@ -1182,7 +1202,15 @@ public class BoardController : MonoBehaviourPunCallbacks
         }
         else if (phaseState == PhaseState.Forfeit)
         {
-            photonView.RPC(FORFEIT_RPC, RpcTarget.All);
+            // バグ修正のために今適当になってる
+            informationText.SetActive(true);
+            informationText.GetComponent<Text>().text = "投了ボタンが押されました";
+            gameEndText.SetActive(true);
+            gameEndText.GetComponent<TextMeshProUGUI>().color = Color.blue;
+            gameEndText.GetComponent<TextMeshProUGUI>().text = "YOU LOSE!";
+            backToLobbyButton.SetActive(true);
+            // exitGameButton.SetActive(true);
+            photonView.RPC(FORFEIT_RPC, RpcTarget.Others);
         }
 
         else if (phaseState == PhaseState.Lock)
@@ -1556,6 +1584,8 @@ public class BoardController : MonoBehaviourPunCallbacks
         turnEndButton.SetActive(_flag);
         restTurnText.GetComponent<TextMeshProUGUI>().enabled = _flag;
         forfeitButton.SetActive(_flag);
+        playerNameText.SetActive(_flag);
+        opponentNameText.SetActive(_flag);
 
 
     }
@@ -1599,21 +1629,21 @@ public class BoardController : MonoBehaviourPunCallbacks
             gameEndText.GetComponent<TextMeshProUGUI>().color = Color.blue;
             gameEndText.GetComponent<TextMeshProUGUI>().text = "YOU LOSE!";
         }
+        backToLobbyButton.SetActive(true);
+        // exitGameButton.SetActive(true);
     }
     [PunRPC]
     private void ForfeitRPC()
     {
-        gameEndText.SetActive(true);
-        if (myPlayerId == whichTurn)
-        {
-            gameEndText.GetComponent<TextMeshProUGUI>().color = Color.blue;
-            gameEndText.GetComponent<TextMeshProUGUI>().text = "YOU LOSE!";
-        }
-        else
-        {
-            gameEndText.GetComponent<TextMeshProUGUI>().color = Color.yellow;
-            gameEndText.GetComponent<TextMeshProUGUI>().text = "YOU WIN!";
-        }
+        // バグ修正のために今適当になってる
+        informationText.SetActive(true);
+        informationText.GetComponent<Text>().text = "投了ボタンが押されました";
+        gameEndText.SetActive(true);        
+        gameEndText.GetComponent<TextMeshProUGUI>().color = Color.yellow;
+        gameEndText.GetComponent<TextMeshProUGUI>().text = "YOU WIN!";
+        
+        backToLobbyButton.SetActive(true);
+        // exitGameButton.SetActive(true);
     }
 
     /****************************************************************/
@@ -1675,6 +1705,17 @@ public class BoardController : MonoBehaviourPunCallbacks
     }
 
     /****************************************************************/
+    /*      　　　　　　　Punコールバック   　　　　               */
+    /****************************************************************/
+    public override void OnPlayerLeftRoom(Player player)
+    {
+        Debug.Log(player.NickName + "が退出しました");
+        informationText.SetActive(true);
+        informationText.GetComponent<Text>().text = "相手が退出したためロビーに戻ります";
+        // StartCoroutine(SetPhaseState(PhaseState.Lock));
+        backToLobbyButton.SetActive(true);
+    }
+    /****************************************************************/
     /*      　　　　　　　　　　その他　　   　　　　               */
     /****************************************************************/
 
@@ -1689,8 +1730,5 @@ public class BoardController : MonoBehaviourPunCallbacks
         figures[_playerId][_figureIdOnBoard].GetComponent<FigureParameter>().SetWaitCount(_waitCount);
     }
 
-    [PunRPC] private void Test()
-    {
-        Debug.Log("届いたよ");
-    }
+
 }

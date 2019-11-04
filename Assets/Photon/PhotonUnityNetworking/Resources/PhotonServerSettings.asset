@@ -43,5 +43,14 @@ MonoBehaviour:
   - FigureOneStepWalkRPC
   - FigureOneStepWalk
   - SetWaitCount
+  - FadeInOut
+  - GameEndRPC
+  - ForfeitRPC
+  - SetWaitCount
+  - SetWaitCounterRPC
+  - FigureOneStepWalk
+  - SetPhaseStateSimpleRPC
+  - IllumintateNodeRPC
+  - IlluminateNodeRPC
   DisableAutoOpenWizard: 1
   ShowSettings: 1

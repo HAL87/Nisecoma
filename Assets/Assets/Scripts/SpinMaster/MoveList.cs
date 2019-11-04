@@ -124,7 +124,7 @@ public class MoveList : MonoBehaviourPunCallbacks
                     {
                         // 色付け
                         isAbleToFlyAway = true;
-                        //boardController.GetNodes().transform.GetChild(node).GetComponent<SpriteRenderer>().color = Color.magenta;
+                        boardController.GetNodes().transform.GetChild(node).GetComponent<SpriteRenderer>().color = Color.magenta;
                     }
                 }
                 // 1個もなかったらyield break;
@@ -145,6 +145,7 @@ public class MoveList : MonoBehaviourPunCallbacks
                     if(boardController.GetFigureOnBoard(node) == null)
                     {
                         // 色付け(相手の端末)
+                        photonView.RPC(boardController.ILLUMINATE_NODE_RPC, RpcTarget.Others, node, 1);
                         isAbleToFlyAway = true;
                     }
                 }
@@ -193,10 +194,18 @@ public class MoveList : MonoBehaviourPunCallbacks
 
                     if (boardController.GetWhichTurn() != boardController.GetMyPlayerId())
                     {
+                        foreach(int node in landingCandidates)
+                        {
+                            photonView.RPC(boardController.ILLUMINATE_NODE_RPC, RpcTarget.Others, node, 0);
+                        }
                         boardController.SetPhaseStateSimpleRPC((int)BoardController.PhaseState.Lock);
                     }
                     else
                     {
+                        foreach(int node in landingCandidates)
+                        {
+                            boardController.GetNodes().transform.GetChild(node).GetComponent<SpriteRenderer>().color = Color.white;
+                        }
                         StartCoroutine(boardController.SetPhaseState(BoardController.PhaseState.TurnEnd));
                     }
                     break;

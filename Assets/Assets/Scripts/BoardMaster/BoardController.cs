@@ -93,6 +93,7 @@ public class BoardController : MonoBehaviourPunCallbacks
     private const string SET_WAIT_COUNTER_RPC = "SetWaitCounterRPC";
     public readonly string FIGURE_ONE_STEP_WALK_RPC = "FigureOneStepWalkRPC";
     public readonly string SET_PHASE_STATE_SIMPLE_RPC = "SetPhaseStateSimpleRPC";
+    public readonly string ILLUMINATE_NODE_RPC = "IlluminateNodeRPC";
 
     /****************************************************************/
     /*                          メンバ変数宣言                      */
@@ -202,10 +203,7 @@ public class BoardController : MonoBehaviourPunCallbacks
         TurnEnd,
         GameEnd,
         Forfeit,
-        Lock
-        GameEnd, 
-        Forfeit, 
-        Lock, 
+        Lock,
         MoveEffectInput, 
         MoveEffectFigureSelected
     };
@@ -815,22 +813,12 @@ public class BoardController : MonoBehaviourPunCallbacks
                 {
                     // 情報表示だけ
                 }
-
                 // 遷移9番: ConfirmFigure→AfterWalk
                 else if (figures[_playerId][_figureIdOnBoard] == currentFigure)
                 {
                     StartCoroutine(SetPhaseState(PhaseState.AfterWalk));
                 }
                 break;
-
-            default:
-                break;
-            // 遷移9番: ConfirmFigure→AfterWalk
-            else if (figures[_playerId][_figureIdOnBoard] == currentFigure)
-            {
-                StartCoroutine(SetPhaseState(PhaseState.AfterWalk));
-            }
-            break;
             case PhaseState.MoveEffectInput:
 
                 break;
@@ -1309,6 +1297,20 @@ public class BoardController : MonoBehaviourPunCallbacks
     public PhaseState GetPhaseState()
     {
         return phaseState;
+    }
+
+    [PunRPC]
+    // ノードの色変更
+    public void IlluminateNodeRPC(int node, int color)
+    {
+        if(color == 1)
+        {
+            GetNodes().transform.GetChild(node).GetComponent<SpriteRenderer>().color = Color.magenta;
+        }
+        else if (color == 0)
+        {
+            GetNodes().transform.GetChild(node).GetComponent<SpriteRenderer>().color = Color.white;
+        }
     }
 
     /****************************************************************/

@@ -48,5 +48,7 @@ MonoBehaviour:
   - SetWaitCounterRPC
   - FigureOneStepWalk
   - SetPhaseStateSimpleRPC
+  - IllumintateNodeRPC
+  - IlluminateNodeRPC
   DisableAutoOpenWizard: 1
   ShowSettings: 1

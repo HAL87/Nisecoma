@@ -621,10 +621,10 @@ PlayerSettings:
   facebookXfbml: 0
   facebookFrictionlessRequests: 1
   apiCompatibilityLevel: 6
-  cloudProjectId: 5ef6ae5d-8713-446c-ae6e-c8fb266086df
+  cloudProjectId: 2c607a6b-c7b5-4eb0-ac91-74b5f7f99d4e
   framebufferDepthMemorylessMode: 0
   projectName: Nisecoma3D
-  organizationId: yong-nam
+  organizationId: hal_87
   cloudEnabled: 0
   enableNativePlatformBackendsForNewInputSystem: 0
   disableOldInputManagerSupport: 0

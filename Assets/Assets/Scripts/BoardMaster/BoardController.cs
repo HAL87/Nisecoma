@@ -15,7 +15,7 @@ using Photon.Realtime;
 
 public class BoardController : MonoBehaviourPunCallbacks
 {
-
+    private int test;
     /****************************************************************/
     /*                          定数宣言                            */
     /****************************************************************/

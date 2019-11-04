@@ -42,5 +42,6 @@ MonoBehaviour:
   - SendFlagToSpinController
   - FigureOneStepWalkRPC
   - FigureOneStepWalk
+  - SetWaitCount
   DisableAutoOpenWizard: 1
   ShowSettings: 1

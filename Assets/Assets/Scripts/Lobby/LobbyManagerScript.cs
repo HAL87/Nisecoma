@@ -24,7 +24,7 @@ public class LobbyManagerScript : MonoBehaviourPunCallbacks
     void Awake()
     {
         //ルーム内のクライアントがMasterClientと同じシーンをロードするように設定
-        PhotonNetwork.AutomaticallySyncScene = true;
+        // PhotonNetwork.AutomaticallySyncScene = true;
     }
 
     void Start()
@@ -37,21 +37,20 @@ public class LobbyManagerScript : MonoBehaviourPunCallbacks
     #region Public Methods
 
     //RoomElementを一括削除
-    public static void DestroyChildObject(Transform parent_trans)
+    public static void DestroyChildObject(Transform parentTransform)
     {
-        for (int i = 0; i < parent_trans.childCount; ++i)
+        for (int i = 0; i < parentTransform.childCount; ++i)
         {
-            GameObject.Destroy(parent_trans.GetChild(i).gameObject);
+            GameObject.Destroy(parentTransform.GetChild(i).gameObject);
         }
     }
     #endregion
 
     #region Photon.PunBehaviour CallBacks
 
-    //GetRoomListは一定時間ごとに更新され、その更新のタイミングで実行する処理
     public override void OnRoomListUpdate(List<RoomInfo> roomInfo)
     {
-        Debug.Log("更新");
+        Debug.Log("ルーム数は" + roomInfo.Count);
         DestroyChildObject(RoomParent.transform);
         //ルームが無ければreturn
         if (roomInfo == null || roomInfo.Count == 0) return;
@@ -90,6 +89,8 @@ public class LobbyManagerScript : MonoBehaviourPunCallbacks
     {
         //プレイヤーローカル変数初期化
         // LocalVariables.VariableReset();
+        PhotonNetwork.IsMessageQueueRunning = false;
+        SceneManager.LoadScene(BOARD_SCENE_NAME);
     }
     //ルーム作成時の処理(作成者しか実行されない)
     public override void OnCreatedRoom()

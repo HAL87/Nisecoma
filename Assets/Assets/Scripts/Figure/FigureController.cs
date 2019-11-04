@@ -68,6 +68,7 @@ public class FigureController : MonoBehaviour
     // 目的地まで一気に動くタイプ
     public IEnumerator FigureOneStepWalk(int _targetNode)
     {
+        Debug.Log("one step walk するよ");
         Vector3 targetPosition = nodesTransform.GetChild(_targetNode).position;
         while (Vector3.Distance(transform.position, targetPosition) > 0.1f)
         {
@@ -77,13 +78,10 @@ public class FigureController : MonoBehaviour
         }
         yield return new WaitForSeconds(0.2f);
         GetComponent<FigureParameter>().SetPosition(_targetNode);
+        boardController.SetWaitFlagCustomProperty(false);
+        Debug.Log("one step walk したよ");
     }
 
-    [PunRPC] public void FigureOneStepWalkRPC(int _targetNode)
-    {
-        StartCoroutine(FigureOneStepWalk(_targetNode));
-        boardController.SetWaitFlagCustomProperty(true);
-    }
 }
 
 

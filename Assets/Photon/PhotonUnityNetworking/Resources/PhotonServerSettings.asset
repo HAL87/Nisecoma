@@ -46,5 +46,7 @@ MonoBehaviour:
   - ForfeitRPC
   - SetWaitCount
   - SetWaitCounterRPC
+  - FigureOneStepWalk
+  - SetPhaseStateSimpleRPC
   DisableAutoOpenWizard: 1
   ShowSettings: 1

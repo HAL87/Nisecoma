@@ -5,34 +5,16 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
-  - enabled: 0
-    path: Assets/Assets/Scenes/GameScene.unity
-    guid: dc409f36f4fdf0c4596db4b54545771e
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
+  - enabled: 1
+    path: Assets/Assets/Scenes/LauncherScene.unity
+    guid: 92b8caa5ba48470408e6941bdb273c91
+  - enabled: 1
+    path: Assets/Assets/Scenes/BoardScene.unity
+    guid: 6baec6ffff48adb4faffcf5dd7e0750b
   - enabled: 1
     path: Assets/Assets/Scenes/LobbyScene.unity
     guid: b01d0e9c179c1f840ad167eec48aac33
   - enabled: 0
     path: 
     guid: 00000000000000000000000000000000
-  - enabled: 1
-    path: Assets/Assets/Scenes/TitleScene_2.unity
-    guid: a24850eeda57c0d4db96f09d21acf8a5
-  - enabled: 1
-    path: Assets/Assets/Scenes/BoardScene.unity
-    guid: 6baec6ffff48adb4faffcf5dd7e0750b
-  - enabled: 1
-    path: Assets/Assets/Scenes/SpinScene.unity
-    guid: 34eed99dfb865414285f004eaec9073e
   m_configObjects: {}

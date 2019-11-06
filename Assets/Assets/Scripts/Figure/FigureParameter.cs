@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Photon.Pun;
+using Photon.Realtime;
 
 public class FigureParameter : MonoBehaviourPunCallbacks, IPunObservable
 {
@@ -18,9 +19,13 @@ public class FigureParameter : MonoBehaviourPunCallbacks, IPunObservable
     private int benchId;
     private int position;
     private int waitCount = 0;  // ウェイト デフォルトは0
+
+    //フラグ
+    private bool beSurrounded = false;
     // mp
     public int GetMp()
     {
+        
         return mp;
     }
 
@@ -84,6 +89,7 @@ public class FigureParameter : MonoBehaviourPunCallbacks, IPunObservable
     }
     // ウェイトカウントをセットする
     // ウェイト1以上の場合はカウンターを表示する
+    [PunRPC]
     public void SetWaitCount(int _waitCount)
     {
         waitCount = _waitCount;
@@ -133,7 +139,6 @@ public class FigureParameter : MonoBehaviourPunCallbacks, IPunObservable
             position = (int)stream.ReceiveNext();
             SetPosition(position);
             //データの受信
-
         }
     }
 
@@ -146,5 +151,13 @@ public class FigureParameter : MonoBehaviourPunCallbacks, IPunObservable
     void Update()
     {
         
+    }
+    public void SetBeSurroundedFlag(bool _flag)
+    {
+        beSurrounded = _flag;
+    }
+    public bool GetBeSurroundedFlag()
+    {
+        return beSurrounded;
     }
 }

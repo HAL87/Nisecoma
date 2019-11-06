@@ -18,6 +18,8 @@ public class FigureController : MonoBehaviour
     private FigureParameter figureParameter;
     private BoardController boardController;
     private PhotonView photonview;
+
+    private const string SET_POSITION_RPC = "SetPositionRPC";
     // Use this for initialization
     void Start()
     {
@@ -43,6 +45,7 @@ public class FigureController : MonoBehaviour
     // routeに沿って1歩ずつ動く
     public IEnumerator Figurewalk(Stack<int> _route)
     {
+        Debug.Log("普通に歩く");
         int nextNode = -1;
         _route.Pop();
         // routeの残り数だけ繰り返す
@@ -62,7 +65,8 @@ public class FigureController : MonoBehaviour
             yield return new WaitForSeconds(0.2f);
         }
         // 目的地に着いたときだけPositionを更新
-        GetComponent<FigureParameter>().SetPosition(nextNode);
+        // GetComponent<FigureParameter>().SetPosition(nextNode);
+        photonview.RPC(SET_POSITION_RPC, RpcTarget.All, nextNode);
 
     }
     // 目的地まで一気に動くタイプ
@@ -77,9 +81,17 @@ public class FigureController : MonoBehaviour
             yield return null;
         }
         yield return new WaitForSeconds(0.2f);
-        GetComponent<FigureParameter>().SetPosition(_targetNode);
-        boardController.SetWaitFlagCustomProperty(false);
+        // 目的地に着いたらPositionを更新
+        // GetComponent<FigureParameter>().SetPosition(_targetNode);
+        photonview.RPC(SET_POSITION_RPC, RpcTarget.All, _targetNode);
+        // boardController.SetWaitFlagCustomProperty(false);
         Debug.Log("one step walk したよ");
+    }
+
+    [PunRPC]
+    private void SetPositionRPC(int _targetNode)
+    {
+        GetComponent<FigureParameter>().SetPosition(_targetNode);
     }
 
 }

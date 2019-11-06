@@ -189,7 +189,27 @@ public class MoveList : MonoBehaviourPunCallbacks
                 // landing == 着陸可能地
                 if (landing == (int)_nodeId)
                 {
+                    // 全フィギュアの包囲フラグを確認
                     yield return affectFigure.GetComponent<FigureController>().FigureOneStepWalk(landing);
+                    for (int i = 0; i < BoardController.NUMBER_OF_PLAYERS; i++)
+                    {
+                        foreach (GameObject figure in boardController.GetFigures()[i])
+                        {
+                            boardController.IsSurrounded(figure);
+                        }
+                    }
+                    // 包囲フラグあるフィギュアに対して包囲処理
+                    for (int i = 0; i < BoardController.NUMBER_OF_PLAYERS; i++)
+                    {
+                        foreach (GameObject figure in boardController.GetFigures()[i])
+                        {
+                            if (figure.GetComponent<FigureParameter>().GetBeSurroundedFlag() == true)
+                            {
+                                yield return boardController.KnockedOutBySurrounding(figure);
+                            }
+                        }
+                    }
+
                     boardController.SetWaitFlagCustomProperty(false);
 
                     if (boardController.GetWhichTurn() != boardController.GetMyPlayerId())

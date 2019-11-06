@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Photon.Pun;
+using Photon.Realtime;
 
 public class FigureParameter : MonoBehaviourPunCallbacks, IPunObservable
 {
@@ -18,6 +19,9 @@ public class FigureParameter : MonoBehaviourPunCallbacks, IPunObservable
     private int benchId;
     private int position;
     private int waitCount = 0;  // ウェイト デフォルトは0
+
+    //フラグ
+    private bool beSurrounded = false;
     // mp
     public int GetMp()
     {
@@ -147,5 +151,13 @@ public class FigureParameter : MonoBehaviourPunCallbacks, IPunObservable
     void Update()
     {
         
+    }
+    public void SetBeSurroundedFlag(bool _flag)
+    {
+        beSurrounded = _flag;
+    }
+    public bool GetBeSurroundedFlag()
+    {
+        return beSurrounded;
     }
 }

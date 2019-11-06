@@ -21,7 +21,7 @@ public class LauncherScript : MonoBehaviourPunCallbacks
     private void Start()
     {
         Debug.Log("Lancher起動");
-        Screen.SetResolution(432, 768, false, 60);
+        Screen.SetResolution(405, 720, false, 60);
         DontDestroyOnLoad(this);
         playerNameInputFieldScript = inputField.GetComponent<PlayerNameInputFieldScript>();
     }

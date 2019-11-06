@@ -50,5 +50,6 @@ MonoBehaviour:
   - SetPhaseStateSimpleRPC
   - IllumintateNodeRPC
   - IlluminateNodeRPC
+  - SetPositionRPC
   DisableAutoOpenWizard: 1
   ShowSettings: 1

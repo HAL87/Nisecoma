@@ -207,7 +207,8 @@ public class BoardController : MonoBehaviourPunCallbacks
         Forfeit,
         Lock,
         MoveEffectInput, 
-        MoveEffectFigureSelected
+        MoveEffectFigureSelected, 
+        AfterGameEnd
     };
     private PhaseState phaseState;
 
@@ -276,18 +277,23 @@ public class BoardController : MonoBehaviourPunCallbacks
 
         // イベントにイベントハンドラーを追加
         SceneManager.sceneLoaded += OnSceneLoaded;
+
+        informationText.SetActive(true);
+        informationText.GetComponent<Text>().text = "対戦相手を待っています";
     }
 
     // ゲーム開始
     IEnumerator GameStart()
     {
         
+
         // 2人来るまで待機
         while (PhotonNetwork.PlayerList.Length < NUMBER_OF_PLAYERS)
         {
             yield return null;
         }
-
+        informationText.GetComponent<Text>().text = "";
+        informationText.SetActive(false);
         // 部屋を隠す
         PhotonNetwork.CurrentRoom.IsOpen = false;
         PhotonNetwork.CurrentRoom.IsVisible = false;
@@ -1106,9 +1112,9 @@ public class BoardController : MonoBehaviourPunCallbacks
             // 包囲フラグあるフィギュアに対して包囲処理
             for (int i = 0; i < NUMBER_OF_PLAYERS; i++)
             {
-                foreach(GameObject figure in figures[i])
+                foreach (GameObject figure in figures[i])
                 {
-                    if(figure.GetComponent<FigureParameter>().GetBeSurroundedFlag() == true)
+                    if (figure.GetComponent<FigureParameter>().GetBeSurroundedFlag() == true)
                     {
                         yield return KnockedOutBySurrounding(figure);
                     }
@@ -1152,7 +1158,7 @@ public class BoardController : MonoBehaviourPunCallbacks
                 }
             }
             // 今ゴール処理は通常移動後しか考えてない。ワザの効果で移動するときもな
-            if(GetFigureOnBoard(goalNodeId[myPlayerId]) != null &&
+            if (GetFigureOnBoard(goalNodeId[myPlayerId]) != null &&
                GetFigureOnBoard(goalNodeId[myPlayerId]).GetComponent<FigureParameter>().GetPlayerId() == opponentPlayerId)
             {
                 winPlayerId = opponentPlayerId;
@@ -1251,13 +1257,13 @@ public class BoardController : MonoBehaviourPunCallbacks
                 Debug.Log("死んだ処理終わった");
                 StartCoroutine(SetPhaseState(PhaseState.TurnEnd));
             }
-                
+
         }
-        else if(phaseState == PhaseState.MoveEffectInput)
+        else if (phaseState == PhaseState.MoveEffectInput)
         {
             // 今の所処理なし
         }
-        else if(phaseState == PhaseState.MoveEffectFigureSelected)
+        else if (phaseState == PhaseState.MoveEffectFigureSelected)
         {
             // 今の所処理なし
         }
@@ -1277,7 +1283,7 @@ public class BoardController : MonoBehaviourPunCallbacks
                 winPlayerId = myPlayerId;
                 yield return StartCoroutine(SetPhaseState(PhaseState.GameEnd));
             }
-            
+
             else
             {
                 // 相手のターンにして残りのターン数を更新
@@ -1308,7 +1314,11 @@ public class BoardController : MonoBehaviourPunCallbacks
             gameEndText.GetComponent<TextMeshProUGUI>().color = Color.blue;
             gameEndText.GetComponent<TextMeshProUGUI>().text = "YOU LOSE!";
             backToLobbyButton.SetActive(true);
+            forfeitButton.SetActive(false);
+            turnEndButton.SetActive(false);
+            StartCoroutine(SetPhaseState(PhaseState.AfterGameEnd));
             // exitGameButton.SetActive(true);
+
             photonView.RPC(FORFEIT_RPC, RpcTarget.Others);
         }
 
@@ -1318,6 +1328,12 @@ public class BoardController : MonoBehaviourPunCallbacks
             playerTurnText.GetComponent<TextMeshProUGUI>().color = Color.red * new Color(1, 1, 1, 0);
             playerTurnText.GetComponent<TextMeshProUGUI>().text = "OPPONENT TURN";
             yield return FadeInOut(playerTurnText, 0.5f);
+        }
+        // 便宜上加えた
+        // 大改修までの辛抱です
+        else if (phaseState == PhaseState.AfterGameEnd)
+        {
+            yield return null;
         }
         else
         {
@@ -1846,6 +1862,9 @@ public class BoardController : MonoBehaviourPunCallbacks
             gameEndText.GetComponent<TextMeshProUGUI>().text = "YOU LOSE!";
         }
         backToLobbyButton.SetActive(true);
+        forfeitButton.SetActive(false);
+        turnEndButton.SetActive(false);
+        StartCoroutine(SetPhaseState(PhaseState.AfterGameEnd));
         // exitGameButton.SetActive(true);
     }
     [PunRPC]
@@ -1859,6 +1878,9 @@ public class BoardController : MonoBehaviourPunCallbacks
         gameEndText.GetComponent<TextMeshProUGUI>().text = "YOU WIN!";
         
         backToLobbyButton.SetActive(true);
+        forfeitButton.SetActive(false);
+        turnEndButton.SetActive(false);
+        StartCoroutine(SetPhaseState(PhaseState.AfterGameEnd));
         // exitGameButton.SetActive(true);
     }
 
@@ -1946,6 +1968,9 @@ public class BoardController : MonoBehaviourPunCallbacks
         informationText.GetComponent<Text>().text = "相手が退出したためロビーに戻ります";
         // StartCoroutine(SetPhaseState(PhaseState.Lock));
         backToLobbyButton.SetActive(true);
+        forfeitButton.SetActive(false);
+        turnEndButton.SetActive(false);
+        StartCoroutine(SetPhaseState(PhaseState.AfterGameEnd));
     }
     /****************************************************************/
     /*      　　　　　　　　　　その他　　   　　　　               */

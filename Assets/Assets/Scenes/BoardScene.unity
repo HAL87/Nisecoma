@@ -6215,7 +6215,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: Forfeit
+  m_Text: "\u6295\u4E86\u3059\u308B"
 --- !u!222 &1619373936
 CanvasRenderer:
   m_ObjectHideFlags: 0

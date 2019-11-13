@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7412807923012217051}
   m_Layer: 0
-  m_Name: Bippa_Data
+  m_Name: Bidoof_diskdata
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -223,7 +223,7 @@ PrefabInstance:
     - target: {fileID: 1011802958474078826, guid: 13e2671cc2a8fde41a10ac171188fbb5,
         type: 3}
       propertyPath: m_Name
-      value: "\u3044\u3042\u3044\u304E\u308A"
+      value: cut
       objectReference: {fileID: 0}
     - target: {fileID: 7519580867211877143, guid: 13e2671cc2a8fde41a10ac171188fbb5,
         type: 3}

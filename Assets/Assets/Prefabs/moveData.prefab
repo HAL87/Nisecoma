@@ -25,7 +25,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1011802958474078826}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3.4018435, y: -3.604685, z: -0.013541257}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -46,11 +46,9 @@ MonoBehaviour:
   moveOfColorName: 0
   moveName: 
   moveRange: 0
-  color: {r: 0, g: 0, b: 0, a: 0}
   movePower: 0
   moveNumberOfStar: 0
-  OnInitDone:
+  MoveEffect:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
+  moveId: 0

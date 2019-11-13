@@ -108,7 +108,6 @@ public class BoardController : MonoBehaviourPunCallbacks
     [SerializeField] private GameObject drawEdgePrefab;
 
     // ボード用のUI
-    [SerializeField] private GameObject startText;
     [SerializeField] private GameObject playerTurnText;
     [SerializeField] private GameObject restTurnText;
     [SerializeField] private GameObject gameEndText;

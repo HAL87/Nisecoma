@@ -9,7 +9,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 301, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
       propertyPath: m_Name
-      value: Froakie_figure Variant
+      value: Froakie_figure
       objectReference: {fileID: 0}
     - target: {fileID: 452, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
       propertyPath: m_LocalPosition.x

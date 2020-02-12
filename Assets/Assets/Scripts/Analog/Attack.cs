@@ -6,12 +6,12 @@ public class Attack
 {
 
     public string name;
-    public string color;
+    public MoveParameter.MoveOfColorName color;
     public int damage;
     public int numberOfStar;
     public int size;
 
-    public Attack(string name, string color, int damage, int numberOfStar, int size)
+    public Attack(string name, MoveParameter.MoveOfColorName color, int damage, int numberOfStar, int size)
     {
         this.name = name;
         this.color = color;

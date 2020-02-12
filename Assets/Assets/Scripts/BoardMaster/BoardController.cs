@@ -143,7 +143,6 @@ public class BoardController : MonoBehaviourPunCallbacks
     //カメラの位置
     [SerializeField] private Transform cameraTransform;
 
-
     // ゲームの進行に必要な変数
 
     // あるノードから別のノードへのエッジをListで表現
@@ -216,6 +215,11 @@ public class BoardController : MonoBehaviourPunCallbacks
     // MoveEffectInput状態などで参照する技と技を出したフィギュア情報
     private (int, int) InterestedMoveEffect;
 
+    //アナログ用
+    //deckManagaer
+    private DeckManager deckManager;
+
+    // 
     /***************************************************************/
     /*                      プロトタイプ関数宣言                   */
     /***************************************************************/
@@ -226,6 +230,8 @@ public class BoardController : MonoBehaviourPunCallbacks
     // Start is called before the first frame update
     void Start()
     {
+        deckManager = GetComponent<DeckManager>();
+
         moveList = GetComponent<MoveList>();
         // ゲーム開始前の初期化処理
         InitializeGame();
@@ -498,6 +504,7 @@ public class BoardController : MonoBehaviourPunCallbacks
         GameObject[] objs = GameObject.FindGameObjectsWithTag("Figure");
         int count0 = 0;
         int count1 = 0;
+
         foreach (GameObject obj in objs)
         {
             FigureParameter figureParameter = obj.GetComponent<FigureParameter>();
@@ -519,6 +526,15 @@ public class BoardController : MonoBehaviourPunCallbacks
                 {
                     obj.transform.Find("FigureBack2").GetComponent<SpriteRenderer>().color = Color.red;
                 }
+                List<Attack> pieces = new List<Attack>();
+                GameObject data = obj.GetComponent<FigureParameter>().GetData();
+                for(int i = 0; i < data.transform.childCount; i++)
+                {
+                    MoveParameter mP = data.transform.GetChild(i).GetComponent<MoveParameter>();
+                    pieces.Add(new Attack(mP.GetMoveName(), mP.GetMoveColorName(), mP.GetMovePower(), mP.GetMoveNumberOfStar(), mP.GetMoveRange()));
+                }
+                Figure figure = new Figure(obj.name, pieces);
+                deckManager.SetFigure(figure, figureParameter.GetPlayerId(), count0);
                 count0++;
             }
             else if (figureParameter.GetPlayerId() == 1)
@@ -540,9 +556,26 @@ public class BoardController : MonoBehaviourPunCallbacks
                 {
                     obj.transform.Find("FigureBack2").GetComponent<SpriteRenderer>().color = Color.red;
                 }
+
+                List<Attack> pieces = new List<Attack>();
+                GameObject data = obj.GetComponent<FigureParameter>().GetData();
+                for (int i = 0; i < data.transform.childCount; i++)
+                {
+                    MoveParameter mP = data.transform.GetChild(i).GetComponent<MoveParameter>();
+                    pieces.Add(new Attack(mP.GetMoveName(), mP.GetMoveColorName(), mP.GetMovePower(), mP.GetMoveNumberOfStar(), mP.GetMoveRange()));
+                }
+                Figure figure = new Figure(obj.name, pieces);
+                deckManager.SetFigure(figure, figureParameter.GetPlayerId(), count1);
                 count1++;
             }
 
+        }
+        for(int i = 0; i < 2; i++)
+        {
+            for(int j = 0; j < 6; j++)
+            {
+                Debug.Log(deckManager.GetFigure(i, j).figureName);
+            }
         }
         foreach (GameObject obj in objs)
         {

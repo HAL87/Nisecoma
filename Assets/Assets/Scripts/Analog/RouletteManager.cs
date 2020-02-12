@@ -86,15 +86,15 @@ public class RouletteManager : MonoBehaviour
                 //Debug.Log(figure.pieces[pieceNumber].color);
                 switch (figure.pieces[pieceNumber].color)
                 {
-                    case "WHITE":
+                    case MoveParameter.MoveOfColorName.White:
                         pieceImg.color = new Color(240 / 255f, 237 / 255f, 241 / 255f, 255 / 255f); break;
-                    case "RED":
+                    case MoveParameter.MoveOfColorName.Red:
                         pieceImg.color = new Color(230 / 255f, 80 / 255f, 80 / 255f, 255 / 255f); break;
-                    case "BLUE":
+                    case MoveParameter.MoveOfColorName.Blue:
                         pieceImg.color = new Color(87 / 255f, 198 / 255f, 244 / 255f, 255 / 255f); break;
-                    case "PURPLE":
+                    case MoveParameter.MoveOfColorName.Purple:
                         pieceImg.color = new Color(201 / 255f, 112 / 255f, 230 / 255f, 255 / 255f); break;
-                    case "GOLD":
+                    case MoveParameter.MoveOfColorName.Gold:
                         pieceImg.color = new Color(230 / 255f, 205 / 255f, 86 / 255f, 255 / 255f); break;
 
                 }
@@ -106,11 +106,11 @@ public class RouletteManager : MonoBehaviour
                 //ピースのテキストをセット
                 GameObject dmgTextObj = piece.Find("AttackText").Find("DamageText").gameObject;
                 TextMeshProUGUI dmgText = dmgTextObj.GetComponent<TextMeshProUGUI>();
-                if(figure.pieces[pieceNumber].color == "WHITE" || figure.pieces[pieceNumber].color == "GOLD")
+                if(figure.pieces[pieceNumber].color == MoveParameter.MoveOfColorName.White || figure.pieces[pieceNumber].color == MoveParameter.MoveOfColorName.Gold)
                 {
                     dmgText.SetText(figure.pieces[pieceNumber].damage.ToString());
                 }
-                else if(figure.pieces[pieceNumber].color == "PURPLE")
+                else if(figure.pieces[pieceNumber].color == MoveParameter.MoveOfColorName.Purple)
                 {
                     string star = "";
                     for (int j = 0; j < figure.pieces[pieceNumber].numberOfStar; j++)
@@ -180,11 +180,11 @@ public class RouletteManager : MonoBehaviour
         //ダメージテキストのセット
         GameObject dmgTextObj = BattleUI.Find("TextBase").Find("DamageText").gameObject;
         TextMeshProUGUI dmgText = dmgTextObj.GetComponent<TextMeshProUGUI>();
-        if (attack.color == "WHITE" || attack.color == "GOLD")
+        if (attack.color == MoveParameter.MoveOfColorName.White || attack.color == MoveParameter.MoveOfColorName.Gold)
         {
             dmgText.SetText(attack.damage.ToString());
         }
-        else if (attack.color == "PURPLE")
+        else if (attack.color == MoveParameter.MoveOfColorName.Purple)
         {
             string star = "";
             for (int j = 0; j < attack.numberOfStar; j++)

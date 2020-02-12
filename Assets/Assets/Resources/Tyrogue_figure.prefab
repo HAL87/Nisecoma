@@ -9,7 +9,36 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 301, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
       propertyPath: m_Name
-      value: Tyrogue_figure Variant
+      value: Tyrogue_figure
+      objectReference: {fileID: 0}
+    - target: {fileID: 660, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
+      propertyPath: mp
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 660, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
+      propertyPath: data
+      value: 
+      objectReference: {fileID: 6863641651212755997, guid: 199c329749ba9f34cb18f3850c2967d6,
+        type: 3}
+    - target: {fileID: 669, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
+      propertyPath: viewIdField
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 602, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 602, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
+      propertyPath: m_Size.x
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 602, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
+      propertyPath: m_Size.y
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 602, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
+      propertyPath: m_WasSpriteAssigned
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 452, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
       propertyPath: m_LocalPosition.x
@@ -53,35 +82,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 452, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 602, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
-      propertyPath: m_Sprite
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 602, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
-      propertyPath: m_Size.x
-      value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 602, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
-      propertyPath: m_Size.y
-      value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 602, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
-      propertyPath: m_WasSpriteAssigned
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 660, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
-      propertyPath: mp
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 660, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
-      propertyPath: data
-      value: 
-      objectReference: {fileID: 6863641651212755997, guid: 199c329749ba9f34cb18f3850c2967d6,
-        type: 3}
-    - target: {fileID: 669, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
-      propertyPath: viewIdField
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 604, guid: 6e0c87fb420559143817e434af4dff29, type: 3}

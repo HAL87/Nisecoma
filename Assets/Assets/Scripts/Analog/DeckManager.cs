@@ -6,7 +6,7 @@ public class DeckManager : MonoBehaviour
 {
     //デッキの大きさ [6,4]なら6匹,各4進化(FC)分セットできる
     //Deckクラスでまとめるなど要検討
-    Figure[,] figure = new Figure[12,4];
+    Figure[,] figure = new Figure[2,6];
 
 
     // Start is called before the first frame update
@@ -28,7 +28,8 @@ public class DeckManager : MonoBehaviour
         pieces2.Add(new Attack("はねやすめ", "BLUE", "", 16));
         pieces2.Add(new Attack("サンダーチャージ", "PURPLE", "★★★★★", 20));
         Figure testFigure2 = new Figure("サンダー", pieces2);
-        */
+        
+
         List<Attack> piecesS = new List<Attack>();
         piecesS.Add(new Attack("ミス", "RED", 0, 0, 4));
         piecesS.Add(new Attack("しんそく", "GOLD", 40, 0, 28));
@@ -50,7 +51,7 @@ public class DeckManager : MonoBehaviour
         piecesLAN.Add(new Attack("ミス", "RED", 0, 0, 8));
         piecesLAN.Add(new Attack("あやしいひかり", "PURPLE", 0, 3, 24));
         Figure testFigureLAN = new Figure("ランクルス", piecesLAN);
-        /*
+        
         List<Attack> piecesMew = new List<Attack>();
         piecesMew.Add(new Attack("サイコキネシス", "WHITE", "70", 24));
         piecesMew.Add(new Attack("ハイパーソニック", "GOLD", "50", 52));
@@ -94,7 +95,7 @@ public class DeckManager : MonoBehaviour
         piecesLugia.Add(new Attack("ミス", "RED", "", 8));
         piecesLugia.Add(new Attack("かわす", "BLUE", "", 8));
         Figure testFigureLugia = new Figure("ルカリオ", piecesLugia);
-        */
+        
 
         // this.SetFigure(testFigure, 0, 0);
         // this.SetFigure(testFigure2, 11, 0);
@@ -102,7 +103,7 @@ public class DeckManager : MonoBehaviour
         this.SetFigure(testFigureS, 1, 0);
         this.SetFigure(testFigureD, 2, 0);
         this.SetFigure(testFigureLAN, 3, 0);
-        /*
+        
         this.SetFigure(testFigureMew, 4, 0);
         this.SetFigure(testFigureLuca, 5, 0);
         this.SetFigure(testFigureBuri, 6, 0);
@@ -121,17 +122,17 @@ public class DeckManager : MonoBehaviour
     }
 
     //デッキのfigureNo番目のevolveNo進化目をセットする
-    public void SetFigure(Figure figure, int figureNo, int evolveNo)
+    public void SetFigure(Figure figure, int playerId, int figureNo)
     {
-        this.figure[figureNo, evolveNo] = figure;
+        this.figure[playerId, figureNo] = figure;
     }
 
     //デッキのfigureNo番目のフィギュアのevolveNo進化目を返す
-    public Figure GetFigure(int figureNo, int evolveNo)
+    public Figure GetFigure(int playerId, int figureNo)
     {
-        if(figure[figureNo,evolveNo] != null)
+        if(figure[playerId,figureNo] != null)
         {
-            return figure[figureNo, evolveNo];
+            return figure[playerId, figureNo];
         }
         else
         {

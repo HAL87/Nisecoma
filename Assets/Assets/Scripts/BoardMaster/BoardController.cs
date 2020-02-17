@@ -126,6 +126,10 @@ public class BoardController : MonoBehaviourPunCallbacks
     [SerializeField] private GameObject arrow;
     [SerializeField] private List<GameObject> RouletteParentPlayer;
 
+    // アナログ用のオブジェクト
+    [SerializeField] private List<DeckManager> deckManager;
+    [SerializeField] private List<RouletteManager> rouletteManager;
+    [SerializeField] private List<GameObject> battleUi;
     // スピン用のUI
     [SerializeField] private GameObject spinText;
 
@@ -216,8 +220,6 @@ public class BoardController : MonoBehaviourPunCallbacks
     private (int, int) InterestedMoveEffect;
 
     //アナログ用
-    //deckManagaer
-    private DeckManager deckManager;
 
     // 
     /***************************************************************/
@@ -230,7 +232,6 @@ public class BoardController : MonoBehaviourPunCallbacks
     // Start is called before the first frame update
     void Start()
     {
-        deckManager = GetComponent<DeckManager>();
 
         moveList = GetComponent<MoveList>();
         // ゲーム開始前の初期化処理
@@ -526,15 +527,6 @@ public class BoardController : MonoBehaviourPunCallbacks
                 {
                     obj.transform.Find("FigureBack2").GetComponent<SpriteRenderer>().color = Color.red;
                 }
-                List<Attack> pieces = new List<Attack>();
-                GameObject data = obj.GetComponent<FigureParameter>().GetData();
-                for(int i = 0; i < data.transform.childCount; i++)
-                {
-                    MoveParameter mP = data.transform.GetChild(i).GetComponent<MoveParameter>();
-                    pieces.Add(new Attack(mP.GetMoveName(), mP.GetMoveColorName(), mP.GetMovePower(), mP.GetMoveNumberOfStar(), mP.GetMoveRange()));
-                }
-                Figure figure = new Figure(obj.name, pieces);
-                deckManager.SetFigure(figure, figureParameter.GetPlayerId(), count0);
                 count0++;
             }
             else if (figureParameter.GetPlayerId() == 1)
@@ -556,27 +548,16 @@ public class BoardController : MonoBehaviourPunCallbacks
                 {
                     obj.transform.Find("FigureBack2").GetComponent<SpriteRenderer>().color = Color.red;
                 }
-
-                List<Attack> pieces = new List<Attack>();
-                GameObject data = obj.GetComponent<FigureParameter>().GetData();
-                for (int i = 0; i < data.transform.childCount; i++)
-                {
-                    MoveParameter mP = data.transform.GetChild(i).GetComponent<MoveParameter>();
-                    pieces.Add(new Attack(mP.GetMoveName(), mP.GetMoveColorName(), mP.GetMovePower(), mP.GetMoveNumberOfStar(), mP.GetMoveRange()));
-                }
-                Figure figure = new Figure(obj.name, pieces);
-                deckManager.SetFigure(figure, figureParameter.GetPlayerId(), count1);
                 count1++;
             }
 
         }
-        for(int i = 0; i < 2; i++)
+        // アナログルーレット用にキャッシュ
+        for (int i = 0; i < NUMBER_OF_PLAYERS; i++)
         {
-            for(int j = 0; j < 6; j++)
-            {
-                Debug.Log(deckManager.GetFigure(i, j).figureName);
-            }
+            deckManager[i].InitializeDeck(i);
         }
+
         foreach (GameObject obj in objs)
         {
             foreach (Transform child in obj.transform)
@@ -1413,21 +1394,35 @@ public class BoardController : MonoBehaviourPunCallbacks
     [PunRPC]
     private void OnBattleStart()
     {
-        //ボードのオブジェクトを消す
+        // ボードのオブジェクトを消す
         ActivateBoardObjects(false);
-        //スピンのオブジェクトを出す
-        ActivateSpinObjects(true);
+        // スピンのオブジェクトを出す
+        // ActivateSpinObjects(true);
+
+        // アナログ用オブジェクト配置
+        ActivateBattleObjects(true);
 
         //プレイヤー1のみカメラ位置調整
+        /*
         if (myPlayerId == 1)
         {
             cameraTransform.position = cameraTransform.position + new Vector3(0, 1, 0);
 
         }
-
+        */
         Debug.Log("バトル開始");
+        int currentPlayerId = currentFigure.GetComponent<FigureParameter>().GetPlayerId();
+        int currentFigureId = currentFigure.GetComponent<FigureParameter>().GetFigureIdOnBoard();
+        Figure cFigure = deckManager[currentPlayerId].GetFigure(currentFigureId);
+        rouletteManager[currentPlayerId].MakeRoulette(cFigure);
 
-        SpinStartRPC();
+        int opponentPlayerId = opponentFigure.GetComponent<FigureParameter>().GetPlayerId();
+        int opponentFigureId = opponentFigure.GetComponent<FigureParameter>().GetFigureIdOnBoard();
+        Figure oFigure = deckManager[opponentPlayerId].GetFigure(opponentFigureId);
+        rouletteManager[opponentPlayerId].MakeRoulette(oFigure);
+        // とりあえずルーレット描画
+
+        // SpinStartRPC();
 
     }
 
@@ -1868,6 +1863,12 @@ public class BoardController : MonoBehaviourPunCallbacks
 
         // バトル結果の文字
         spinText.SetActive(_flag);
+    }
+    //アナログ用
+    private void ActivateBattleObjects(bool _flag)
+    {
+        battleUi[0].SetActive(_flag);
+        battleUi[1].SetActive(_flag);
     }
 
     //ノードの色を初期化

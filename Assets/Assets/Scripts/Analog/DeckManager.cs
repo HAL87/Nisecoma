@@ -6,12 +6,13 @@ public class DeckManager : MonoBehaviour
 {
     //デッキの大きさ [6,4]なら6匹,各4進化(FC)分セットできる
     //Deckクラスでまとめるなど要検討
-    Figure[,] figure = new Figure[2,6];
-
+    Figure[] figure = new Figure[6];
+    private BoardController boardController;
 
     // Start is called before the first frame update
     void Start()
     {
+        boardController = GameObject.Find("BoardMaster").GetComponent<BoardController>();
         //暫定的なデータを設定
         /*
         List<Attack> pieces = new List<Attack>();
@@ -120,19 +121,36 @@ public class DeckManager : MonoBehaviour
     {
         
     }
-
-    //デッキのfigureNo番目のevolveNo進化目をセットする
-    public void SetFigure(Figure figure, int playerId, int figureNo)
+    public void InitializeDeck(int playerId)
     {
-        this.figure[playerId, figureNo] = figure;
+        List<GameObject>[] figures = boardController.GetFigures();
+        for(int i = 0; i < figures[playerId].Count; i++)
+        {
+            List<Attack> pieces = new List<Attack>();
+            GameObject data = figures[playerId][i].GetComponent<FigureParameter>().GetData();
+            for (int j = 0; j < data.transform.childCount; j++)
+            {
+                MoveParameter mP = data.transform.GetChild(j).GetComponent<MoveParameter>();
+                pieces.Add(new Attack(mP.GetMoveName(), mP.GetMoveColorName(), mP.GetMovePower(), mP.GetMoveNumberOfStar(), mP.GetMoveRange()));
+            }
+            Figure tempfigure = new Figure(figures[playerId][i].name, pieces);
+            SetFigure(tempfigure,i);
+        }
+
+
+    }
+    //デッキのfigureNo番目のevolveNo進化目をセットする
+    public void SetFigure(Figure figure, int figureNo)
+    {
+        this.figure[figureNo] = figure;
     }
 
     //デッキのfigureNo番目のフィギュアのevolveNo進化目を返す
-    public Figure GetFigure(int playerId, int figureNo)
+    public Figure GetFigure(int figureNo)
     {
-        if(figure[playerId,figureNo] != null)
+        if(figure[figureNo] != null)
         {
-            return figure[playerId, figureNo];
+            return figure[figureNo];
         }
         else
         {

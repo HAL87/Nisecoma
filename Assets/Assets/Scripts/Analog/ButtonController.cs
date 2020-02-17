@@ -34,7 +34,7 @@ public class ButtonController : MonoBehaviour
         int figureNo = figure_evolveNo / 10;
         int evolveNo = figure_evolveNo % 10;
 
-        Figure figure = deckManager.GetFigure(figureNo, evolveNo);
+        Figure figure = deckManager.GetFigure(figureNo);
         if(figure != null)
         {
             //Debug.Log(figure.figureName);

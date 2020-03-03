@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+
 using UnityEngine.UI;
 using Photon.Pun;
 using Photon.Realtime;
@@ -9,12 +10,14 @@ using Photon.Realtime;
 public class SpinController : MonoBehaviour
 {
     private BoardController boardController;
+    private MoveParameter moveParameter;
+    MoveParameter resultMp;
     [SerializeField] private List<GameObject> datadisks;
     // 変更点
     public static (int result, bool currentMoveAwake, bool opponentMoveAwake, bool currentDeath, bool oppnentDeath, int currentMoveId, int opponentMoveId) BattleResult;
 
-    [SerializeField] private Text[] moveText = new Text[BoardController.NUMBER_OF_PLAYERS];
-    [SerializeField] private Text[] battleResultText = new Text[BoardController.NUMBER_OF_PLAYERS];
+    [SerializeField] private Text[] moveText = new Text[CList.NUMBER_OF_PLAYERS];
+    [SerializeField] private Text[] battleResultText = new Text[CList.NUMBER_OF_PLAYERS];
 
     bool receiveFlag = false;
 
@@ -28,7 +31,7 @@ public class SpinController : MonoBehaviour
     {
 
     }
-
+    /*
     public IEnumerator SpinStart()
     {
         boardController = GameObject.Find("BoardMaster").GetComponent<BoardController>();
@@ -110,7 +113,7 @@ public class SpinController : MonoBehaviour
             boardController.OnBattleEnd();
         }
     }
-
+    */
     // バトルの勝敗判定を行う
     // 第一引数: Player0    ※currentPlayerではない
     // 第二引数: Player1    ※opponentPlayerではない
@@ -290,6 +293,34 @@ public class SpinController : MonoBehaviour
             moveText[i].text = "";
             battleResultText[i].text = "";
         }
+    }
+
+    //今はオフセット考慮していない
+    public MoveParameter GetMoveParameterFromSpinResult(GameObject _figure, int _spinResult)
+    {
+        GameObject data = _figure.GetComponent<FigureParameter>().GetData();
+        int totalRange = 0;
+
+        // float goalAngle = _spinResult * 3.75f;
+        for (int i = 0; i < data.transform.childCount; i++)
+        {
+            // 各ワザのパラメータ取得
+            moveParameter = data.transform.GetChild(i).GetComponent<MoveParameter>();
+
+            // 不等式の両端
+            int leftRange = totalRange;
+            int rightRange = leftRange + moveParameter.GetMoveRange();
+
+            if (leftRange <= _spinResult % 96 && _spinResult % 96 < rightRange)
+            {
+                // _spinResultに該当するワザ
+                Debug.Log("getMoveName = " + moveParameter.GetMoveName());
+                Debug.Log("getMoveColor = " + moveParameter.GetMoveColorName());
+                resultMp = moveParameter;
+            }
+            totalRange += moveParameter.GetMoveRange();
+        }
+        return resultMp;
     }
 
     public void SetReceiveFlag(bool _flag)

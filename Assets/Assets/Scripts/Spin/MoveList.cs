@@ -145,7 +145,7 @@ public class MoveList : MonoBehaviourPunCallbacks
                     if(boardController.GetFigureOnBoard(node) == null)
                     {
                         // 色付け(相手の端末)
-                        photonView.RPC(boardController.ILLUMINATE_NODE_RPC, RpcTarget.Others, node, 1);
+                        photonView.RPC(CList.ILLUMINATE_NODE_RPC, RpcTarget.Others, node, 1);
                         isAbleToFlyAway = true;
                     }
                 }
@@ -155,7 +155,7 @@ public class MoveList : MonoBehaviourPunCallbacks
                     yield break;
                 }
                 boardController.SetPhaseStateSimple(BoardController.PhaseState.Lock);
-                photonView.RPC(boardController.SET_PHASE_STATE_SIMPLE_RPC, RpcTarget.Others, (int)BoardController.PhaseState.MoveEffectInput);
+                photonView.RPC(CList.SET_PHASE_STATE_SIMPLE_RPC, RpcTarget.Others, (int)BoardController.PhaseState.MoveEffectInput);
                 boardController.SetWaitFlag(true);
                 while (boardController.GetWaitFlagCustomProperty() == true)
                 {
@@ -191,7 +191,7 @@ public class MoveList : MonoBehaviourPunCallbacks
                 {
                     // 全フィギュアの包囲フラグを確認
                     yield return affectFigure.GetComponent<FigureController>().FigureOneStepWalk(landing);
-                    for (int i = 0; i < BoardController.NUMBER_OF_PLAYERS; i++)
+                    for (int i = 0; i <CList.NUMBER_OF_PLAYERS; i++)
                     {
                         foreach (GameObject figure in boardController.GetFigures()[i])
                         {
@@ -199,7 +199,7 @@ public class MoveList : MonoBehaviourPunCallbacks
                         }
                     }
                     // 包囲フラグあるフィギュアに対して包囲処理
-                    for (int i = 0; i < BoardController.NUMBER_OF_PLAYERS; i++)
+                    for (int i = 0; i < CList.NUMBER_OF_PLAYERS; i++)
                     {
                         foreach (GameObject figure in boardController.GetFigures()[i])
                         {
@@ -216,7 +216,7 @@ public class MoveList : MonoBehaviourPunCallbacks
                     {
                         foreach(int node in landingCandidates)
                         {
-                            photonView.RPC(boardController.ILLUMINATE_NODE_RPC, RpcTarget.Others, node, 0);
+                            photonView.RPC(CList.ILLUMINATE_NODE_RPC, RpcTarget.Others, node, 0);
                         }
                         boardController.SetPhaseStateSimpleRPC((int)BoardController.PhaseState.Lock);
                     }

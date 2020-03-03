@@ -10,7 +10,7 @@ public class LobbyUiScript : MonoBehaviour
 {
 
 
-
+    /*
     // カスタムプロパティ用文字列
     private const string ROOM_CREATOR = "RoomCreator";
     private const string WHICH_TURN = "whichTurn";
@@ -29,7 +29,7 @@ public class LobbyUiScript : MonoBehaviour
     private const string IS_WAITING = "isWaiting";
 
     private const string DAMMY = "dammy";
-
+    */
     //部屋作成ウインドウ表示用ボタン
     public Button OpenRoomPanelButton;
 
@@ -72,24 +72,28 @@ public class LobbyUiScript : MonoBehaviour
         //ルームカスタムプロパティで部屋作成者を表示させるため、作成者の名前を格納
         roomOptions.CustomRoomProperties = new ExitGames.Client.Photon.Hashtable()
         {
-            { ROOM_CREATOR, PhotonNetwork.NickName },
+            { CList.ROOM_CREATOR, PhotonNetwork.NickName },
             //この段階で先行後攻を決めておく（改修の可能性あり）
-            { WHICH_TURN, Random.Range(0, 2)},
-            { REST_TURN, 300 },
-            { CURRENT_FIGURE_PLAYER_ID, -1 },
-            { CURRENT_FIGURE_ID_ON_BOARD, -1 },
-            { OPPONENT_FIGURE_PLAYER_ID, -1 },
-            { OPPONENT_FIGURE_ID_ON_BOARD, -1 },
-            { GOAL_ANGLE_0, -1 },
-            { GOAL_ANGLE_1, -1 },
-            { IS_WAITING, true },
-            { DAMMY, true }
+            { CList.WHICH_TURN, Random.Range(0, 2)},
+            { CList.REST_TURN, 300 },
+            { CList.CURRENT_FIGURE_PLAYER_ID, -1 },
+            { CList.CURRENT_FIGURE_ID_ON_BOARD, -1 },
+            { CList.OPPONENT_FIGURE_PLAYER_ID, -1 },
+            { CList.OPPONENT_FIGURE_ID_ON_BOARD, -1 },
+            { CList.GOAL_ANGLE_0, -1 },
+            { CList.GOAL_ANGLE_1, -1 },
+            { CList.IS_WAITING, true },
+            { CList.DONE_FLAG[0], false },
+            { CList.DONE_FLAG[1], false },
+            { CList.SPIN_RESULT[0], -1 },
+            { CList.SPIN_RESULT[1], -1 }, 
+            { CList.DAMMY, true }
            
         };
         //ロビーにカスタムプロパティの情報を表示させる
         roomOptions.CustomRoomPropertiesForLobby = new string[] {
-            ROOM_CREATOR,
-            DAMMY
+            CList.ROOM_CREATOR,
+            CList.DAMMY
         };
 
         //部屋作成

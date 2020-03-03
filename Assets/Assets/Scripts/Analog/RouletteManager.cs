@@ -6,10 +6,11 @@ using TMPro;
 
 public class RouletteManager : MonoBehaviour
 {
-   
 
- 
+    MoveParameter moveParameter;
+
     Transform BattleUI = null;
+    GameObject BattleUIObj;
     int result = 0;
 
     [SerializeField]
@@ -18,10 +19,13 @@ public class RouletteManager : MonoBehaviour
     GameObject canvas;
 
     Figure figure;
-
+    BoardController boardController;
+    LocalController localController;
     // Start is called before the first frame update
     void Start()
     {
+        boardController = GameObject.Find("BoardMaster").GetComponent<BoardController>();
+        localController = GameObject.Find("LocalMaster").GetComponent<LocalController>();
         /* テスト用
         List<Attack> pieces = new List<Attack>();
 
@@ -62,7 +66,8 @@ public class RouletteManager : MonoBehaviour
         }
 
         //ルーレットプレハブのインスタンス化
-        GameObject BattleUIObj = Instantiate(BattleUIPrefab);
+        // GameObject BattleUIObj = Instantiate(BattleUIPrefab);
+        BattleUIObj = Instantiate(BattleUIPrefab);
         BattleUI = BattleUIObj.transform;
         BattleUI.SetParent(canvas.transform,false);
 
@@ -153,10 +158,11 @@ public class RouletteManager : MonoBehaviour
     }
 
     //ルーレットを回転しさせて結果を表示
-    public void SpinRoulette()
+    public void SpinRoulette(int playerId)
     {
+
         //わざの抽選
-        result = Random.Range(0, 96);
+        result = boardController.GetSpinResult()[playerId];
         Attack resultAtk = this.figure.GetAttack(result);
 
         //ルーレットの初期化
@@ -173,7 +179,7 @@ public class RouletteManager : MonoBehaviour
 
     }
 
-    void setAttackText()
+    IEnumerator setAttackText()
     {
         Attack attack = this.figure.GetAttack(result);
 
@@ -198,6 +204,12 @@ public class RouletteManager : MonoBehaviour
         GameObject atkTextObj = BattleUI.Find("TextBase").Find("AttackNameText").gameObject;
         TextMeshProUGUI atkText = atkTextObj.GetComponent<TextMeshProUGUI>();
         atkText.SetText(attack.name);
-        
+        yield return new WaitForSeconds(1);
+        boardController.SetDoneFlagCustomProperty(true);
     }
+    public GameObject GetBatleUIObj()
+    {
+        return BattleUIObj;
+    }
+
 }

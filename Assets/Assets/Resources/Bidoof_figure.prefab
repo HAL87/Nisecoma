@@ -10,8 +10,6 @@ PrefabInstance:
     - target: {fileID: 301, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
       propertyPath: m_Name
       value: Bidoof_figure
-<<<<<<< HEAD
-=======
       objectReference: {fileID: 0}
     - target: {fileID: 660, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
       propertyPath: mp
@@ -50,7 +48,6 @@ PrefabInstance:
     - target: {fileID: 602, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
       propertyPath: m_WasSpriteAssigned
       value: 0
->>>>>>> KouDevelop2019_2_11f1
       objectReference: {fileID: 0}
     - target: {fileID: 452, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
       propertyPath: m_LocalPosition.x
@@ -96,22 +93,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-<<<<<<< HEAD
-    - target: {fileID: 660, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
-      propertyPath: mp
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 660, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
-      propertyPath: data
-      value: 
-      objectReference: {fileID: 4490043492826993047, guid: a478b2d0384f5564c9194867fd3f5094,
-        type: 3}
-    - target: {fileID: 669, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
-      propertyPath: viewIdField
-      value: 0
-      objectReference: {fileID: 0}
-=======
->>>>>>> KouDevelop2019_2_11f1
     - target: {fileID: 604, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
       propertyPath: m_Sprite
       value: 
@@ -128,22 +109,6 @@ PrefabInstance:
     - target: {fileID: 604, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
       propertyPath: m_WasSpriteAssigned
       value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 602, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
-      propertyPath: m_Sprite
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 602, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
-      propertyPath: m_Size.x
-      value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 602, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
-      propertyPath: m_Size.y
-      value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 602, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
-      propertyPath: m_WasSpriteAssigned
-      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6e0c87fb420559143817e434af4dff29, type: 3}

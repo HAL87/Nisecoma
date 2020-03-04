@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+// アナログの方を使うのでこっち捨てていいかな？
 public class DiskSpin : MonoBehaviour
 {
 
@@ -48,7 +49,7 @@ public class DiskSpin : MonoBehaviour
     {
         rouletteParentParameter = GetComponent<RouletteParentParameter>();
     }
-    
+    /*
     // 引数はGameMasterから渡されるワザのデータ）
     public IEnumerator Spin(GameObject data)
     {
@@ -142,6 +143,8 @@ public class DiskSpin : MonoBehaviour
         // 勝敗結果と技の効果はSpinControllerに返した上、さらにboardControllerに渡したほうがいいよね～
         goalAngle = -1;
     }
+    */
+    /*
     public void SetGoalAngle(float _goalAngle)
     {
         goalAngle = _goalAngle;
@@ -150,6 +153,6 @@ public class DiskSpin : MonoBehaviour
     {
         receiveFlag = _flag;
     }
-
+    */
 
 }

@@ -26,26 +26,6 @@ public class RouletteManager : MonoBehaviour
     {
         boardController = GameObject.Find("BoardMaster").GetComponent<BoardController>();
         localController = GameObject.Find("LocalMaster").GetComponent<LocalController>();
-        /* テスト用
-        List<Attack> pieces = new List<Attack>();
-
-        
-        pieces.Add(new Attack("Psycho Boost", "WHITE", "140", 52));
-        pieces.Add(new Attack("Dodge", "BLUE", "", 8));
-        pieces.Add(new Attack("Dimensional Slip", "PURPLE", "★★★", 32));
-        pieces.Add(new Attack("Miss", "RED", "", 4));
-
-        Figure testFigure = new Figure("Deoxys", pieces);
-        
-        pieces.Add(new Attack("はがねのつばさ", "WHITE", "50", 15));
-        pieces.Add(new Attack("サンダークラッシュ", "GOLD", "1100x", 41));
-        pieces.Add(new Attack("ミス", "RED", "", 4));
-        pieces.Add(new Attack("はねやすめ", "BLUE", "", 16));
-        pieces.Add(new Attack("サンダーチャージ", "PURPLE", "★★★★★", 20));
-        Figure testFigure = new Figure("サンダー", pieces);
-
-        this.MakeRoulette(testFigure);
-        */
     }
 
     // Update is called once per frame
@@ -162,7 +142,7 @@ public class RouletteManager : MonoBehaviour
     {
 
         //わざの抽選
-        result = boardController.GetSpinResult()[playerId];
+        result = boardController.SpinResult[playerId];
         Attack resultAtk = this.figure.GetAttack(result);
 
         //ルーレットの初期化
@@ -204,8 +184,12 @@ public class RouletteManager : MonoBehaviour
         GameObject atkTextObj = BattleUI.Find("TextBase").Find("AttackNameText").gameObject;
         TextMeshProUGUI atkText = atkTextObj.GetComponent<TextMeshProUGUI>();
         atkText.SetText(attack.name);
+
+        // 便宜上こうしてるけどクリックで遷移の方が望ましい
         yield return new WaitForSeconds(1);
-        boardController.SetDoneFlagCustomProperty(true);
+
+        //ロック解除
+        boardController.SetDoneFlagCustomProperty(boardController.GetMyPlayerId(), true);
     }
     public GameObject GetBatleUIObj()
     {

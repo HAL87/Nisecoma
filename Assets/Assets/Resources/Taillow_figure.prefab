@@ -20,6 +20,15 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2582575654507272912, guid: 0f4a2cb1ac4f53a40ab5c6f81efb01ad,
         type: 3}
+    - target: {fileID: 660, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
+      propertyPath: <Mp>k__BackingField
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 660, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
+      propertyPath: <Data>k__BackingField
+      value: 
+      objectReference: {fileID: 2582575654507272912, guid: 0f4a2cb1ac4f53a40ab5c6f81efb01ad,
+        type: 3}
     - target: {fileID: 669, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
       propertyPath: viewIdField
       value: 0

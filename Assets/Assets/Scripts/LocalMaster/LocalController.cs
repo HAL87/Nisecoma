@@ -44,13 +44,15 @@ public class LocalController : MonoBehaviour
         // ボードのオブジェクトを消す
         ActivateBoardObjects(false);
 
-        DisplayRoulette(boardController.GetCurrentFigure());
-        DisplayRoulette(boardController.GetOpponentFigure());
+        // ルーレットを表示
+        DisplayRoulette(boardController.CurrentFigure);
+        DisplayRoulette(boardController.OpponentFigure);
     }
     public void NowBattle()
     {
-        SpinRoulette(boardController.GetCurrentFigure());
-        SpinRoulette(boardController.GetOpponentFigure());
+        // 
+        SpinRoulette(boardController.CurrentFigure);
+        SpinRoulette(boardController.OpponentFigure);
     }
 
     public void EndBattle()
@@ -62,21 +64,22 @@ public class LocalController : MonoBehaviour
         }
         // ボードのオブジェクトを戻す
         ActivateBoardObjects(true);
-        Debug.Log("アナログオブジェクトを消した");
-        boardController.SetDoneFlagCustomProperty(true);
+
+        //ロック解除
+        boardController.SetDoneFlagCustomProperty(boardController.GetMyPlayerId(), true);
     }
 
     //ルーレット表示
     private void DisplayRoulette(GameObject obj)
     {
-        int playerId = obj.GetComponent<FigureParameter>().GetPlayerId();
-        int figureId = obj.GetComponent<FigureParameter>().GetFigureIdOnBoard();
+        int playerId = obj.GetComponent<FigureParameter>().PlayerId;
+        int figureId = obj.GetComponent<FigureParameter>().FigureIdOnBoard;
         Figure figure = deckManager[playerId].GetFigure(figureId);
         rouletteManager[playerId].MakeRoulette(figure);
     }
     private void SpinRoulette(GameObject obj)
     {
-        int playerId = obj.GetComponent<FigureParameter>().GetPlayerId();
+        int playerId = obj.GetComponent<FigureParameter>().PlayerId;
         rouletteManager[playerId].SpinRoulette(playerId);
 
     }
@@ -86,7 +89,7 @@ public class LocalController : MonoBehaviour
         // ノードを表示/非表示にする
         for (int i = 0; i < CList.NUMBER_OF_WALK_NODES; i++)
         {
-            boardController.GetNodes().transform.GetChild(i).GetComponent<SpriteRenderer>().enabled = _flag;
+            boardController.Nodes.transform.GetChild(i).GetComponent<SpriteRenderer>().enabled = _flag;
         }
         // エッジを表示/非表示にする
         for (int i = 0; i < boardMaster.transform.childCount; i++)
@@ -97,7 +100,7 @@ public class LocalController : MonoBehaviour
         // フィギュアを表示/非表示にする
         for (int i = 0; i < 2; i++)
         {
-            foreach (GameObject obj in boardController.GetFigures()[i])
+            foreach (GameObject obj in boardController.Figures[i])
             {
                 for (int j = 0; j < obj.transform.childCount; j++)
                 {

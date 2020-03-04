@@ -98,8 +98,8 @@ public class MoveList : MonoBehaviourPunCallbacks
     // とぶ
     public IEnumerator FlyAway(int playerId, object _nodeId)
     {
-        GameObject currentFigure = boardController.GetCurrentFigure();  // 手番側(動くフィギュアが手番側なのかどうかで移動の関数が異なる)
-        GameObject opponrntFigure = boardController.GetOpponentFigure();
+        GameObject currentFigure = boardController.CurrentFigure;  // 手番側(動くフィギュアが手番側なのかどうかで移動の関数が異なる)
+        GameObject opponrntFigure = boardController.OpponentFigure;
         GameObject affectFigure;                                        // 飛ぶを出した側(実際に動くフィギュア)
         GameObject beAffectedFigure;                                    // 飛ぶを出された側(飛ぶ先の候補地探索に必要)
         List<int> landingCandidates;
@@ -112,11 +112,11 @@ public class MoveList : MonoBehaviourPunCallbacks
         case BoardController.PhaseState.AfterBattle:
             // current(バトルを仕掛けた側)ならcurrent側をMoveEffectInputにする
             // opponentならopponent側をMoveEffectInput、currentはwhileループで待ち合わせする
-            if (playerId == currentFigure.GetComponent<FigureParameter>().GetPlayerId())
+            if (playerId == currentFigure.GetComponent<FigureParameter>().PlayerId)
             {
-                beAffectedFigure = boardController.GetOpponentFigure();
+                beAffectedFigure = boardController.OpponentFigure;
                 // 着陸候補地
-                landingCandidates = boardController.GetEdges()[beAffectedFigure.GetComponent<FigureParameter>().GetPosition()];
+                landingCandidates = boardController.Edges[beAffectedFigure.GetComponent<FigureParameter>().Position];
                 bool isAbleToFlyAway = false;
                 foreach(int node in landingCandidates)
                 {
@@ -124,7 +124,7 @@ public class MoveList : MonoBehaviourPunCallbacks
                     {
                         // 色付け
                         isAbleToFlyAway = true;
-                        boardController.GetNodes().transform.GetChild(node).GetComponent<SpriteRenderer>().color = Color.magenta;
+                        boardController.Nodes.transform.GetChild(node).GetComponent<SpriteRenderer>().color = Color.magenta;
                     }
                 }
                 // 1個もなかったらyield break;
@@ -136,9 +136,9 @@ public class MoveList : MonoBehaviourPunCallbacks
             }
             else
             {
-                beAffectedFigure = boardController.GetCurrentFigure();
+                beAffectedFigure = boardController.CurrentFigure;
                 // 着陸候補地
-                landingCandidates = boardController.GetEdges()[beAffectedFigure.GetComponent<FigureParameter>().GetPosition()];
+                landingCandidates = boardController.Edges[beAffectedFigure.GetComponent<FigureParameter>().Position];
                 bool isAbleToFlyAway = false;
                 foreach(int node in landingCandidates)
                 {
@@ -171,19 +171,19 @@ public class MoveList : MonoBehaviourPunCallbacks
             // 技出したらphaseStateとflagを戻す
             // 技を出したのが手番側に対してどちらなのかによってそれぞれ初期化
             // 技を出した側の識別にmyPlayerIdを用いているが、先行後攻がランダムになりplayerIdとwhichTurnが一致しなくなったら通用しない
-            if (boardController.GetMyPlayerId() == boardController.GetWhichTurn())
+            if (boardController.GetMyPlayerId() == boardController.WhichTurn)
             {
-                affectFigure = boardController.GetCurrentFigure();
-                beAffectedFigure = boardController.GetOpponentFigure();
+                affectFigure = boardController.CurrentFigure;
+                beAffectedFigure = boardController.OpponentFigure;
             }
             else
             {
-                affectFigure = boardController.GetOpponentFigure();
-                beAffectedFigure = boardController.GetCurrentFigure();
+                affectFigure = boardController.OpponentFigure;
+                beAffectedFigure = boardController.CurrentFigure;
             }
 
             // 着陸候補地
-            landingCandidates = boardController.GetEdges()[beAffectedFigure.GetComponent<FigureParameter>().GetPosition()];
+            landingCandidates = boardController.Edges[beAffectedFigure.GetComponent<FigureParameter>().Position];
             foreach(int landing in landingCandidates)
             {
                 // landing == 着陸可能地
@@ -193,7 +193,7 @@ public class MoveList : MonoBehaviourPunCallbacks
                     yield return affectFigure.GetComponent<FigureController>().FigureOneStepWalk(landing);
                     for (int i = 0; i <CList.NUMBER_OF_PLAYERS; i++)
                     {
-                        foreach (GameObject figure in boardController.GetFigures()[i])
+                        foreach (GameObject figure in boardController.Figures[i])
                         {
                             boardController.IsSurrounded(figure);
                         }
@@ -201,9 +201,9 @@ public class MoveList : MonoBehaviourPunCallbacks
                     // 包囲フラグあるフィギュアに対して包囲処理
                     for (int i = 0; i < CList.NUMBER_OF_PLAYERS; i++)
                     {
-                        foreach (GameObject figure in boardController.GetFigures()[i])
+                        foreach (GameObject figure in boardController.Figures[i])
                         {
-                            if (figure.GetComponent<FigureParameter>().GetBeSurroundedFlag() == true)
+                            if (figure.GetComponent<FigureParameter>().BeSurrounded == true)
                             {
                                 yield return boardController.KnockedOutBySurrounding(figure);
                             }
@@ -212,7 +212,7 @@ public class MoveList : MonoBehaviourPunCallbacks
 
                     boardController.SetWaitFlagCustomProperty(false);
 
-                    if (boardController.GetWhichTurn() != boardController.GetMyPlayerId())
+                    if (boardController.WhichTurn != boardController.GetMyPlayerId())
                     {
                         foreach(int node in landingCandidates)
                         {
@@ -224,7 +224,7 @@ public class MoveList : MonoBehaviourPunCallbacks
                     {
                         foreach(int node in landingCandidates)
                         {
-                            boardController.GetNodes().transform.GetChild(node).GetComponent<SpriteRenderer>().color = Color.white;
+                            boardController.Nodes.transform.GetChild(node).GetComponent<SpriteRenderer>().color = Color.white;
                         }
                         StartCoroutine(boardController.SetPhaseState(BoardController.PhaseState.TurnEnd));
                     }

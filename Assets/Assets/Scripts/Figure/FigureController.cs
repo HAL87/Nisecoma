@@ -27,7 +27,7 @@ public class FigureController : MonoBehaviour
         // positionに対応するノードの位置を初期位置とする
         // 先にBoardMasterのStartで各フィギュアにベンチ番号を割り振っている
         figureParameter = GetComponent<FigureParameter>();
-        boardController = GameObject.Find("BoardMaster").GetComponent<BoardController>();
+        boardController = GameObject.Find(CList.BOARD_MASTER).GetComponent<BoardController>();
         photonview = GetComponent<PhotonView>();
 
     }
@@ -38,7 +38,7 @@ public class FigureController : MonoBehaviour
     }
     public void OnUserAction()
     {
-        boardController.FigureClicked(figureParameter.GetPlayerId(), figureParameter.GetFigureIdOnBoard());
+        boardController.FigureClicked(figureParameter.PlayerId, figureParameter.FigureIdOnBoard);
 
     }
 
@@ -91,7 +91,7 @@ public class FigureController : MonoBehaviour
     [PunRPC]
     private void SetPositionRPC(int _targetNode)
     {
-        GetComponent<FigureParameter>().SetPosition(_targetNode);
+        GetComponent<FigureParameter>().Position = _targetNode;
     }
 
 }

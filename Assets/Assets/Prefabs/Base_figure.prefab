@@ -274,11 +274,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f7381fce5acc8da48b2ee33dfb2d909b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mp: 3
-  data: {fileID: 0}
-  playerId: -1
-  attackRange: 1
-  waitCounter: {fileID: 7712505665325451952}
+  <Mp>k__BackingField: 0
+  <Data>k__BackingField: {fileID: 0}
+  <AttackRange>k__BackingField: 1
+  <WaitCounter>k__BackingField: {fileID: 7712505665325451952}
   waitCounterText: {fileID: 5168709204254715063}
 --- !u!58 &582
 CircleCollider2D:

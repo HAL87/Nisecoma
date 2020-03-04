@@ -10,6 +10,27 @@ PrefabInstance:
     - target: {fileID: 301, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
       propertyPath: m_Name
       value: Froakie_figure
+<<<<<<< HEAD
+=======
+      objectReference: {fileID: 0}
+    - target: {fileID: 660, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
+      propertyPath: data
+      value: 
+      objectReference: {fileID: 7812152074266660174, guid: 324570d0377fa4d42bf25327571371ef,
+        type: 3}
+    - target: {fileID: 660, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
+      propertyPath: <Mp>k__BackingField
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 660, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
+      propertyPath: <Data>k__BackingField
+      value: 
+      objectReference: {fileID: 7812152074266660174, guid: 324570d0377fa4d42bf25327571371ef,
+        type: 3}
+    - target: {fileID: 669, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
+      propertyPath: viewIdField
+      value: 0
+>>>>>>> KouDevelop2019_2_11f1
       objectReference: {fileID: 0}
     - target: {fileID: 452, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
       propertyPath: m_LocalPosition.x
@@ -53,15 +74,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 452, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 660, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
-      propertyPath: data
-      value: 
-      objectReference: {fileID: 7812152074266660174, guid: 324570d0377fa4d42bf25327571371ef,
-        type: 3}
-    - target: {fileID: 669, guid: 6e0c87fb420559143817e434af4dff29, type: 3}
-      propertyPath: viewIdField
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 604, guid: 6e0c87fb420559143817e434af4dff29, type: 3}

@@ -51,5 +51,8 @@ MonoBehaviour:
   - IllumintateNodeRPC
   - IlluminateNodeRPC
   - SetPositionRPC
+  - PrepareBattle
+  - NowBattle
+  - EndBattle
   DisableAutoOpenWizard: 1
   ShowSettings: 1

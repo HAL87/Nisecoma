@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using Photon.Pun;
 using Photon.Realtime;
 
+// これも捨てるか？
 public class RouletteMaker : MonoBehaviour
 {
     // ルーレットの表示場所

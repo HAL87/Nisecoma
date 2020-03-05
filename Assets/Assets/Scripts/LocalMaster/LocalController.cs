@@ -26,8 +26,7 @@ public class LocalController : MonoBehaviour
     // アナログ用のオブジェクト
     [SerializeField] private List<DeckManager> deckManager;
     [SerializeField] private List<RouletteManager> rouletteManager;
-    [SerializeField] private List<GameObject> battleUi;
-
+    [SerializeField] private GameObject diskParent;
     //カメラの位置
     [SerializeField] private Transform cameraTransform;
         
@@ -37,6 +36,7 @@ public class LocalController : MonoBehaviour
     private void Start()
     {
         boardController = boardMaster.GetComponent<BoardController>();
+
     }
 
     public void PrepareBattle()
@@ -116,6 +116,14 @@ public class LocalController : MonoBehaviour
         playerNameText.SetActive(_flag);
         opponentNameText.SetActive(_flag);
 
+
+    }
+
+    
+    public void RotateUi()
+    {
+        Debug.Log("回転した");
+        diskParent.transform.Rotate(0, 0, 180f);
 
     }
 }

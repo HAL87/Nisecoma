@@ -20,7 +20,6 @@ public class BoardController : MonoBehaviourPunCallbacks
     /*                          メンバ変数宣言                      */
     /****************************************************************/
 
-    // インスペクタから設定するオブジェクト
 
     // ノードの親要素
     [field: SerializeField] [field: RenameField("Nodes")]
@@ -44,23 +43,28 @@ public class BoardController : MonoBehaviourPunCallbacks
     [SerializeField] private GameObject backToLobbyButton;
     // [SerializeField] private GameObject exitGameButton;
 
-
+    /*
+    // アナログを使いから消しそう
     // スピン用のオブジェクト
     [SerializeField] private GameObject arrow;
     [SerializeField] private List<GameObject> RouletteParentPlayer;
-
+    // スピン用のUI
+    [SerializeField] private GameObject spinText;
+    // ルーレットの親要素
+    [SerializeField] private List<GameObject> RouletteParents = new List<GameObject>();
+    // スピン情報同期に使う
+    private int senderIdFromRouletteParent;
+    */
     // アナログ用のオブジェクト
     [SerializeField] private List<DeckManager> deckManager;
     [SerializeField] private List<RouletteManager> rouletteManager;
     [SerializeField] private List<GameObject> battleUi;
-    // スピン用のUI
-    [SerializeField] private GameObject spinText;
+
 
     // spinMaster
     [SerializeField] GameObject spinMaster;
     private LocalController localController;
-    // ルーレットの親要素
-    [SerializeField] private List<GameObject> RouletteParents = new List<GameObject>();
+
 
     //テスト用
     //デッキに入れたいポケモンの文字列を渡してやる
@@ -106,12 +110,13 @@ public class BoardController : MonoBehaviourPunCallbacks
     private int restTurn = 300;
 
     // プレイヤーID。最初に入ったら0番、後に入ったら1番
+    // Localに移動したい
     private int myPlayerId = -1;
-    private int opponentPlayerId = -1;
+    // 名前変えたい
+    private int enemyPlayerId = -1;
     private int winPlayerId = -1;
 
-    // スピン情報同期に使う
-    private int senderIdFromRouletteParent;
+
 
     // 相手の行動を待っている状態 = true。相手の行動が終わったらfalseにセットしてもらってすぐtrueに戻す
     private bool isWaiting = true;
@@ -149,13 +154,6 @@ public class BoardController : MonoBehaviourPunCallbacks
     // MoveEffectInput状態などで参照する技と技を出したフィギュア情報
     private (int, int) InterestedMoveEffect;
 
-    //アナログ用
-
-    // 
-    /***************************************************************/
-    /*                      プロトタイプ関数宣言                   */
-    /***************************************************************/
-
     /****************************************************************/
     /*                          関数定義                            */
     /****************************************************************/
@@ -192,22 +190,28 @@ public class BoardController : MonoBehaviourPunCallbacks
         //同期をオンにする
         PhotonNetwork.IsMessageQueueRunning = true;
 
+        // この変数はLocalで宣言すべき
         //プレイヤーIDの設定
         myPlayerId = PhotonNetwork.LocalPlayer.ActorNumber - 1;
-        opponentPlayerId = (myPlayerId + 1) % 2;
+        enemyPlayerId = (myPlayerId + 1) % 2;
         Debug.Log("プレイヤーIDは" + myPlayerId);
 
-
+        // Localへ移行しよう
         // プレイヤーIDが1ならばUIとカメラの位置を動かす
         if (myPlayerId == 1)
         {
             cameraTransform.position = cameraTransform.position + new Vector3(0, -1, 0);
             cameraTransform.Rotate(0, 0, 180f);
 
+
+            localController.RotateUi();
+            // アナログへの移行
+            /*
             for (int i = 0; i < spinText.transform.childCount; i++)
             {
                 spinText.transform.GetChild(i).transform.Rotate(0, 0, 180f);
             }
+            */
 
 
         }
@@ -235,6 +239,7 @@ public class BoardController : MonoBehaviourPunCallbacks
         PhotonNetwork.CurrentRoom.IsOpen = false;
         PhotonNetwork.CurrentRoom.IsVisible = false;
 
+        // Localに移動させる
         playerNameText.GetComponent<TextMeshProUGUI>().text = PhotonNetwork.LocalPlayer.NickName;
         playerNameText.SetActive(true);
         opponentNameText.GetComponent<TextMeshProUGUI>().text = PhotonNetwork.PlayerListOthers[0].NickName;
@@ -273,7 +278,7 @@ public class BoardController : MonoBehaviourPunCallbacks
         // ベンチ、PC、US、除外を連番にするか別にするかは検討
         for (int i = 0; i < CList.NUMBER_OF_WALK_NODES; i++)
         {
-            Nodes.transform.GetChild(i).GetComponent<NodeParameter>().SetNodeID(i);
+            Nodes.transform.GetChild(i).GetComponent<NodeParameter>().NodeID = i;
             Edges[i] = new List<int>();
         }
 
@@ -365,6 +370,7 @@ public class BoardController : MonoBehaviourPunCallbacks
     }
 
     // エッジの描画
+    // Localへ移行しよう
     void EdgeDraw()
     {
         for (int i = 0; i < CList.NUMBER_OF_FIELD_NODES; i++)
@@ -520,7 +526,6 @@ public class BoardController : MonoBehaviourPunCallbacks
             {
                 FigureParameter figureParameter = Figures[i][j].GetComponent<FigureParameter>();
                 maskNode[figureParameter.Position] = false;
-                // Debug.Log(figureParameter.GetPosition());
             }
         }
 
@@ -615,6 +620,7 @@ public class BoardController : MonoBehaviourPunCallbacks
         return route;
     }
 
+    //Localに入力チャンネルみたいなものを作り制御
     // フィギュアがクリックされたときの処理
     public void FigureClicked(int _playerId, int _figureIdOnBoard)
     {
@@ -857,6 +863,7 @@ public class BoardController : MonoBehaviourPunCallbacks
     }
 
     // 気絶の処理
+    // 移動部分はLocalで
     public IEnumerator Death(GameObject _figure)
     {
         GameObject backBenchFigure = null;
@@ -892,6 +899,9 @@ public class BoardController : MonoBehaviourPunCallbacks
         // フィールドからPC0へ移動
         yield return _figure.GetComponent<FigureController>().FigureOneStepWalk(pcNodeId[playerId][0]);
         Debug.Log("やっと死んだ");
+
+        // doneFlagに統合したい
+
         SetWaitFlagCustomProperty(false);
     }
 
@@ -948,13 +958,16 @@ public class BoardController : MonoBehaviourPunCallbacks
             int surroundedFigureIdOnBoard = figure.GetComponent<FigureParameter>().FigureIdOnBoard;
             photonView.RPC(CList.DEATH_RPC, RpcTarget.Others, surroundedFigurePlayerId, surroundedFigureIdOnBoard);
         }
+        //doneFlagに統合したい
+        WaitProcess();
+        
         isWaiting = true;
         while (isWaiting == true)
         {
             yield return null;
         }
         SetWaitFlagCustomProperty(true);
-
+        
     }
 
     /****************************************************************/
@@ -1079,7 +1092,6 @@ public class BoardController : MonoBehaviourPunCallbacks
             }
             var calculateAttackDistance = CalculateDistance(currentFigureParameter.Position, maskAttackNode);
             attackCandidates = FindCandidateofDestinaitonLessThan(currentFigureParameter.AttackRange, calculateAttackDistance.distances);
-            // Debug.Log(opponentID);
 
             for (int i = 0; i < Figures[opponentID].Count; i++)
             {
@@ -1095,14 +1107,14 @@ public class BoardController : MonoBehaviourPunCallbacks
             }
             // 今ゴール処理は通常移動後しか考えてない。ワザの効果で移動するときもな
             if (GetFigureOnBoard(goalNodeId[myPlayerId]) != null &&
-               GetFigureOnBoard(goalNodeId[myPlayerId]).GetComponent<FigureParameter>().PlayerId == opponentPlayerId)
+               GetFigureOnBoard(goalNodeId[myPlayerId]).GetComponent<FigureParameter>().PlayerId == enemyPlayerId)
             {
-                winPlayerId = opponentPlayerId;
+                winPlayerId = enemyPlayerId;
                 StartCoroutine(SetPhaseState(PhaseState.GameEnd));
             }
 
-            else if (GetFigureOnBoard(goalNodeId[opponentPlayerId]) != null &&
-                     GetFigureOnBoard(goalNodeId[opponentPlayerId]).GetComponent<FigureParameter>().PlayerId == myPlayerId)
+            else if (GetFigureOnBoard(goalNodeId[enemyPlayerId]) != null &&
+                     GetFigureOnBoard(goalNodeId[enemyPlayerId]).GetComponent<FigureParameter>().PlayerId == myPlayerId)
             {
                 winPlayerId = myPlayerId;
                 StartCoroutine(SetPhaseState(PhaseState.GameEnd));
@@ -1183,7 +1195,6 @@ public class BoardController : MonoBehaviourPunCallbacks
             bool opponentDeath = BattleResult.Item5;
             int currentMoveId = BattleResult.Item6;
             int opponentMoveId = BattleResult.Item7;
-            Debug.Log("boardで" + BattleResult);
             if (currentMoveAwake)
             {
                 yield return moveList.CallMoveEffect(currentMoveId, CurrentFigure.GetComponent<FigureParameter>().PlayerId, null);
@@ -1204,7 +1215,7 @@ public class BoardController : MonoBehaviourPunCallbacks
             {
                 int opponentFigurePlayerId = OpponentFigure.GetComponent<FigureParameter>().PlayerId;
                 int opponentFigureIdOnBoard = OpponentFigure.GetComponent<FigureParameter>().FigureIdOnBoard;
-                // ちゃんと呼ばれてない
+ 
                 photonView.RPC(CList.DEATH_RPC, RpcTarget.Others, opponentFigurePlayerId, opponentFigureIdOnBoard);
 
                 isWaiting = true;
@@ -1235,14 +1246,14 @@ public class BoardController : MonoBehaviourPunCallbacks
         {
             // 本当はここで書きたくない
             if (GetFigureOnBoard(goalNodeId[myPlayerId]) != null &&
-                GetFigureOnBoard(goalNodeId[myPlayerId]).GetComponent<FigureParameter>().PlayerId == opponentPlayerId)
+                GetFigureOnBoard(goalNodeId[myPlayerId]).GetComponent<FigureParameter>().PlayerId == enemyPlayerId)
             {
-                winPlayerId = opponentPlayerId;
+                winPlayerId = enemyPlayerId;
                 yield return StartCoroutine(SetPhaseState(PhaseState.GameEnd));
             }
 
-            else if (GetFigureOnBoard(goalNodeId[opponentPlayerId]) != null &&
-                     GetFigureOnBoard(goalNodeId[opponentPlayerId]).GetComponent<FigureParameter>().PlayerId == myPlayerId)
+            else if (GetFigureOnBoard(goalNodeId[enemyPlayerId]) != null &&
+                     GetFigureOnBoard(goalNodeId[enemyPlayerId]).GetComponent<FigureParameter>().PlayerId == myPlayerId)
             {
                 winPlayerId = myPlayerId;
                 yield return StartCoroutine(SetPhaseState(PhaseState.GameEnd));
@@ -1303,7 +1314,6 @@ public class BoardController : MonoBehaviourPunCallbacks
         {
             yield return null;
         }
-        // yield return null;
     }
 
     public void SetPhaseStateSimple(PhaseState _phaseState)
@@ -1324,6 +1334,7 @@ public class BoardController : MonoBehaviourPunCallbacks
         return phaseState;
     }
 
+    // Localに移動させよう
     [PunRPC]
     // ノードの色変更
     public void IlluminateNodeRPC(int node, int color)
@@ -1439,6 +1450,7 @@ public class BoardController : MonoBehaviourPunCallbacks
     }
 
     // doneFlagに統一したい
+    
     public void SetWaitFlagCustomProperty(bool _flag)
     {
         var roomHash = new ExitGames.Client.Photon.Hashtable();
@@ -1455,7 +1467,7 @@ public class BoardController : MonoBehaviourPunCallbacks
     {
         return isWaiting;
     }
-
+    
     public void SetDoneFlagCustomProperty(int _playerId, bool _doneFlag)
     {
         var roomHash = new ExitGames.Client.Photon.Hashtable();
@@ -1615,6 +1627,8 @@ public class BoardController : MonoBehaviourPunCallbacks
             }
         }
 
+        // doneFlagに統合したい
+        
         {
             object value = null;
             if (changedRoomHash.TryGetValue(CList.IS_WAITING, out value))
@@ -1622,6 +1636,7 @@ public class BoardController : MonoBehaviourPunCallbacks
                 isWaiting = (bool)value;
             }
         }
+        
         //doneFlag
         {
             object value = null;

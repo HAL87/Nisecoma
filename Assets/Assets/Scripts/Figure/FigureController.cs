@@ -60,12 +60,10 @@ public class FigureController : MonoBehaviour
                 yield return null;
             }
             // 1マス移動する度にPositionを更新
-            // GetComponent<FigureParameter>().SetPosition(nextNode);
 
             yield return new WaitForSeconds(0.2f);
         }
         // 目的地に着いたときだけPositionを更新
-        // GetComponent<FigureParameter>().SetPosition(nextNode);
         photonview.RPC(SET_POSITION_RPC, RpcTarget.All, nextNode);
 
     }
@@ -82,9 +80,7 @@ public class FigureController : MonoBehaviour
         }
         yield return new WaitForSeconds(0.2f);
         // 目的地に着いたらPositionを更新
-        // GetComponent<FigureParameter>().SetPosition(_targetNode);
         photonview.RPC(SET_POSITION_RPC, RpcTarget.All, _targetNode);
-        // boardController.SetWaitFlagCustomProperty(false);
         Debug.Log("one step walk したよ");
     }
 

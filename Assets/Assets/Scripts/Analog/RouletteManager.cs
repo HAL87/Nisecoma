@@ -18,6 +18,7 @@ public class RouletteManager : MonoBehaviour
     [SerializeField]
     GameObject canvas;
 
+    [SerializeField] private int rouletteId;
     Figure figure;
     BoardController boardController;
     LocalController localController;
@@ -26,12 +27,6 @@ public class RouletteManager : MonoBehaviour
     {
         boardController = GameObject.Find("BoardMaster").GetComponent<BoardController>();
         localController = GameObject.Find("LocalMaster").GetComponent<LocalController>();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 
     //ルーレットの生成
@@ -165,7 +160,13 @@ public class RouletteManager : MonoBehaviour
 
         //ダメージテキストのセット
         GameObject dmgTextObj = BattleUI.Find("TextBase").Find("DamageText").gameObject;
+
         TextMeshProUGUI dmgText = dmgTextObj.GetComponent<TextMeshProUGUI>();
+        if (boardController.GetMyPlayerId() != rouletteId)
+        {
+            dmgTextObj.transform.Rotate(0, 0, 180);
+            dmgText.alignment = TextAlignmentOptions.Left;
+        }
         if (attack.color == MoveParameter.MoveOfColorName.White || attack.color == MoveParameter.MoveOfColorName.Gold)
         {
             dmgText.SetText(attack.damage.ToString());
@@ -183,6 +184,12 @@ public class RouletteManager : MonoBehaviour
         //技名テキストのセット
         GameObject atkTextObj = BattleUI.Find("TextBase").Find("AttackNameText").gameObject;
         TextMeshProUGUI atkText = atkTextObj.GetComponent<TextMeshProUGUI>();
+        if (boardController.GetMyPlayerId() != rouletteId)
+        {
+            atkTextObj.transform.Rotate(0, 0, 180);
+            atkText.alignment = TextAlignmentOptions.Left;
+        }
+
         atkText.SetText(attack.name);
 
         // 便宜上こうしてるけどクリックで遷移の方が望ましい
